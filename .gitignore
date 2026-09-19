@@ -1,23 +1,13 @@
-# Secrets. This repository is public: once a key is in the history it is in the
-# history, and rotating it is the only real fix.
 .env
 .env.*
 !.env.example
-
-# Anything a person keeps to themselves. CLAUDE.md is committed on purpose, so
-# that everyone's session reads the same rules; this is where private context
-# goes instead, and it is never shared.
 CLAUDE.local.md
 .claude/settings.local.json
-
-# Generated
 node_modules/
 .expo/
 dist/
 build/
 *.tsbuildinfo
-
-# Editors and machines
 .DS_Store
 Thumbs.db
 .idea/
