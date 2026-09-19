@@ -27,6 +27,11 @@ app: it only ever recommends things you already own.
 failure state is built early and kept working, because a forecast that fails is
 a Tuesday and not an edge case.
 
+**All of them are drawn**, seventeen states across the six, at full size in a
+phone and a browser frame: [`docs/design/mobile.html`](docs/design/mobile.html)
+and [`docs/design/desktop.html`](docs/design/desktop.html). Open either in a
+browser. They are generated and nobody edits them here; ADR 0006 says why.
+
 ## How it decides what to wear
 
 **The recommendation is not computed in this repository.** The app sends what you

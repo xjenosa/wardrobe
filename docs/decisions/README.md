@@ -32,3 +32,7 @@ premise changes there is something to re-read.**
 - **0005 Nothing is copied out of the private repository, by a person or by an
   agent.** Some of us can open it, a session can hold both at once, and the
   failure mode is helpfulness rather than theft.
+- **0006 The mockups in docs/design are generated, and nobody edits them here.**
+  Seventeen screens, two frames, produced from the design source and checked
+  twenty-five ways. A hand edit is invisible in 240KB of one-line HTML and the
+  next regeneration overwrites it.
