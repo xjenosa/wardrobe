@@ -23,6 +23,28 @@ git config user.name "Your Name"
 git config user.email "you@example.com"
 ```
 
+## Before step 0: be able to open a pull request
+
+**`main` is protected and refuses a direct push**, so everything you write
+reaches it as a pull request. ADR 0008. This is a once per machine setup and it
+takes about a minute.
+
+```bash
+gh auth login
+```
+
+Answer **GitHub.com**, then **HTTPS**, then **Yes**, then **Login with a web
+browser**. It prints a one-time code: copy it, press Enter, paste it into the
+page that opens, and click **Authorize github**. It finishes by naming you.
+
+```bash
+gh auth status
+```
+
+**No GitHub CLI on your machine?** The website does the same job. Push your
+branch, open the repository on github.com, and it offers to open the pull
+request for you.
+
 ## Who builds what
 
 | | member | track | screens | owns these directories |

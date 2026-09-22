@@ -63,7 +63,8 @@ something that has to come down.
   repository, a decision number this repository does not hold, and a committed
   secret.
 - **Branch, then open a pull request. Do not push to `main`.** Four people and
-  one branch is four people rewriting each other.
+  one branch is four people rewriting each other. **The server enforces this**,
+  administrators included: a direct push is rejected with `GH006`. ADR 0008.
 - **One pull request does one thing**, so it can be reviewed and so it can be
   reverted on its own.
 - **Never commit or push unless asked.** Arrive with the split already decided
