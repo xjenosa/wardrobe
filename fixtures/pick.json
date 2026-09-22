@@ -1,0 +1,5 @@
+{
+  "wear": ["g1", "g2", "g3"],
+  "suitsC": { "lowC": -3, "highC": 5 },
+  "because": "Cold, and this is the warmest thing you own that is not a parka."
+}
