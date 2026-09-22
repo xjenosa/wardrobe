@@ -29,3 +29,19 @@ garment type is a client that can ask for a score the service cannot give.
 **A garment nobody can name.** If a real wardrobe holds things the row list has
 no word for, the list is too small rather than the idea being wrong. Widen the
 list; do not start sending numbers.
+
+## Where the line actually falls, 2026-09-22
+
+**A drawn TWO-ENDED range is a row of the table. A single figure inside a
+sentence is the app explaining itself.**
+
+The upstream generator strips any two-ended band, a low figure and a high one
+joined by the word *to* and both carrying a degree sign, before publishing,
+and it leaves *"Your warmest is the navy overcoat, good to about −5°"* alone.
+That is the line, it is deliberate, and it is the one worth knowing when
+writing copy: the app may say a garment is good to about a temperature, and it
+may never print the band a garment suits.
+
+**PREMISE:** one endpoint in prose is not reconstructable into the table. If the
+app ever draws enough of them, together they are the table and this is the
+paragraph to re-read.
