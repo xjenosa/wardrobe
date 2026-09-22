@@ -42,6 +42,10 @@ That is the line, it is deliberate, and it is the one worth knowing when
 writing copy: the app may say a garment is good to about a temperature, and it
 may never print the band a garment suits.
 
+**AND THIS PARAGRAPH DESCRIBES THE SHAPE RATHER THAN SPELLING IT**, because
+`tools/no-leak.mjs` refuses that pattern anywhere in this repository and a rule
+that has to exempt itself is a rule with a hole in it.
+
 **PREMISE:** one endpoint in prose is not reconstructable into the table. If the
 app ever draws enough of them, together they are the table and this is the
 paragraph to re-read.

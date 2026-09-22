@@ -60,6 +60,14 @@ something that has to come down.
   written here in our own words. The cheapest protection is not a rule: **do not
   open both at once.** ADR 0005.
 
+  **AND IT IS CHECKED RATHER THAN TRUSTED.** `node tools/no-leak.mjs` fails on
+  the source project's name, on a two-ended temperature band, on a file pairing
+  garments with numbers, on a path out of this repository, on a decision number
+  this repository does not hold, and on a committed secret. Run it before you
+  open a pull request. A rule that relies on somebody obeying it is weaker than
+  a check that fails, and every one of those six was proved by planting the
+  defect it was written for.
+
 ## Working together
 
 - **Branch, then open a pull request. Do not push to `main`.** Four people and
