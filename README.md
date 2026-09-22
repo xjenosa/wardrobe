@@ -6,8 +6,10 @@ A React Native app that reads the day's forecast, looks at what is actually in
 your closet, and picks an outfit for it. Not a style feed and not a shopping
 app: it only ever recommends things you already own.
 
-> **Status: in progress.** The app is not scaffolded yet, so the commands under
-> Getting started describe the target rather than something that runs today.
+> **Status: in progress.** The app is not scaffolded yet. What exists today is
+> the drawings, the request and response contract, and the offline fixture.
+> Everything below describes the app those are being built into rather than
+> something that runs.
 >
 > Built as a capstone project. See [Acknowledgements](#acknowledgements) - this
 > is not the first wardrobe app and it does not pretend to be.
