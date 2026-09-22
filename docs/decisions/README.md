@@ -36,3 +36,8 @@ premise changes there is something to re-read.**
   Seventeen screens, two frames, produced from the design source and checked
   twenty-five ways. A hand edit is invisible in 240KB of one-line HTML and the
   next regeneration overwrites it.
+- **0007 The build splits by surface, not by layer.** Three people own whole
+  directories and the screens inside them, rather than everybody editing the
+  screens, the state and the API client at once. Max the frame, Natasha the day,
+  Paul the wardrobe, and one shell first that everybody waits for.
+  docs/Build_Plan.md is the table.
