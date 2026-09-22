@@ -66,15 +66,13 @@ purpose:
 - **The app boots** on a phone and in a simulator.
 - **A navigator** with a route per screen in the table above, each one a stub
   that renders its own name.
-- **`src/theme/`**: the colours, the type scale and the spacing, **extracted
-  from the mockup and not read off it by eye.** `docs/design/mobile.html`
-  declares **66 CSS custom properties** in its stylesheet, which is the whole
-  palette, the two type families, the radii, the shadows and the durations.
-  Copy the values. Three people matching a colour by eye produce three colours.
-- **`src/strings/`**: one file, every user-facing word, **taken from the
-  mockup**, which draws about 160 distinct ones. CLAUDE.md: a string typed into
-  a view is a string nobody can find again. Three people writing the same
-  sentence from memory write three sentences.
+- **`src/theme/tokens.ts` and `src/strings/drawn.ts` are already written**, by
+  `node tools/extract.mjs`, which reads the mockup. **55 light tokens, 28 dark
+  overrides and 323 drawn sentences.** Nobody types a colour or retypes a
+  sentence: three people matching a colour by eye produce three colours, and
+  three people writing the same sentence from memory write three sentences.
+  Both files are committed, so the app builds without running anything, and
+  `node tools/extract.mjs --check` fails when they drift from the drawing.
 - **`src/lib/pick.ts`**: sends the request in README.md and returns the
   response. **With no `PICK_URL` set it reads `fixtures/pick.json`**, which is
   how every screen gets built before a service exists.
@@ -118,9 +116,13 @@ pass over the whole app with the network off.
   against it and say who it is for.** `src/lib/` and `src/theme/` are Max's after
   step 0. This is not ceremony: two people editing a theme token on the same
   afternoon is how three people lose a day.
-- **A screen is done when it matches its plate and works with the network off.**
-  Open `docs/design/mobile.html`, find the figure, and compare. The plates are
-  the specification.
+- **A screen is done when every box in [`docs/Acceptance.md`](Acceptance.md) is
+  ticked.** That file is what stops "done" being a matter of opinion.
+- **Every state a screen has is in [`docs/States.md`](States.md)**, with the
+  plate that draws it and, where the mockup draws none, what to build instead.
+  Loading, empty and failed are not left to be invented three times.
+- **The plates are the specification.** Open `docs/design/mobile.html`, find the
+  figure, and compare.
 
 ## The plates, and which track each belongs to
 
