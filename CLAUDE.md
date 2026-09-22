@@ -51,25 +51,16 @@ something that has to come down.
 - **`.gitignore` carries no comments and neither does anything else here.** Its
   entries are the list and this section is the reason, and a reason written in
   two places goes stale in one of them.
-- **Nothing copied out of the private repository this design comes from.** Some
-  of us can open it and **a session can hold both at once**, which is the real
-  hazard: asked an ordinary question, an assistant that can see a clo table on
-  one side and no clo table on the other reads the absence as a gap to fill, and
-  helpfully writes it in. **The failure mode is helpfulness, not theft.** If
+- **Nothing copied out of the private repository this design comes from.** If
   something over there seems needed here, it goes in the API response or gets
-  written here in our own words. The cheapest protection is not a rule: **do not
-  open both at once.** ADR 0005.
-
-  **AND IT IS CHECKED RATHER THAN TRUSTED.** `node tools/no-leak.mjs` fails on
-  the source project's name, on a two-ended temperature band, on a file pairing
-  garments with numbers, on a path out of this repository, on a decision number
-  this repository does not hold, and on a committed secret. Run it before you
-  open a pull request. A rule that relies on somebody obeying it is weaker than
-  a check that fails, and every one of those six was proved by planting the
-  defect it was written for.
-
-## Working together
-
+  written here in our own words. **The cheapest protection is not a rule: do not
+  open both at once**, because the failure mode is helpfulness rather than
+  theft. ADR 0005 has the reasoning.
+- **And it is checked rather than trusted:** `node tools/no-leak.mjs` before you
+  open a pull request. It refuses the source project's name, a two-ended
+  temperature band, a file pairing garments with numbers, a path out of this
+  repository, a decision number this repository does not hold, and a committed
+  secret.
 - **Branch, then open a pull request. Do not push to `main`.** Four people and
   one branch is four people rewriting each other.
 - **One pull request does one thing**, so it can be reviewed and so it can be
