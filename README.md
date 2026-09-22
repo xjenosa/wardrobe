@@ -6,8 +6,10 @@ A React Native app that reads the day's forecast, looks at what is actually in
 your closet, and picks an outfit for it. Not a style feed and not a shopping
 app: it only ever recommends things you already own.
 
-> **Status: in progress.** The app is not scaffolded yet, so the commands under
-> Getting started describe the target rather than something that runs today.
+> **Status: in progress.** The app is not scaffolded yet. What exists today is
+> the drawings, the request and response contract, and the offline fixture.
+> Everything below describes the app those are being built into rather than
+> something that runs.
 >
 > Built as a capstone project. See [Acknowledgements](#acknowledgements) - this
 > is not the first wardrobe app and it does not pretend to be.
@@ -16,18 +18,20 @@ app: it only ever recommends things you already own.
 
 | | | |
 |---|---|---|
-| 1 | **Closet** | everything you own, as a grid |
-| 2 | **Add garment** | photograph it, confirm what it is, save |
-| 3 | **Today** | the weather, and one outfit chosen for it |
-| 4 | **Weather** | the day's temperature and precipitation, hour by hour |
-| 5 | **Item editor** | fix anything the app got wrong |
-| 6 | **No forecast** | what you see when the forecast cannot be reached |
+| 1 | **First run** | the one screen before you own anything: your reference photo |
+| 2 | **Closet** | everything you own, as a grid |
+| 3 | **Add garment** | photograph it, confirm what it is, save |
+| 4 | **Today** | the weather, and one outfit chosen for it |
+| 5 | **Weather** | the day's temperature and precipitation, hour by hour |
+| 6 | **Item editor** | fix anything the app got wrong |
+| 7 | **No forecast** | what you see when the forecast cannot be reached |
+| 8 | **You** | your settings, and the documents |
 
-**Screen 6 is not a footnote.** An app that only draws sunshine is a demo. The
-failure state is built early and kept working, because a forecast that fails is
-a Tuesday and not an edge case.
+**The no-forecast screen is not a footnote.** An app that only draws sunshine is
+a demo. The failure state is built early and kept working, because a forecast
+that fails is a Tuesday and not an edge case.
 
-**All of them are drawn**, seventeen states across the six, at full size in a
+**All of them are drawn**, seventeen states across the eight, at full size in a
 phone and a browser frame: [`docs/design/mobile.html`](docs/design/mobile.html)
 and [`docs/design/desktop.html`](docs/design/desktop.html). Open either in a
 browser. They are generated and nobody edits them here; ADR 0006 says why.

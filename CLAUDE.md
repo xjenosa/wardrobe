@@ -20,8 +20,9 @@ here and its arithmetic is not here.**
   harder to remove than one that is missing, because nothing fails while it is
   wrong: the app keeps recommending, just badly, and the day somebody replaces
   it every screenshot in the report changes.
-- **If the service is not ready, use the fixture.** `fixtures/pick.json` is a
-  real saved response and it drives the whole app with the network off.
+- **If the service is not ready, use the fixture.** `fixtures/pick.json` holds
+  the response shape README.md documents, and it is what the app reads with the
+  network off.
 - **If a screen seems to need something the response does not carry**, say so
   and stop. Either the boundary is in the wrong place or something is leaking,
   and both are decisions rather than code.
