@@ -41,3 +41,6 @@ premise changes there is something to re-read.**
   screens, the state and the API client at once. Max the frame, Natasha the day,
   Paul the wardrobe, and one shell first that everybody waits for.
   docs/Build_Plan.md is the table.
+- **0008 The app is light only.** The reskin drew one palette, so no screen
+  offers a theme and none is checked in two. The mockup still carries a dark
+  block and a Theme row on Fig 23; both are removed at the source.

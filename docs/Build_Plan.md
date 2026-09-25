@@ -68,10 +68,10 @@ purpose:
 - **A navigator** with a route per screen in the table above, each one a stub
   that renders its own name.
 - **`src/theme/tokens.ts` and `src/strings/drawn.ts` are already written**, by
-  `node tools/extract.mjs`, which reads the mockup. **55 light tokens, 28 dark
-  overrides and 323 drawn sentences.** Nobody types a colour or retypes a
-  sentence: three people matching a colour by eye produce three colours, and
-  three people writing the same sentence from memory write three sentences.
+  `node tools/extract.mjs`, which reads the mockup. **55 tokens and 323 drawn
+  sentences.** Nobody types a colour or retypes a sentence: three people
+  matching a colour by eye produce three colours, and three people writing the
+  same sentence from memory write three sentences.
   Both files are committed, so the app builds without running anything, and
   `node tools/extract.mjs --check` fails when they drift from the drawing.
 - **`src/lib/pick.ts`**: sends the request in README.md and returns the
