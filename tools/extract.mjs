@@ -84,42 +84,72 @@ const decode = t => t.replace(/&[a-z]+;|&#[0-9]+;/g, m =>
 const BLOCK = new Set(['div', 'p', 'button', 'li', 'label', 'h1', 'h2', 'h3', 'h4',
   'section', 'header', 'footer', 'figure', 'figcaption', 'nav', 'ul', 'ol', 'td', 'th', 'tr', 'table']);
 
-/* text of each element that holds no block-level child, which is the unit a
-   person reads as one sentence. Inline spans inside it are joined. */
+/* AN ELEMENT WITH WORDS OF ITS OWN IS A SENTENCE; ONE MADE ONLY OF ELEMENTS IS
+   A ROW. The first version joined across every inline edge. That kept "the
+   <b>navy overcoat</b>, good to" whole, which is right, and it also glued a
+   weather row of three value-and-label pairs, an hour axis, a sort menu and a
+   key beside its value into single strings no screen could use.
+
+   The markup draws the line itself. Text written directly inside an element is
+   read as one sentence: its inline edges leave a mark that becomes a space, or
+   nothing before punctuation. An element whose only content is other elements,
+   with nothing but whitespace between them, is a list of separate things, and
+   each child is read on its own, recursively. A sentence therefore comes out
+   exactly as it did before; only a run with no words of its own can split.
+
+   Blocks are still hard boundaries, read as they always were, so the tree below
+   is built one run at a time and never has to be well-formed across them. */
 /* A PRIVATE-USE CODE POINT, because NUL inside a RegExp built from a string is
    not matched reliably and the text can never contain this one. */
 const JOIN = String.fromCharCode(0xE000);
+const VOID = new Set(['br', 'img', 'input', 'hr', 'wbr', 'source', 'area', 'col',
+  'embed', 'meta', 'link', 'param', 'track']);
 function readable(fragment) {
   const src = fragment.replace(/<svg[^]*?<\/svg>/g, '').replace(/<!--[^]*?-->/g, '');
   const out = [];
-  const stack = [];
-  let buf = '';
+  /* a run's inline content as a small tree: {text}, {mark}, or {name, kids} */
+  let run = { kids: [] };
+  let open = [run];
+  const top = () => open[open.length - 1];
+  const tidy = t => decode(t)
+    /* the class is written without ] or ), because a RegExp built from a
+       string turns "\]" into a bare ] and closes the class early. */
+    .replace(new RegExp(JOIN + '+(?=[,.;:!?%°])', 'g'), '')
+    .replace(new RegExp(JOIN + '+', 'g'), ' ')
+    .replace(/\s+/g, ' ').trim();
+  const flat = n => n.kids.map(k => k.text !== undefined ? k.text
+    : k.mark ? JOIN : JOIN + flat(k) + JOIN).join('');
+  const own = n => n.kids.some(k => k.text !== undefined && k.text.trim() !== '');
+  const items = n => own(n) ? [flat(n)] : n.kids.flatMap(k => k.kids ? items(k) : []);
+  const flush = () => {
+    for (const t of items(run).map(tidy)) if (t) out.push(t);
+    run = { kids: [] };
+    open = [run];
+  };
   const tag = /<(\/?)([a-z0-9]+)([^>]*)>/g;
   let last = 0, m;
-  const flush = () => {
-    const t = decode(buf)
-      /* the class is written without ] or ), because a RegExp built from a
-         string turns "\]" into a bare ] and closes the class early. */
-      .replace(new RegExp(JOIN + '+(?=[,.;:!?%\u00b0])', 'g'), '')
-      .replace(new RegExp(JOIN + '+', 'g'), ' ')
-      .replace(/\s+/g, ' ').trim();
-    if (t) out.push(t);
-    buf = '';
-  };
   while ((m = tag.exec(src))) {
-    buf += src.slice(last, m.index);
+    const text = src.slice(last, m.index);
+    if (text) top().kids.push({ text });
     last = tag.lastIndex;
-    const [, close, name] = m;
-    /* AN INLINE TAG IS NOT A BOUNDARY, BUT IT IS A JOIN. The stat row draws a
-       value and its label in two spans with no whitespace between them, and a
-       sentence carries its emphasis the same way. Splitting on spans breaks the
-       sentence; ignoring them glues "made for." to "Take a beanie". So an
-       inline edge leaves a mark, and the mark becomes a space unless what
-       follows is punctuation, where it becomes nothing. */
-    if (!BLOCK.has(name)) { buf += JOIN; continue; }
-    if (!close) { flush(); stack.push(name); } else { flush(); stack.pop(); }
+    const [, close, name, attrs] = m;
+    if (BLOCK.has(name)) { flush(); continue; }
+    if (VOID.has(name) || /[/][ \t]*$/.test(attrs)) { top().kids.push({ mark: true }); continue; }
+    if (!close) {
+      const el = { name, kids: [] };
+      top().kids.push(el);
+      open.push(el);
+      continue;
+    }
+    /* close to the matching open, tolerating an inline tag left unclosed; a
+       close with no open in this run is an edge like any other */
+    let i = open.length - 1;
+    while (i > 0 && open[i].name !== name) i--;
+    if (i > 0) open.length = i;
+    else top().kids.push({ mark: true });
   }
-  buf += src.slice(last);
+  const tail = src.slice(last);
+  if (tail) top().kids.push({ text: tail });
   flush();
   return out;
 }
@@ -131,7 +161,7 @@ const CHROME = new Set(['9:41', 'Today', 'Closet', 'Outfits', 'You']);
 const screens = [];
 for (const [, body, fig, cap] of plates) {
   const caption = decode(cap.replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim().replace(/^·\s*/, '');
-  const lines = readable(body).filter(t => !CHROME.has(t) && !/^[−-]?[0-9]+°?$/.test(t));
+  const lines = readable(body).filter(t => !CHROME.has(t) && !/^[+−-]?[0-9]+°?$/.test(t));
   screens.push({ fig: fig.trim(), caption, lines: [...new Set(lines)] });
 }
 
