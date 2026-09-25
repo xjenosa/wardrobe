@@ -14,9 +14,10 @@ working for.
 git config user.name
 ```
 
-That name picks your row in the table below. **If it is empty or is not one of
-the three, stop and set it** before writing anything, because your branch name
-and your commits both depend on it.
+That name picks your row in the table below, **whether it is your first name or
+your GitHub username**: the table has both. **If it matches neither, stop and
+set it** before writing anything, because your branch name and your commits
+both depend on it.
 
 ```bash
 git config user.name "Your Name"
@@ -25,11 +26,11 @@ git config user.email "you@example.com"
 
 ## Who builds what
 
-| | member | track | screens | owns these directories |
-|---|---|---|---|---|
-| A | **Max** | **the frame** | First run, You | `src/lib/`, `src/theme/`, `src/nav/`, `src/screens/firstrun/`, `src/screens/you/` |
-| B | **Natasha** | **the day** | No forecast, Today, Weather | `src/screens/today/`, `src/screens/weather/`, `src/lib/forecast/` |
-| C | **Paul** | **the wardrobe** | Closet, Add garment, Item editor | `src/screens/closet/`, `src/screens/add/`, `src/screens/editor/` |
+| | member | GitHub | track | screens | owns these directories |
+|---|---|---|---|---|---|
+| A | **Max** | `xjenosa` | **the frame** | First run, You | `src/lib/`, `src/theme/`, `src/nav/`, `src/screens/firstrun/`, `src/screens/you/` |
+| B | **Natasha** | `natashaejercito` | **the day** | No forecast, Today, Weather | `src/screens/today/`, `src/screens/weather/`, `src/lib/forecast/` |
+| C | **Paul** | `minsikpaul92` | **the wardrobe** | Closet, Add garment, Item editor | `src/screens/closet/`, `src/screens/add/`, `src/screens/editor/` |
 
 **The tracks are split by SURFACE and not by layer.** Three people splitting a
 React Native app into "screens", "state" and "API" would all edit the same files
