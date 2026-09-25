@@ -59,35 +59,6 @@ export const light = {
   dur: ".18s",
 } as const;
 
-export const dark = {
-  studio: "#EDEAE3",
-  bezel: "#000000",
-  studioInk: "#66625A",
-  paper: "#FBF9F5",
-  surface: "#FFFFFF",
-  ink: "#1B1A17",
-  muted: "#6F6B62",
-  chev: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none' stroke='%23949494' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5'/%3E%3C/svg%3E\")",
-  hairline: "#E2DDD3",
-  edge: "#9B958A",
-  scrim: "rgba(28,26,22,.42)",
-  grave: "#8F2F26",
-  field: "#F3F0E9",
-  pill: "#FFFFFF",
-  track: "#E2DDD3",
-  renderA: "#EFECE5",
-  renderB: "#D9D4CA",
-  figure: "rgba(95,90,82,.58)",
-  skin: "#CFC9BF",
-  skinSh: "#B9B2A6",
-  gNavyD: "#1B2634",
-  deviceShadow: "0 40px 90px -30px rgba(0,0,0,.82), 0 14px 34px -20px rgba(0,0,0,.66)",
-  cardShadow: "0 1px 2px rgba(0,0,0,.5), 0 14px 30px -16px rgba(0,0,0,.62)",
-  liftShadow: "0 26px 54px -22px rgba(0,0,0,.72), 0 8px 18px -10px rgba(0,0,0,.6)",
-  drawerShadow: "-26px 0 54px -22px rgba(0,0,0,.72), -8px 0 18px -10px rgba(0,0,0,.6)",
-  sheetShadow: "0 -26px 54px -22px rgba(0,0,0,.72), 0 -8px 18px -10px rgba(0,0,0,.6)",
-  gmShadow: "drop-shadow(0 5px 9px rgba(0,0,0,.55)) drop-shadow(0 -1px 0 rgba(245,245,245,.07))",
-  gmShadowSm: "drop-shadow(0 2px 4px rgba(0,0,0,.55)) drop-shadow(0 -1px 0 rgba(245,245,245,.07))",
-} as const;
+export const dark = light;
 
 export type TokenName = keyof typeof light;
