@@ -128,8 +128,56 @@ const h = w => createHash('sha256').update(w).digest('hex').slice(0, 16);
   add('no-secret', 'no key, token or private key is committed', bad);
 }
 
-/* ------------------------------------------------- 7. the check ran wide --- */
-/* THE VACUOUS PASS THIS REFUSES. Six checks over an empty file list would all
+/* ---------------------------------------------- 7. the palette is pinned --- */
+/* PINNED, NOT REFUSED. Every check above names what must not arrive. This one
+   cannot: the mockup is regenerated from the private design, and a generation
+   from a source without the reskin would carry that design's palette, which
+   nobody here may write down even to refuse it. Hashing would not hide it
+   either: a hex colour is sixteen million guesses. What can be written down is
+   the palette this repository HAS. These are the surfaces and text every screen
+   is drawn with, read out of the mockup, and the mockup and tokens.ts both have
+   to still say them. A deliberate change to the chrome moves this list in the
+   same pull request, where a reviewer sees a palette change rather than a diff
+   in 240KB of one-line HTML. */
+{
+  const CHROME = {
+    paper: '#FBF9F5', surface: '#FFFFFF', ink: '#1B1A17', muted: '#6F6B62',
+    hairline: '#E2DDD3', edge: '#9B958A', field: '#F3F0E9', pill: '#FFFFFF',
+    track: '#E2DDD3', scrim: 'rgba(28,26,22,.42)', grave: '#8F2F26',
+  };
+  const MOCKUP = 'docs/design/mobile.html', TOKENS = 'src/theme/tokens.ts';
+  const camel = k => k.replace(/-([a-z0-9])/g, (_, c) => c.toUpperCase());
+  /* the light palette only: the bare :root rule, and the export named light.
+     A value can hold a url() with its own semicolons. */
+  const rootOf = s => {
+    const m = s.match(/:root\s*\{([^]*?)\}/);
+    const out = new Map();
+    for (const decl of m ? m[1].split(/;(?![^(]*\))/) : []) {
+      const i = decl.indexOf(':');
+      if (i > 0 && decl.trim().startsWith('--')) out.set(decl.slice(0, i).trim().slice(2), decl.slice(i + 1).trim());
+    }
+    return out;
+  };
+  const lightOf = s => {
+    const m = s.match(/export const light = \{([^]*?)\} as const;/);
+    const out = new Map();
+    for (const l of m ? m[1].matchAll(/^\s*([A-Za-z0-9]+): ("(?:[^"\\]|\\.)*"),\r?$/gm) : []) out.set(l[1], JSON.parse(l[2]));
+    return out;
+  };
+  const bad = [];
+  for (const [file, load, name] of [[MOCKUP, rootOf, k => k], [TOKENS, lightOf, camel]]) {
+    if (!existsSync(file)) { bad.push(file + '  is missing'); continue; }
+    const have = load(read(file));
+    for (const [k, v] of Object.entries(CHROME)) {
+      const got = have.get(name(k));
+      if (got !== v) bad.push(file + '  ' + name(k) + ' is ' + (got === undefined ? 'missing' : got) + ', pinned ' + v);
+    }
+  }
+  add('palette-pinned', 'the ' + Object.keys(CHROME).length + ' chrome tokens in the mockup and tokens.ts are the ones pinned here', bad);
+}
+
+/* ------------------------------------------------- 8. the check ran wide --- */
+/* THE VACUOUS PASS THIS REFUSES. Seven checks over an empty file list would all
    pass and say nothing. */
 add('read-the-repository', 'the scan opened the whole repository', [],
   files.length >= 10 && files.some(f => f.startsWith('docs/design/')));

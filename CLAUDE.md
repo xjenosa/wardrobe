@@ -60,8 +60,9 @@ something that has to come down.
 - **And it is checked rather than trusted:** `node tools/no-leak.mjs` before you
   open a pull request. It refuses the source project's name, a two-ended
   temperature band, a file pairing garments with numbers, a path out of this
-  repository, a decision number this repository does not hold, and a committed
-  secret.
+  repository, a decision number this repository does not hold, a committed
+  secret, and a chrome palette other than the one it pins, which is how a
+  mockup regenerated from the wrong source fails.
 - **Branch, then open a pull request. Do not push to `main`.** Four people and
   one branch is four people rewriting each other.
 - **One pull request does one thing**, so it can be reviewed and so it can be
