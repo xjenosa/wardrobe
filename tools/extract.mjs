@@ -168,19 +168,15 @@ function stringsFile() {
   return parts.join('\n');
 }
 
-/* -------------------------------------------------------------- write --- */
-
+/* -------------------------------------------------------------- build --- */
+/* THE CHECKS GATE THE WRITE, OR THEY ARE A REPORT. This used to write both
+   files and then check them, so a run whose checks failed had already replaced
+   the build inputs. Both files are now built in memory, every check below reads
+   that, and nothing touches the disk until all of them pass. */
 const want = { [OUT_TOKENS]: tokensFile(), [OUT_STRINGS]: stringsFile() };
-let stale = 0;
-for (const [p, text] of Object.entries(want)) {
-  const have = existsSync(p) ? readFileSync(p, 'utf8') : null;
-  if (have === text) continue;
-  stale++;
-  if (!CHECK) {
-    mkdirSync(dirname(resolve(p)), { recursive: true });
-    writeFileSync(p, text);
-  }
-}
+const stalePaths = Object.keys(want)
+  .filter(p => (existsSync(p) ? readFileSync(p, 'utf8') : null) !== want[p]);
+const stale = stalePaths.length;
 
 /* A GENERATOR CHECKS WHAT IT BUILT, not only that it ran. */
 add('tokens-complete', 'every custom property in the mockup is in tokens.ts',
@@ -203,15 +199,26 @@ add('every-plate-read', 'every plate in the mockup contributes a strings group',
 add('keys-unique', 'no group has two of the same key',
   (() => { for (const s of screens) { const k = new Set(); for (const t of s.lines) { const x = slug(t); if (k.has(x)) return false; k.add(x); } } return true; })(),
   'within a group, after the de-duplicating suffix');
+/* -------------------------------------------------------------- write --- */
+const refused = results.some(r => !r.ok);
+let written = 0;
+if (!CHECK && !refused) {
+  for (const p of stalePaths) {
+    mkdirSync(dirname(resolve(p)), { recursive: true });
+    writeFileSync(p, want[p]);
+    written++;
+  }
+}
 add('up-to-date', CHECK ? 'both generated files match the mockup' : 'both generated files written',
   CHECK ? stale === 0 : true,
   CHECK ? (stale ? stale + ' file(s) are out of date, run node tools/extract.mjs' : 'both current')
-    : (stale ? stale + ' file(s) rewritten' : 'both already current'));
+    : refused ? 'nothing written: a check above failed, so both files are as they were'
+    : (written ? written + ' file(s) rewritten' : 'both already current'));
 
 let bad = 0;
 for (const r of results) {
   if (!r.ok) bad++;
   console.log((r.ok ? 'ok   ' : 'FAIL ') + r.id.padEnd(18) + r.rule + (r.detail ? ': ' + r.detail : ''));
 }
-console.log(bad ? '\n' + bad + ' FAILING CHECKS\n' : '\nall checks pass\n');
+console.log(bad ? '\n' + bad + ' FAILING CHECKS' + (CHECK ? '' : ', nothing was written') + '\n' : '\nall checks pass\n');
 process.exit(bad ? 1 : 0);
