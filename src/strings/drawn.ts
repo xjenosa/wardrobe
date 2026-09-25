@@ -374,10 +374,10 @@ export const drawn = {
     resetPreferencesPutsPreferencesBack: "Reset preferences Puts Preferences back to how they started. Nothing else is touched",
     reset: "Reset",
     pictures: "Pictures",
+    openaiKeyStoredOnThis: "OpenAI key Stored on this device only",
+    sk7yb2: "sk·••••7Yb2",
     referencePhoto: "Reference photo",
     change: "Change",
     remove: "Remove",
-    openaiKeyStoredOnThis: "OpenAI key Stored on this device only",
-    sk7yb2: "sk·••••7Yb2",
   },
 } as const;
