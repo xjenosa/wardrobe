@@ -33,9 +33,9 @@ premise changes there is something to re-read.**
   agent.** Some of us can open it, a session can hold both at once, and the
   failure mode is helpfulness rather than theft.
 - **0006 The mockups in docs/design are generated, and nobody edits them here.**
-  Seventeen screens, two frames, produced from the design source and checked
-  twenty-five ways. A hand edit is invisible in 240KB of one-line HTML and the
-  next regeneration overwrites it.
+  Seventeen screens in a phone frame, produced from the design source and
+  checked twenty-five ways. A hand edit is invisible in 240KB of one-line HTML
+  and the next regeneration overwrites it.
 - **0007 The build splits by surface, not by layer.** Three people own whole
   directories and the screens inside them, rather than everybody editing the
   screens, the state and the API client at once. Max the frame, Natasha the day,
@@ -44,3 +44,6 @@ premise changes there is something to re-read.**
 - **0008 The app is light only.** The reskin drew one palette, so no screen
   offers a theme and none is checked in two. The mockup still carries a dark
   block and a Theme row on Fig 23; both are removed at the source.
+- **0009 There is no desktop app.** The app ships on phones, so there is one
+  mockup, the phone, and the browser frame is deleted rather than left to go
+  stale. ADR 0006 is amended to match.

@@ -141,8 +141,7 @@ pass over the whole app with the network off.
 | Fig 23 | You | Max |
 
 **Seventeen plates, eight screens, three people.** Open
-[`docs/design/mobile.html`](design/mobile.html) or
-[`docs/design/desktop.html`](design/desktop.html) in a browser and read the
+[`docs/design/mobile.html`](design/mobile.html) in a browser and read the
 caption under each frame.
 
 ## What this plan does not decide

@@ -32,9 +32,8 @@ a demo. The failure state is built early and kept working, because a forecast
 that fails is a Tuesday and not an edge case.
 
 **All of them are drawn**, seventeen states across the eight, at full size in a
-phone and a browser frame: [`docs/design/mobile.html`](docs/design/mobile.html)
-and [`docs/design/desktop.html`](docs/design/desktop.html). Open either in a
-browser. They are generated and nobody edits them here; ADR 0006 says why.
+phone frame: [`docs/design/mobile.html`](docs/design/mobile.html). Open it in a
+browser. It is generated and nobody edits it here; ADR 0006 says why.
 
 ## How it decides what to wear
 
