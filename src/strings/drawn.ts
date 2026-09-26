@@ -60,7 +60,7 @@ export const drawn = {
     humidity: "Humidity",
     coldWithSnowOnThe: "Cold, with snow on the wind.",
     takeABeanieAndGloves: "Take a beanie and gloves.",
-    renderingYourOutfit: "Rendering your outfit…",
+    drawingYourOutfit: "Drawing your outfit…",
     vibe: "Vibe",
     everyday: "Everyday",
     smart: "Smart",
@@ -306,7 +306,7 @@ export const drawn = {
     saveToCloset: "Save to closet",
     saveAndPhotographAnother: "Save and photograph another",
   },
-  /* Fig 19 Editor · two pages, swiped: the cut-out and your photograph. Fig 19b draws page two */
+  /* Fig 19 Editor · two pages, swiped. The cut-out and your photograph. Fig 19b draws page two */
   "fig19": {
     yourWardrobe: "Your wardrobe",
     harbourTee: "Harbour tee",
@@ -411,7 +411,6 @@ export const drawn = {
     c: "°C",
     f: "°F",
     resetPreferences: "Reset preferences",
-    putsPreferencesBackToHow: "Puts Preferences back to how they started. Nothing else is touched",
     reset: "Reset",
     pictures: "Pictures",
     openaiKey: "OpenAI key",
