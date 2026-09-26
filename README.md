@@ -32,9 +32,8 @@ a demo. The failure state is built early and kept working, because a forecast
 that fails is a Tuesday and not an edge case.
 
 **All of them are drawn**, seventeen states across the eight, at full size in a
-phone and a browser frame: [`docs/design/mobile.html`](docs/design/mobile.html)
-and [`docs/design/desktop.html`](docs/design/desktop.html). Open either in a
-browser. They are generated and nobody edits them here; ADR 0006 says why.
+phone frame: [`docs/design/mobile.html`](docs/design/mobile.html). Open it in a
+browser. It is generated and nobody edits it here; ADR 0006 says why.
 
 ## How it decides what to wear
 
@@ -107,6 +106,9 @@ This project stands on open work.
 The idea of a photographed wardrobe that recommends an outfit, and the approach
 to cutting a garment out of a photograph, are adapted from
 [Wardrobe](https://github.com/tandpfun/wardrobe), used under the MIT License.
+**The visual style follows Wardrobe's too**: the quiet off-white page,
+near-black type, square corners and uppercase labels. The layouts and icons are
+this project's own. ADR 0011 records why.
 
 <details>
 <summary>MIT License (Wardrobe)</summary>
@@ -150,4 +152,8 @@ IN THE SOFTWARE.
 
 ## Licence
 
-MIT. See [LICENSE](LICENSE).
+**GPL-3.0-only.** Copyright (C) 2026 Maximilian Li. You may share and change
+this project under the GNU General Public License, version 3, and whoever
+publishes a changed version publishes its source under the same licence. It
+comes with no warranty. The full text is in [LICENSE](LICENSE), and ADR 0010
+says why it is not MIT.

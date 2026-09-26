@@ -33,11 +33,25 @@ premise changes there is something to re-read.**
   agent.** Some of us can open it, a session can hold both at once, and the
   failure mode is helpfulness rather than theft.
 - **0006 The mockups in docs/design are generated, and nobody edits them here.**
-  Seventeen screens, two frames, produced from the design source and checked
-  twenty-five ways. A hand edit is invisible in 240KB of one-line HTML and the
-  next regeneration overwrites it.
+  Seventeen screens in a phone frame, produced from the design source and
+  checked twenty-five ways. A hand edit is invisible in 240KB of one-line HTML
+  and the next regeneration overwrites it.
 - **0007 The build splits by surface, not by layer.** Three people own whole
   directories and the screens inside them, rather than everybody editing the
   screens, the state and the API client at once. Max the frame, Natasha the day,
   Paul the wardrobe, and one shell first that everybody waits for.
   docs/Build_Plan.md is the table.
+- **0008 The app is light only.** The reskin drew one palette, so no screen
+  offers a theme and none is checked in two. The mockup's dark block, theme
+  script and Theme row were removed at the source, and tokens.ts has no `dark`
+  export.
+- **0009 There is no desktop app.** The app ships on phones, so there is one
+  mockup, the phone, and the browser frame is deleted rather than left to go
+  stale. ADR 0006 is amended to match.
+- **0010 The licence is GPL-3.0, not MIT.** Anyone who publishes a changed
+  version must publish its source. The credit to Wardrobe stays MIT, and Apple's
+  App Store would need an exception every contributor agrees to.
+- **0011 The look follows Wardrobe, with credit.** The reskin's palette, type
+  and square corners follow Thijs Simonian's Wardrobe on purpose. It is MIT and
+  credited, so rule 2 names it as the one exception; its layouts and icons are
+  still not taken.

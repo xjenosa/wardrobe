@@ -16,8 +16,8 @@ the running app.
 - [ ] **Its loading state is drawn**, and is the shape of what is coming rather
       than a spinner over nothing.
 - [ ] **Its failure state is drawn**, and keeps whatever the screen already had.
-- [ ] **Dark mode**: the mockup declares a dark palette and `tokens.ts` carries
-      it. The screen reads in both.
+- [ ] **It stays light with the phone in dark mode.** There is one palette,
+      ADR 0008.
 - [ ] **Nothing is hard-coded to one device width.** The mockup is a 390pt
       frame; the app runs on other phones.
 
@@ -68,6 +68,7 @@ the running app.
 ## You, Fig 23
 
 - [ ] The list is grouped in sections, in the order Fig 23 draws them.
+- [ ] **There is no theme setting**, and Fig 23 draws none. ADR 0008.
 - [ ] Anything that can fail is visible without scrolling.
 
 ## What this file does not cover

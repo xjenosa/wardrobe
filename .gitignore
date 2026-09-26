@@ -2,6 +2,7 @@
 .env.*
 !.env.example
 CLAUDE.local.md
+QUEUE.md
 .claude/settings.local.json
 node_modules/
 .expo/

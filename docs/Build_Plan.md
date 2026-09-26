@@ -14,22 +14,55 @@ working for.
 git config user.name
 ```
 
-That name picks your row in the table below. **If it is empty or is not one of
-the three, stop and set it** before writing anything, because your branch name
-and your commits both depend on it.
+That name picks your row in the table below, **whether it is your first name or
+your GitHub username**: the table has both. **If it matches neither, stop and
+set it** before writing anything, because your branch name and your commits
+both depend on it.
 
 ```bash
 git config user.name "Your Name"
 git config user.email "you@example.com"
 ```
 
+## Before step 0: sign in to GitHub, once per machine
+
+**Everything you write reaches `main` as a pull request**, so your machine has
+to be able to push a branch and open one. It takes about a minute.
+
+1. **Accept the invitation to this repository.** It arrives by email and also
+   waits at `github.com/xjenosa/wardrobe/invitations`. Until it is accepted,
+   every push is refused.
+2. **Install the GitHub CLI** if `gh --version` finds nothing:
+   `winget install --id GitHub.cli` on Windows, `brew install gh` on a Mac.
+   Open a new terminal afterwards so it is on your path.
+3. **Sign in:**
+
+   ```bash
+   gh auth login
+   ```
+
+   Answer **GitHub.com**, then **HTTPS**, then **Yes** to authenticating Git,
+   then **Login with a web browser**. It prints a one-time code: copy it, press
+   Enter, paste it into the page that opens, and click **Authorize github**.
+4. **Check it:**
+
+   ```bash
+   gh auth status
+   ```
+
+   It names your account. From then on `git push -u origin yourname/what`
+   pushes your branch and `gh pr create` opens the pull request.
+
+**No GitHub CLI?** The website does the same job: push your branch, open the
+repository on github.com, and it offers to open the pull request for you.
+
 ## Who builds what
 
-| | member | track | screens | owns these directories |
-|---|---|---|---|---|
-| A | **Max** | **the frame** | First run, You | `src/lib/`, `src/theme/`, `src/nav/`, `src/screens/firstrun/`, `src/screens/you/` |
-| B | **Natasha** | **the day** | No forecast, Today, Weather | `src/screens/today/`, `src/screens/weather/`, `src/lib/forecast/` |
-| C | **Paul** | **the wardrobe** | Closet, Add garment, Item editor | `src/screens/closet/`, `src/screens/add/`, `src/screens/editor/` |
+| | member | GitHub | track | screens | owns these directories |
+|---|---|---|---|---|---|
+| A | **Max** | `xjenosa` | **the frame** | First run, You | `src/lib/`, `src/theme/`, `src/nav/`, `src/screens/firstrun/`, `src/screens/you/` |
+| B | **Natasha** | `natashaejercito` | **the day** | No forecast, Today, Weather | `src/screens/today/`, `src/screens/weather/`, `src/lib/forecast/` |
+| C | **Paul** | `minsikpaul92` | **the wardrobe** | Closet, Add garment, Item editor | `src/screens/closet/`, `src/screens/add/`, `src/screens/editor/` |
 
 **The tracks are split by SURFACE and not by layer.** Three people splitting a
 React Native app into "screens", "state" and "API" would all edit the same files
@@ -67,10 +100,10 @@ purpose:
 - **A navigator** with a route per screen in the table above, each one a stub
   that renders its own name.
 - **`src/theme/tokens.ts` and `src/strings/drawn.ts` are already written**, by
-  `node tools/extract.mjs`, which reads the mockup. **55 light tokens, 28 dark
-  overrides and 323 drawn sentences.** Nobody types a colour or retypes a
-  sentence: three people matching a colour by eye produce three colours, and
-  three people writing the same sentence from memory write three sentences.
+  `node tools/extract.mjs`, which reads the mockup. **55 tokens and 364 drawn
+  sentences.** Nobody types a colour or retypes a sentence: three people
+  matching a colour by eye produce three colours, and three people writing the
+  same sentence from memory write three sentences.
   Both files are committed, so the app builds without running anything, and
   `node tools/extract.mjs --check` fails when they drift from the drawing.
 - **`src/lib/pick.ts`**: sends the request in README.md and returns the
@@ -140,8 +173,7 @@ pass over the whole app with the network off.
 | Fig 23 | You | Max |
 
 **Seventeen plates, eight screens, three people.** Open
-[`docs/design/mobile.html`](design/mobile.html) or
-[`docs/design/desktop.html`](design/desktop.html) in a browser and read the
+[`docs/design/mobile.html`](design/mobile.html) in a browser and read the
 caption under each frame.
 
 ## What this plan does not decide
