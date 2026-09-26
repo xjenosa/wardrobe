@@ -42,8 +42,9 @@ premise changes there is something to re-read.**
   Paul the wardrobe, and one shell first that everybody waits for.
   docs/Build_Plan.md is the table.
 - **0008 The app is light only.** The reskin drew one palette, so no screen
-  offers a theme and none is checked in two. The mockup still carries a dark
-  block and a Theme row on Fig 23; both are removed at the source.
+  offers a theme and none is checked in two. The mockup's dark block, theme
+  script and Theme row were removed at the source, and tokens.ts has no `dark`
+  export.
 - **0009 There is no desktop app.** The app ships on phones, so there is one
   mockup, the phone, and the browser frame is deleted rather than left to go
   stale. ADR 0006 is amended to match.

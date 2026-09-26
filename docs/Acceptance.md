@@ -68,7 +68,7 @@ the running app.
 ## You, Fig 23
 
 - [ ] The list is grouped in sections, in the order Fig 23 draws them.
-- [ ] **There is no theme setting**, whatever Fig 23 draws. ADR 0008.
+- [ ] **There is no theme setting**, and Fig 23 draws none. ADR 0008.
 - [ ] Anything that can fail is visible without scrolling.
 
 ## What this file does not cover

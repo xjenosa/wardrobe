@@ -1,6 +1,8 @@
 # 0008. The app is light only
 
-Status: Accepted, 2026-09-25.
+Status: Accepted, 2026-09-25. Carried out the same day: the mockup draws no
+dark palette, no theme script and no Theme row, and `src/theme/tokens.ts` has no
+`dark` export.
 
 ## Context
 
@@ -21,15 +23,12 @@ palettes.
 
 ## Consequences
 
-- **The mockup still draws what this rules out**: a dark block in its
-  stylesheet, a script that follows the system setting, and a Theme row on
-  Fig 23 offering Light, Dark and System. They are removed at the source, never
-  here, and the Theme row is not built in the meantime.
-- **`src/theme/tokens.ts` exports that leftover `dark` set until then**, because
-  it mirrors the drawing. Nothing may use it. Once the drawing has no dark
-  palette, the extractor is changed to write no `dark` export at all, where
-  today it would write `dark = light`, so that code written for dark mode fails
-  to build instead of quietly drawing light.
+- **The mockup drew what this rules out**: a dark block in its stylesheet, a
+  script that follows the system setting, and a Theme row on Fig 23 offering
+  Light, Dark and System. All three were removed at the source, never here.
+- **`src/theme/tokens.ts` has no `dark` export.** The extractor writes one only
+  when the drawing carries a dark palette, never `dark = light`, so code written
+  for dark mode fails to build instead of quietly drawing light.
 - docs/Acceptance.md asks that a screen stays light with the phone in dark mode,
   instead of asking for a dark palette.
 
