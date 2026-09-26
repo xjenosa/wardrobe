@@ -144,6 +144,7 @@ const h = w => createHash('sha256').update(w).digest('hex').slice(0, 16);
     paper: '#FBF9F5', surface: '#FFFFFF', ink: '#1B1A17', muted: '#6F6B62',
     hairline: '#E2DDD3', edge: '#9B958A', field: '#F3F0E9', pill: '#FFFFFF',
     track: '#E2DDD3', scrim: 'rgba(28,26,22,.42)', grave: '#8F2F26',
+    disabled: '#968F85',
   };
   const MOCKUP = 'docs/design/mobile.html', TOKENS = 'src/theme/tokens.ts';
   const camel = k => k.replace(/-([a-z0-9])/g, (_, c) => c.toUpperCase());
