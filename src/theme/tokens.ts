@@ -59,6 +59,4 @@ export const light = {
   dur: ".18s",
 } as const;
 
-export const dark = light;
-
 export type TokenName = keyof typeof light;

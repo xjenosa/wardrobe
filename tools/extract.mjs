@@ -62,7 +62,10 @@ function tokensFile() {
     l,
     '} as const;',
     '',
-    dark ? 'export const dark = {\n' + d + '\n} as const;\n' : 'export const dark = light;\n',
+    /* NO DARK EXPORT WHEN THE DRAWING HAS NO DARK PALETTE, ADR 0008. `dark =
+       light` would let code written for dark mode build and quietly draw
+       light; a missing export makes the compiler find every such place. */
+    ...(dark ? ['export const dark = {\n' + d + '\n} as const;\n'] : []),
     'export type TokenName = keyof typeof light;',
     '',
   ].join('\n');
