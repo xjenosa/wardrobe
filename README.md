@@ -106,6 +106,9 @@ This project stands on open work.
 The idea of a photographed wardrobe that recommends an outfit, and the approach
 to cutting a garment out of a photograph, are adapted from
 [Wardrobe](https://github.com/tandpfun/wardrobe), used under the MIT License.
+**The visual style follows Wardrobe's too**: the quiet off-white page,
+near-black type, square corners and uppercase labels. The layouts and icons are
+this project's own. ADR 0011 records why.
 
 <details>
 <summary>MIT License (Wardrobe)</summary>

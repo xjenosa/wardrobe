@@ -40,6 +40,10 @@ and **this repository is public and is portfolio work.** Reproducing another
 company's interface is the single change that turns a portfolio piece into
 something that has to come down.
 
+**The one exception is Wardrobe**, the MIT-licensed app this project adapts and
+credits in README.md: its palette, type and shapes may be followed. Its layouts
+and icons may not, and no other app is an exception. ADR 0011.
+
 ## What must never be committed
 
 - **No secrets.** No `.env`, no API key, no service URL that is not meant to be

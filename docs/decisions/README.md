@@ -51,3 +51,7 @@ premise changes there is something to re-read.**
 - **0010 The licence is GPL-3.0, not MIT.** Anyone who publishes a changed
   version must publish its source. The credit to Wardrobe stays MIT, and Apple's
   App Store would need an exception every contributor agrees to.
+- **0011 The look follows Wardrobe, with credit.** The reskin's palette, type
+  and square corners follow Thijs Simonian's Wardrobe on purpose. It is MIT and
+  credited, so rule 2 names it as the one exception; its layouts and icons are
+  still not taken.
