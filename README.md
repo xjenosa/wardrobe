@@ -149,4 +149,8 @@ IN THE SOFTWARE.
 
 ## Licence
 
-MIT. See [LICENSE](LICENSE).
+**GPL-3.0-only.** Copyright (C) 2026 Maximilian Li. You may share and change
+this project under the GNU General Public License, version 3, and whoever
+publishes a changed version publishes its source under the same licence. It
+comes with no warranty. The full text is in [LICENSE](LICENSE), and ADR 0010
+says why it is not MIT.

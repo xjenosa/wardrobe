@@ -48,3 +48,6 @@ premise changes there is something to re-read.**
 - **0009 There is no desktop app.** The app ships on phones, so there is one
   mockup, the phone, and the browser frame is deleted rather than left to go
   stale. ADR 0006 is amended to match.
+- **0010 The licence is GPL-3.0, not MIT.** Anyone who publishes a changed
+  version must publish its source. The credit to Wardrobe stays MIT, and Apple's
+  App Store would need an exception every contributor agrees to.
