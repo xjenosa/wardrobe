@@ -46,9 +46,11 @@ something that has to come down.
   public, no token in a config file. Once it is in the history it is in the
   history, and this repository is public.
 - **No generated output**: `node_modules/`, build artefacts, `.expo/`.
-- **No private context.** `CLAUDE.local.md` and `.claude/settings.local.json`
-  are where anything you keep to yourself goes. This file is committed on
-  purpose, so that everybody's session reads the same rules; those two are not.
+- **No private context.** `CLAUDE.local.md`, `QUEUE.md` and
+  `.claude/settings.local.json` are where anything you keep to yourself goes.
+  `QUEUE.md` is one person's queue of session work; the team's list stays in the
+  issues. This file is committed on purpose, so that everybody's session reads
+  the same rules; those three are not.
 - **`.gitignore` carries no comments and neither does anything else here.** Its
   entries are the list and this section is the reason, and a reason written in
   two places goes stale in one of them.
