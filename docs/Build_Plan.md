@@ -24,6 +24,38 @@ git config user.name "Your Name"
 git config user.email "you@example.com"
 ```
 
+## Before step 0: sign in to GitHub, once per machine
+
+**Everything you write reaches `main` as a pull request**, so your machine has
+to be able to push a branch and open one. It takes about a minute.
+
+1. **Accept the invitation to this repository.** It arrives by email and also
+   waits at `github.com/xjenosa/wardrobe/invitations`. Until it is accepted,
+   every push is refused.
+2. **Install the GitHub CLI** if `gh --version` finds nothing:
+   `winget install --id GitHub.cli` on Windows, `brew install gh` on a Mac.
+   Open a new terminal afterwards so it is on your path.
+3. **Sign in:**
+
+   ```bash
+   gh auth login
+   ```
+
+   Answer **GitHub.com**, then **HTTPS**, then **Yes** to authenticating Git,
+   then **Login with a web browser**. It prints a one-time code: copy it, press
+   Enter, paste it into the page that opens, and click **Authorize github**.
+4. **Check it:**
+
+   ```bash
+   gh auth status
+   ```
+
+   It names your account. From then on `git push -u origin yourname/what`
+   pushes your branch and `gh pr create` opens the pull request.
+
+**No GitHub CLI?** The website does the same job: push your branch, open the
+repository on github.com, and it offers to open the pull request for you.
+
 ## Who builds what
 
 | | member | GitHub | track | screens | owns these directories |
