@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+CLAUDE.local.md
+QUEUE.md
+.claude/settings.local.json
+node_modules/
+.expo/
+dist/
+build/
+*.tsbuildinfo
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
