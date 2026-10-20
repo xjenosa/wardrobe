@@ -41,3 +41,9 @@ The request and response shapes are in README.md and they are the contract.
 something requires a score, a weight or an intermediate value, then either the
 boundary is in the wrong place or the arithmetic is leaking into the client one
 field at a time. Say so and stop; it is a decision rather than a patch.
+
+## Amended by ADR 0021, 2026-10-20
+
+**"With the network off" means with no service address set.** With one set and
+the network off, Today shows the day's kept answer if it was made for the same
+closet in the same units, or else the failure state, and the fixture never stands in for it.

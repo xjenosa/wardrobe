@@ -1,5 +1,8 @@
 {
-  "wear": ["g1", "g2", "g3"],
-  "suitsC": { "lowC": -3, "highC": 5 },
-  "because": "Cold, and this is the warmest thing you own that is not a parka."
+  "wear": ["g1", "g2", "g3", "g4"],
+  "suitsC": { "lowC": -9, "highC": 1 },
+  "because": "Light snow and −7°. The navy overcoat over the oatmeal crewneck, with the espresso leather boot for fresh snow.",
+  "dayLine": "Cold, with snow on the wind.",
+  "takeLine": "Take a beanie and gloves.",
+  "fits": true
 }

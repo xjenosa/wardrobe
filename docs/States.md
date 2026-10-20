@@ -46,6 +46,9 @@ table says in words what to build, and that row is the specification.
 | **Nothing fits, too cold** | the closet cannot cover the day | says so plainly, and offers to wear it anyway | **Fig 09** |
 | **Nothing in the closet** | the forecast is fine, the closet is empty | points at the closet, not at the weather | **Fig 10b** |
 | **The forecast failed** | no weather to pick from | **Fig 11**, and ADR 0003 says this is built first |
+| **The pick failed, today's answer kept** | the ask failed, and `pick()` hands back an answer made today for the closet and the units as they are now | no plate. That answer as it was, and one line saying it is from earlier today. The line's words are Today's to choose (ADR 0021) |
+| **The pick failed** | the ask failed and nothing from today is kept | no plate. Keep the weather, say the outfit could not be picked, and offer to try again. **Never the fixture** (ADR 0021) |
+| **No service yet** | no service address is set and the closet is not the sample one, so `pick()` fails as `noService` | no plate. Say there is no recommendation service yet. A state of the build, never of a release |
 
 ## Weather
 

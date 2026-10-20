@@ -38,6 +38,7 @@ export const light = {
   gDenim: "#3C4A60",
   gStone: "#B7B1A2",
   gEspresso: "#4A3B30",
+  gBlack: "#1F1F22",
   photoGround: "#CFCAC2",
   photoShade: "#ADA79D",
   photoInk: "#33312D",

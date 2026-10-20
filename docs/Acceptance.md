@@ -10,9 +10,13 @@ the running app.
 
 ## Every screen, before its own list
 
-- [ ] **Every colour comes from `src/theme/tokens.ts`.** No hex in a component.
+- [ ] **Every colour comes from `src/theme/tokens.ts`.** No hex or colour name
+      in a component; `npm run lint` refuses both.
 - [ ] **Every word comes from `src/strings/`.** No sentence typed into a view.
-- [ ] **It works with the network off**, on the fixture, end to end.
+      `npm run lint` refuses one written into a view, a label or an alert; one
+      put in a variable first gets past it, so look.
+- [ ] **It works with no service address set**, on the fixtures and the sample
+      closet, end to end.
 - [ ] **Its loading state is drawn**, and is the shape of what is coming rather
       than a spinner over nothing.
 - [ ] **Its failure state is drawn**, and keeps whatever the screen already had.
@@ -73,7 +77,7 @@ the running app.
 
 ## What this file does not cover
 
-**Automated tests.** Nothing here runs by itself, and that is a gap rather than
-a decision: these are boxes a person ticks. Whether this project has a test
-suite, and what it covers, is not decided. docs/Build_Plan.md says the same and
-says it should be settled before step 1.
+**What the checks already prove.** ADR 0015 says how the app is tested: the
+tests, the type check and lint run on every pull request, and a red one is not
+merged. These boxes are what those checks cannot see, so a person ticks them in
+Expo Go.

@@ -47,6 +47,7 @@
   --g-denim:#3C4A60;
   --g-stone:#B7B1A2;
   --g-espresso:#4A3B30;
+  --g-black:#1F1F22;
 
   --photo-ground:#CFCAC2;
   --photo-shade:#ADA79D;
@@ -92,7 +93,12 @@ body{
 button,input,select{font-family:inherit;color:inherit;}
 
 button{padding:0;}
-:focus-visible{outline:2px solid var(--ink);outline-offset:2px;border-radius:0;}
+:focus-visible{outline:2px solid var(--ink);outline-offset:calc(2px - var(--hit, 0px));border-radius:0;}
+
+:is([role="dialog"], [role="alertdialog"], h1):focus-visible{outline:none;}
+
+[data-ring="before"]:focus-visible, [data-ring="child"]:focus-visible{outline:none;}
+[data-ring="before"]:focus-visible::before, [data-ring="child"]:focus-visible > :first-child{outline:2px solid var(--ink);outline-offset:2px;}
 
 .studio{max-width:1580px;margin:0 auto;padding:56px 24px 96px;}
 @media (max-width:560px){.studio{padding:40px 16px 96px;}}
@@ -116,6 +122,8 @@ button{padding:0;}
 
 .device{width:min(390px,calc(100vw - 28px));background:var(--bezel);padding:8px;border-radius:50px;box-shadow:var(--device-shadow);}
 .screen{position:relative;width:100%;height:844px;background:var(--paper);border-radius:42px;overflow:hidden;display:flex;flex-direction:column;}
+
+.screen{container:phone / size;}
 @media (max-width:420px){.screen{height:min(844px,calc(100vh - 116px));min-height:680px;}}
 
 .statusbar{flex:none;height:46px;padding:0 28px 0 32px;display:flex;align-items:center;justify-content:space-between;color:var(--ink);z-index:5;}
@@ -177,11 +185,11 @@ button{padding:0;}
 .today-head .whisper,.today-head .loading-word{min-height:60px;}
 .whisper .t{font-variant-numeric:tabular-nums;}
 
-.hero{flex:0 0 auto;aspect-ratio:1/1;width:auto;height:max(190px,min(100cqw,calc(100% - 407px)));margin:8px auto 0;border-radius:0;overflow:hidden;background:linear-gradient(178deg,var(--render-a),var(--render-b));display:grid;grid-template-rows:minmax(0,1fr) auto;place-items:center;padding:12px;position:relative;}
+.hero{flex:0 0 auto;aspect-ratio:1/1;width:auto;max-width:100%;height:max(190px,min(calc(100cqw / .8),calc(100% - 407px)));margin:8px auto 0;border-radius:0;overflow:hidden;background:linear-gradient(178deg,var(--render-a),var(--render-b));display:grid;grid-template-rows:minmax(0,1fr) auto;place-items:center;padding:12px;position:relative;}
 
-.hero-pieces{display:grid;grid-template-columns:repeat(2,auto);grid-template-rows:repeat(2,minmax(0,1fr));justify-content:center;align-content:center;align-items:center;gap:12px;padding:0 12px;width:100%;height:100%;min-height:0;box-sizing:border-box;}
+.hero-pieces{display:grid;grid-template-columns:repeat(2,auto);grid-template-rows:repeat(2,minmax(0,200px));justify-content:center;align-content:center;align-items:center;gap:12px;padding:0 12px;width:100%;height:100%;min-height:0;box-sizing:border-box;}
 
-.hp{height:100%;max-height:80px;width:auto;aspect-ratio:.8;border-radius:0;background:var(--field);border:1px solid var(--hairline);display:grid;place-items:center;padding:8px;}
+.hp{height:100%;width:auto;aspect-ratio:.8;border-radius:0;background:var(--field);border:1px solid var(--hairline);display:grid;place-items:center;padding:8px;}
 .hp .gm{width:100%;height:100%;}
 
 .hero-say{margin:0;text-align:center;}
@@ -279,7 +287,7 @@ button.is-undo:hover{border-color:var(--muted);}
 .set-row .link-btn:hover{border-color:var(--muted);}
 .link-btn.strong{color:var(--ink);}
 
-.filters{display:flex;gap:8px;margin-top:12px;padding:0 0 4px;overflow-x:auto;scrollbar-width:none;flex:none;-webkit-mask:linear-gradient(90deg,#000 calc(100% - 40px),transparent);mask:linear-gradient(90deg,#000 calc(100% - 40px),transparent);}
+.filters{display:flex;gap:8px;margin-top:8px;padding:4px 0;overflow-x:auto;scrollbar-width:none;flex:none;-webkit-mask:linear-gradient(90deg,#000 calc(100% - 40px),transparent);mask:linear-gradient(90deg,#000 calc(100% - 40px),transparent);}
 
 .filter-cats{display:flex;gap:8px;flex:none;}
 .filters::-webkit-scrollbar{display:none;}
@@ -308,7 +316,13 @@ button.is-undo:hover{border-color:var(--muted);}
 .hero-pieces.is-photos .hp,.outfit.is-photos .o-pieces .gm{border-color:var(--photo-shade);}
 .piece.is-uncut .frame-box{background:linear-gradient(155deg,var(--photo-ground) 0%,var(--photo-shade) 100%);border:1px solid var(--hairline);border-radius:0;overflow:hidden;padding:0;}
 
+.avatar,.piece.is-uncut .frame-box{border-color:transparent;}
+.avatar{position:relative;}
+.avatar::after,.piece.is-uncut .frame-box::after{content:"";position:absolute;inset:0;border:1px solid var(--hairline);border-radius:0;pointer-events:none;z-index:1;}
+
 .piece.is-uncut .gm{height:122%;margin-top:-11%;}
+
+.piece .frame-box{padding:0;}
 
 .piece.is-uncut .heart{top:8px;right:8px;color:var(--photo-ink);z-index:4;}
 
@@ -320,6 +334,10 @@ button.is-undo:hover{border-color:var(--muted);}
 .offer .oa{flex:none;}
 
 .offer-in-hero{grid-row:2;align-self:end;justify-self:stretch;width:100%;margin-top:12px;background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(10px);z-index:2;}
+
+.offer-in-hero{flex-wrap:wrap;row-gap:8px;}
+.offer-in-hero .ot{flex:1 1 140px;}
+.offer-in-hero .oa{margin-left:auto;}
 
 .piece figcaption{margin-top:8px;padding:0 4px;}
 
@@ -339,11 +357,11 @@ button.is-undo:hover{border-color:var(--muted);}
 .c-navy{color:var(--g-navy);} .c-oatmeal{color:var(--g-oatmeal);} .c-charcoal{color:var(--g-charcoal);}
 .c-olive{color:var(--g-olive);} .c-camel{color:var(--g-camel);} .c-ecru{color:var(--g-ecru);}
 .c-rust{color:var(--g-rust);} .c-slate{color:var(--g-slate);} .c-denim{color:var(--g-denim);}
-.c-stone{color:var(--g-stone);} .c-espresso{color:var(--g-espresso);}
+.c-stone{color:var(--g-stone);} .c-espresso{color:var(--g-espresso);} .c-black{color:var(--g-black);}
 
 .piece.is-sel .frame-box{background:color-mix(in srgb,var(--ink) 5%,transparent);border-radius:0;box-shadow:inset 0 0 0 1.5px var(--ink);}
 
-.sel-check{position:absolute;top:8px;left:8px;width:22px;height:22px;border-radius:0;background:var(--surface);border:1px solid var(--edge);color:var(--muted);display:none;place-items:center;z-index:3;}
+.sel-check{position:absolute;top:8px;left:8px;width:22px;height:22px;border-radius:0;background:var(--surface);border:1px solid var(--edge);color:var(--muted);display:none;place-items:center;z-index:3;pointer-events:none;}
 .sel-check svg{display:block;opacity:0;transition:opacity var(--dur) var(--ease);}
 .selectable .sel-check{display:grid;}
 .piece.is-sel .sel-check{background:var(--ink);border-color:var(--ink);color:var(--paper);}
@@ -387,7 +405,7 @@ button.is-undo:hover{border-color:var(--muted);}
 
 .home-indicator{width:120px;height:4px;border-radius:0;background:var(--ink);opacity:.16;margin:24px auto 8px;}
 
-.of-feature{flex:none;margin-top:0;padding:16px 0 20px;border-bottom:1px solid var(--hairline);}
+.of-feature{flex:none;margin-top:0;padding:16px 0;border-bottom:1px solid var(--hairline);}
 
 .of-suggest{position:relative;margin-top:12px;aspect-ratio:1/1;width:200px;max-width:100%;margin-inline:auto;border-radius:0;overflow:hidden;background:linear-gradient(178deg,var(--render-a),var(--render-b));display:grid;place-items:center;}
 
@@ -483,6 +501,8 @@ button.is-undo:hover{border-color:var(--muted);}
 
 .render.is-photo>.uncut-mark{position:absolute;bottom:16px;left:16px;z-index:2;}
 
+.drawer > .render{flex:0 1 auto;min-height:96px;}
+.drawer > .drawer-body{flex-basis:0;min-height:100px;}
 .drawer-body{flex:1 1 auto;overflow-y:auto;overscroll-behavior-y:contain;padding:20px 20px 8px;scrollbar-width:none;}
 .drawer-body::-webkit-scrollbar{display:none;}
 
@@ -509,7 +529,8 @@ button.is-undo:hover{border-color:var(--muted);}
 
 .search-row{position:relative;display:flex;align-items:center;margin-top:16px;}
 .search-row .sm{position:absolute;left:12px;color:var(--muted);pointer-events:none;}
-.search{width:100%;height:40px;border:1px solid var(--edge);border-radius:0;background:var(--field);color:var(--ink);padding:0 12px 0 36px;font:500 15px/1 var(--sans);letter-spacing:-.005em;appearance:none;-webkit-appearance:none;}
+
+.search{width:100%;height:44px;border:1px solid var(--edge);border-radius:0;background:var(--field);color:var(--ink);padding:0 12px 0 36px;font:500 15px/1 var(--sans);letter-spacing:-.005em;appearance:none;-webkit-appearance:none;}
 .search::-webkit-search-cancel-button{appearance:none;}
 .input,.select{width:100%;height:44px;border:1px solid var(--edge);border-radius:0;background:var(--field);color:var(--ink);padding:0 12px;font:500 15px/1 var(--sans);letter-spacing:-.005em;transition:border-color var(--dur) var(--ease);}
 .select{appearance:none;-webkit-appearance:none;cursor:pointer;background-image:var(--chev);background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;}
@@ -528,7 +549,7 @@ button.is-undo:hover{border-color:var(--muted);}
 .drawer.is-sampling .field.is-live{opacity:1;pointer-events:auto;}
 
 .render.is-sampling{cursor:pointer;touch-action:none;}
-.swatch-lg.is-on{box-shadow:var(--swatch-edge),var(--shutter-ring);}
+.swatch-lg.is-on{box-shadow:var(--swatch-edge),var(--shutter-ring);--hit:-6px;}
 .pick-loupe{position:absolute;width:76px;height:76px;border-radius:0;box-shadow:var(--shutter-ring),var(--lift-shadow);overflow:hidden;display:grid;place-items:center;pointer-events:none;}
 
 .pick-loupe .xh{position:absolute;width:15px;height:15px;border:1.5px solid var(--paper);border-radius:0;mix-blend-mode:difference;}
@@ -637,7 +658,8 @@ button.is-undo:hover{border-color:var(--muted);}
 .topbar .link-btn{margin-left:auto;}
 
 .capture-stage{--cap-foot:126px;flex:1 1 auto;display:flex;flex-direction:column;padding:20px 24px 0;min-height:0;}
-.viewfinder{position:relative;flex:1 1 auto;min-height:0;border-radius:0;background:linear-gradient(176deg,var(--render-a),var(--render-b));overflow:hidden;display:grid;place-items:center;}
+
+.viewfinder{position:relative;flex:1 1 auto;min-height:0;border-radius:0;background:linear-gradient(176deg,var(--render-a),var(--render-b));overflow:hidden;display:grid;grid-template-rows:minmax(0,1fr);place-items:center;}
 
 .viewfinder .subject{width:auto;height:340px;max-height:100%;filter:var(--gm-shadow);position:relative;z-index:1;}
 
@@ -657,7 +679,7 @@ button.is-undo:hover{border-color:var(--muted);}
 
 .cap-flash.is-on{color:var(--ink);}
 .cap-flash.is-on svg{fill:currentColor;}
-.cap-shutter{width:66px;height:66px;border-radius:0;border:none;background:none;cursor:pointer;display:grid;place-items:center;}
+.cap-shutter{width:66px;height:66px;border-radius:0;border:none;background:none;cursor:pointer;display:grid;place-items:center;--hit:-2px;}
 .cap-shutter span{width:58px;height:58px;border-radius:50%;background:var(--ink);box-shadow:var(--shutter-ring);transition:transform .12s var(--ease);display:block;}
 .cap-shutter:active span{transform:scale(.92);}
 
@@ -693,8 +715,14 @@ button.is-undo:hover{border-color:var(--muted);}
 
 .set-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0;border-bottom:1px solid var(--hairline);width:100%;text-align:left;background:none;border-left:none;border-right:none;border-top:none;}
 .set-row:last-child{border-bottom:none;}
+
+.set-row:has(+ .set-legend){border-bottom:none;}
 button.set-row{cursor:pointer;}
 
+.city-list{margin-top:8px;}
+.city-row{display:flex;align-items:center;gap:12px;width:100%;padding:16px 0;border:none;border-bottom:1px solid var(--hairline);background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;}
+.city-row:last-child{border-bottom:none;}
+.city-row .here-glyph{flex:none;color:var(--ink);}
 .set-legend{margin:24px 4px 8px;font:600 11px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--muted);}
 .set-legend:first-of-type{margin-top:16px;}
 .set-label{display:flex;flex-direction:column;gap:4px;min-width:0;}
@@ -774,10 +802,10 @@ button.set-row{cursor:pointer;}
 .cf-acts .es-act{flex:1 1 0;min-width:max-content;white-space:nowrap;padding:0;font-size:13px;}
 .confirm-over{position:absolute;inset:0;z-index:9;display:flex;align-items:center;justify-content:center;padding:24px;}
 
-.notice{display:flex;align-items:center;gap:12px;min-height:48px;padding:12px 12px;border:1px solid var(--hairline);border-radius:0;background:var(--field);}
+.notice{display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;min-height:48px;padding:12px 12px;border:1px solid var(--hairline);border-radius:0;background:var(--field);}
 .notice>svg{flex:none;margin-top:1px;color:var(--muted);}
-.notice .nt{flex:1 1 auto;font:400 13px/1.4 var(--sans);color:var(--ink);}
-.notice .na{flex:none;display:inline-flex;align-items:center;min-height:44px;border:none;background:none;color:var(--ink);cursor:pointer;font:600 11px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;padding:0 8px;margin:-12px -4px -12px 0;}
+.notice .nt{flex:1 1 140px;font:400 13px/1.4 var(--sans);color:var(--ink);}
+.notice .na{flex:none;display:inline-flex;align-items:center;min-height:44px;border:none;background:none;color:var(--ink);cursor:pointer;font:600 11px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;padding:0 8px;margin:-12px -4px -12px auto;}
 
 .notices{flex:none;display:flex;flex-direction:column;gap:8px;margin:12px 4px 24px;}
 
@@ -799,15 +827,22 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
 
 .wx-head p{margin:0;}
 .wx-place{font:600 11px/1 var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--muted);}
-.wx-day{margin-top:8px;font:500 15px/1 var(--sans);color:var(--ink);}
+.wx-day{font:500 15px/1 var(--sans);color:var(--ink);}
 
-.wx-hero{margin-top:16px;font:200 72px/1 var(--sans);letter-spacing:-.04em;color:var(--ink);font-variant-numeric:tabular-nums;}
+.wx-hero{font:200 72px/1 var(--sans);letter-spacing:-.04em;color:var(--ink);font-variant-numeric:tabular-nums;}
 
-.wx-hero .sign{font-size:.4em;letter-spacing:-.16em;}
+.wx-hero .sign{font-size:.4em;letter-spacing:-.16em;vertical-align:.6em;}
 .wx-hero sup{font-size:.34em;font-weight:200;letter-spacing:0;vertical-align:top;position:relative;top:.06em;}
-.wx-ends{margin-top:12px;font:400 13px/1 var(--sans);color:var(--muted);font-variant-numeric:tabular-nums;}
+
+.wx-feels{font:400 13px/1 var(--sans);color:var(--muted);font-variant-numeric:tabular-nums;}
+.wx-ends{font:400 13px/1 var(--sans);color:var(--muted);font-variant-numeric:tabular-nums;}
+.wx-feels + .wx-ends{margin-top:8px;}
+
+.wx-head p:empty{min-height:1lh;}
 
 .wx-scroller,.wx-precip{--wx-fit:7;}
+
+.wx-scroller{--wx-event:12px;}
 .wx-scroller{position:relative;}
 
 .wx-precip{margin-top:24px;}
@@ -822,7 +857,7 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
 .wx-strip{flex:none;display:flex;gap:4px;margin-top:12px;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;}
 .wx-strip::-webkit-scrollbar{display:none;}
 
-.wx-hour{flex:none;width:calc((100% - (var(--wx-fit) - 1) * 4px) / var(--wx-fit));min-width:min-content;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--muted);}
+.wx-hour{flex:none;width:max(calc((100% - (var(--wx-fit) - 1) * 4px) / var(--wx-fit)),calc(var(--wx-event) * 3.5));min-width:min-content;display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--muted);}
 
 .wx-cell{width:100%;display:flex;flex-direction:column;align-items:center;gap:12px;padding-top:12px;padding-bottom:12px;border-radius:0;}
 .wx-cell.is-in{background:var(--ink);color:var(--paper);}
@@ -837,13 +872,15 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
 
 .wx-blank .es-body{margin-top:0;}
 .wx-rows{margin-top:24px;}
-.wx-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-top:12px;padding-bottom:12px;border-top:1px solid var(--hairline);}
+
+.wx-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-top:12px;padding-bottom:12px;border-bottom:1px solid var(--hairline);}
+.wx-row:last-child{border-bottom:none;}
 .wx-row .k{font:400 13px/1 var(--sans);color:var(--muted);}
 .wx-row .v{font:500 15px/1 var(--sans);color:var(--ink);font-variant-numeric:tabular-nums;}
 
-.wx-hour.is-event .t{font-size:12px;letter-spacing:0;}
+.wx-hour.is-event .t{font-size:var(--wx-event);letter-spacing:0;}
 
-.wx-notice{margin-top:24px;margin-bottom:20px;}
+.wx-notice{margin-bottom:20px;}
 
 .sheet{width:min(760px,calc(100vw - 44px));margin:0 auto;background:var(--paper);border:1px solid var(--hairline);border-radius:0;padding:28px 24px 32px;box-shadow:var(--card-shadow);}
 .sheet h3{margin:28px 0 0;font:600 11px/1 var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--muted);}
@@ -863,7 +900,7 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
 .entry-fill{flex:1 1 auto;display:flex;flex-direction:column;padding-top:52px;min-height:0;}
 .entry-fill>h2{margin-top:0;}
 
-.entry-mark{flex:none;width:52px;height:52px;margin:72px auto 0;border-radius:0;color:var(--paper);display:grid;place-items:center;font-family:var(--sans);font-weight:400;font-size:28px;letter-spacing:-.03em;line-height:1;padding-top:.125em;}
+.entry-mark{flex:none;width:52px;height:52px;margin:72px auto 0;border-radius:0;color:var(--paper);display:grid;place-items:center;font-family:var(--sans);font-weight:400;font-size:28px;letter-spacing:-.03em;line-height:1;padding-right:.04em;}
 .entry-word{margin:20px 0 0;font-family:var(--sans);font-weight:400;font-size:34px;line-height:1;letter-spacing:-.02em;color:var(--ink);}
 .entry-lede{margin:12px auto 0;max-width:26ch;font-family:var(--sans);font-weight:400;font-size:16px;line-height:1.4;color:var(--muted);}
 .entry-actions{margin-top:32px;display:flex;flex-direction:column;gap:12px;}
@@ -944,11 +981,11 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
 
 .topbar + .body .entry-actions{margin-top:20px;}
 
-.hero-pieces.is-bare .hp{max-height:110px;}
-
 .dg-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--hairline);}
 
 .dg-row:has(.dg-reset){align-items:center;}
+
+.dg-row:has(+ .dg-legend){border-bottom:none;}
 .dg-row:last-of-type{border-bottom:none;}
 .dg-k{flex:none;font:500 13px/1.4 var(--sans);color:var(--muted);}
 .dg-v{text-align:right;font:500 13px/1.4 var(--sans);color:var(--ink);}
@@ -982,7 +1019,7 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
 .lock-clock{margin-top:4px;font:300 78px/1 var(--sans);letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums;}
 .lock-mid{flex:1 1 auto;display:flex;flex-direction:column;justify-content:flex-start;padding-top:36px;min-height:0;}
 .notif{display:flex;gap:12px;padding:16px;background:color-mix(in srgb,var(--surface) 78%,transparent);border:1px solid color-mix(in srgb,var(--ink) 8%,transparent);border-radius:0;box-shadow:var(--card-shadow);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);}
-.notif-mark{flex:none;width:42px;height:42px;border-radius:0;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-family:var(--sans);font-weight:400;font-size:20px;letter-spacing:-.03em;line-height:1;padding-top:.125em;}
+.notif-mark{flex:none;width:42px;height:42px;border-radius:0;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-family:var(--sans);font-weight:400;font-size:20px;letter-spacing:-.03em;line-height:1;padding-right:.04em;}
 .notif-main{flex:1 1 auto;min-width:0;}
 .notif-head{display:flex;align-items:center;justify-content:space-between;gap:8px;}
 
@@ -1005,6 +1042,16 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
 .whisper{max-width:52ch;}
 .doc-p,.doc-foot,.disclose,.capture-hint,.doc-list li,.gets li{max-width:66ch;}
 .entry-fine,.ai-note,.form-hint{max-width:72ch;}
+
+@container phone (orientation: landscape) and (max-height: 540px) {
+  .body:has(> .today-head){display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:24px;align-content:start;container-type:size;}
+  .body:has(> .today-head) > *{grid-column:1;}
+  .body:has(> .today-head) > .hero{grid-column:2;grid-row:1 / span 8;align-self:start;height:max(190px,100cqh);margin:0;position:sticky;top:0;}
+  .capture-stage{flex-direction:row;gap:12px;padding:12px 0 12px 24px;}
+  .cap-controls{flex-direction:column-reverse;min-height:0;width:104px;padding:8px 0;}
+  .cap-side{width:auto;}
+  .sheet-up{top:46px;}
+}
 
 @media (prefers-reduced-motion: reduce){
   *{transition:none !important;animation:none !important;scroll-behavior:auto !important;}
@@ -1038,7 +1085,29 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
 .switch.is-on{border-color:var(--ink);}
 
 .piece-x{padding:0;}
+
+html[data-frame="screen"],html[data-frame="screen"] body{background:transparent;}
+html[data-frame="screen"] body{margin:0;overflow:hidden;visibility:hidden;}
+html[data-frame="screen"].is-found body{visibility:visible;}
+html[data-frame="screen"] .is-off{display:none !important;}
+html[data-frame="screen"] .is-path{display:block !important;margin:0 !important;padding:0 !important;max-width:none !important;}
+html[data-frame="screen"] .plate.is-shown{display:block !important;margin:0 !important;}
+html[data-frame="screen"] .plate.is-shown > .device{width:390px;box-shadow:none;}
+
+html[data-frame="screen"] .plate.is-shown .screen{height:844px;min-height:0;}
+html[data-part="screen"] .plate.is-shown > .device{width:374px;padding:0;background:none;border-radius:0;}
+html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
 </style>
+<script>
+
+(function(){
+  var q = new URLSearchParams(location.search);
+  if (q.get('frame') !== 'screen') return;
+  document.documentElement.setAttribute('data-frame', 'screen');
+  document.documentElement.setAttribute('data-fig', q.get('fig') || '');
+  if (q.get('part') === 'screen') document.documentElement.setAttribute('data-part', 'screen');
+})();
+</script>
 </head>
 <body>
 
@@ -1342,7 +1411,7 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
               <h2 class="display">A photo of you</h2>
               <p class="entry-lede">Full length, plain background, facing the camera.</p>
 
-              <div class="disclose">Sent to the image model with each outfit it draws, and stored like your garments. Change or remove it any time.</div>
+              <div class="disclose">It is sent to the image model with your garments each time an outfit is drawn, and it is stored the same way the rest of your wardrobe is. Nothing else uses it, and you can replace or remove it at any time.</div>
 
               <div class="entry-actions">
                 <button class="btn-primary is-block is-entry">Take a photo</button>
@@ -1467,7 +1536,7 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
             <div class="hero" aria-live="polite">
 
               <div class="pic-track">
-                <div class="pic-page" role="tabpanel" id="picpanel-1a" aria-labelledby="pictab-1a"><svg class="hero-figure" viewBox="0 0 240 540" role="img" aria-label="Today's outfit, worn. Navy overcoat over an oatmeal knit, charcoal trousers and espresso leather boots">
+                <div class="pic-page" role="tabpanel" id="picpanel-1a" aria-labelledby="pictab-1a"><svg class="hero-figure" viewBox="0 0 240 540" role="img" aria-label="Today&rsquo;s outfit, worn. The navy overcoat over the oatmeal crewneck, the charcoal trousers and the espresso leather boot.">
                 <use href="#fig-body"/>
               </svg></div>
                 <div class="pic-page" role="tabpanel" id="picpanel-1b" aria-labelledby="pictab-1b"><div class="hero-pieces is-cut"><span class="hp"><svg class="gm c-navy" role="img" aria-label="Navy overcoat" viewBox="0 0 120 128"><use href="#g-jacket"/></svg></span><span class="hp"><svg class="gm c-oatmeal" role="img" aria-label="Oatmeal crewneck" viewBox="0 0 120 128"><use href="#g-crew"/></svg></span><span class="hp"><svg class="gm c-charcoal" role="img" aria-label="Charcoal trousers" viewBox="0 0 120 128"><use href="#g-trou"/></svg></span><span class="hp"><svg class="gm c-espresso" role="img" aria-label="Espresso leather boot" viewBox="0 0 120 128"><use href="#g-boot"/></svg></span></div></div>
@@ -1498,7 +1567,7 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
             <div class="why has-adjust">
               <div class="why-panel">
               <span class="why-k">Why this</span>
-              <p>Snow and <span class="t">&minus;4&deg;</span>. Wool over wool under the <b>navy overcoat</b>, with espresso boots for fresh snow.</p>
+              <p>Light snow and <span class="t">&minus;7&deg;</span>. The <b>navy overcoat</b> over the <b>oatmeal crewneck</b>, with the <b>espresso leather boot</b> for fresh snow.</p>
               </div>
               <button class="why-trigger" data-why aria-expanded="false">Why this
               <svg class="chev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5 6 4l3.5 3.5"/></svg>
@@ -1613,7 +1682,7 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
             <div class="why has-adjust">
               <div class="why-panel">
               <span class="why-k">Why this</span>
-              <p>Snow and <span class="t">&minus;4&deg;</span>. Wool over wool under the <b>navy overcoat</b>, with espresso boots for fresh snow.</p>
+              <p>Light snow and <span class="t">&minus;7&deg;</span>. The <b>navy overcoat</b> over the <b>oatmeal crewneck</b>, with the <b>espresso leather boot</b> for fresh snow.</p>
               </div>
               <button class="why-trigger" data-why aria-expanded="false">Why this
               <svg class="chev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5 6 4l3.5 3.5"/></svg>
@@ -1695,13 +1764,13 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
                   </div>
                 </div>
               </div>
-              <p class="whisper"><span class="wf">Colder than anything you own is made for.</span><span class="wf">Take a beanie and gloves.</span></p>
+              <p class="whisper"><span class="wf">Colder than anything you own is made for.</span><span class="wf">Wear thermals. Take a beanie and gloves.</span></p>
             </div>
 
             <div class="hero" aria-live="polite">
 
               <div class="pic-track">
-                <div class="pic-page" role="tabpanel" id="picpanel-3a" aria-labelledby="pictab-3a"><svg class="hero-figure" viewBox="0 0 240 540" role="img" aria-label="The closest option, worn. Navy overcoat over an oatmeal knit, charcoal trousers and espresso leather boots">
+                <div class="pic-page" role="tabpanel" id="picpanel-3a" aria-labelledby="pictab-3a"><svg class="hero-figure" viewBox="0 0 240 540" role="img" aria-label="The closest option, worn. The navy overcoat over the oatmeal crewneck, the charcoal trousers and the espresso leather boot.">
                 <use href="#fig-body"/>
               </svg></div>
                 <div class="pic-page" role="tabpanel" id="picpanel-3b" aria-labelledby="pictab-3b"><div class="hero-pieces is-cut"><span class="hp"><svg class="gm c-navy" role="img" aria-label="Navy overcoat" viewBox="0 0 120 128"><use href="#g-jacket"/></svg></span><span class="hp"><svg class="gm c-oatmeal" role="img" aria-label="Oatmeal crewneck" viewBox="0 0 120 128"><use href="#g-crew"/></svg></span><span class="hp"><svg class="gm c-charcoal" role="img" aria-label="Charcoal trousers" viewBox="0 0 120 128"><use href="#g-trou"/></svg></span><span class="hp"><svg class="gm c-espresso" role="img" aria-label="Espresso leather boot" viewBox="0 0 120 128"><use href="#g-boot"/></svg></span></div></div>
@@ -1732,9 +1801,9 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
             <div class="why has-adjust">
               <div class="why-panel">
               <span class="why-k">Why this</span>
-              <p>Your warmest is the <b>navy overcoat</b>, good to about <span class="t">&minus;5&deg;</span>.
+              <p>Your warmest is the <b>navy overcoat</b>, good to about <span class="t">0&deg;</span>.
               Today feels like <span class="t">&minus;21&deg;</span>, so it may not be enough on its own.
-              Layering the oatmeal knit under it is the warmest you own.</p>
+              Layering the oatmeal crewneck under it is the warmest you own.</p>
               </div>
               <button class="why-trigger" data-why aria-expanded="false">Why this
               <svg class="chev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5 6 4l3.5 3.5"/></svg>
@@ -2024,6 +2093,7 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
               <p class="wx-place">Toronto, CA</p>
               <p class="wx-day">Thursday 8 January</p>
               <p class="wx-hero"><span class="sign">&minus;</span>5<sup>&deg;</sup></p>
+              <p class="wx-feels">Feels like &minus;8&deg;</p>
               <p class="wx-ends">High +2&deg; &middot; Low &minus;8&deg;</p>
             </div>
               <div class="wx-scroller">
@@ -2063,6 +2133,7 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
                 <div class="wx-precip-x"><span class="is-now">Now</span><span>3 PM</span><span>8 PM</span><span>2 AM</span><span>8 AM</span></div>
               </div>
                         <div class="wx-rows">
+  <div class="wx-row"><span class="k">Hours covered</span><span class="v">9 AM to 10 PM</span></div>
   <div class="wx-row"><span class="k">Air quality</span><span class="v">Good</span></div>
   <div class="wx-row"><span class="k">UV index</span><span class="v">Low</span></div>
   <div class="wx-row"><span class="k">Wind</span><span class="v">12 km/h</span></div>
@@ -2101,13 +2172,17 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
             <div class="wx-head">
               <p class="wx-place">Toronto, CA</p>
               <p class="wx-day">Thursday 8 January</p>
+
+              <p class="wx-hero" aria-hidden="true"></p>
+              <p class="wx-feels" aria-hidden="true"></p>
+              <p class="wx-ends" aria-hidden="true"></p>
             </div>
             <div class="wx-blank">
               <p class="es-body hero-say">No pick without a forecast.</p>
 
             </div>
             <div class="wx-rows">
-              <div class="wx-row"><span class="k">Air quality</span><span class="v">&ndash;</span></div>
+              <div class="wx-row"><span class="k">Hours covered</span><span class="v">&ndash;</span></div>
               <div class="wx-row"><span class="k">UV index</span><span class="v">&ndash;</span></div>
               <div class="wx-row"><span class="k">Wind</span><span class="v">&ndash;</span></div>
               <div class="wx-row"><span class="k">Humidity</span><span class="v">&ndash;</span></div>
@@ -2316,20 +2391,20 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
               <div class="field">
               <span class="f-label">Warmth</span>
               <div class="wt-read">Comfortable <span class="wt-word">Warm</span></div>
-              <div class="warmth" style="--wset:56.25%;--wmin:56.25%;--wmax:65%" role="group" aria-label="Comfortable temperature range">
+              <div class="warmth" style="--wset:60%;--wmin:50%;--wmax:70%" role="group" aria-label="Comfortable temperature range,">
                 <div class="wt-track">
                   <div class="wt-fill"></div><div class="wt-zero"></div>
-                  <button class="wt-h" type="button" role="slider" aria-label="How warm this is" aria-valuemin="-40" aria-valuemax="40" aria-valuenow="5" aria-valuetext="+5 degrees, Warm"></button>
+                  <button class="wt-h" type="button" role="slider" aria-label="How warm this is" aria-valuemin="-40" aria-valuemax="40" aria-valuenow="8" aria-valuetext="0 to +16 degrees, Warm"></button>
                 </div>
               </div>
               <div class="wt-ends"><span>&minus;40&deg;</span><span>0&deg;</span><span>+40&deg;</span></div>
-              <div class="wt-presets" role="group" aria-label="Set the warmth from a typical garment">
+              <div class="wt-presets" role="group" aria-label="Set the warmth from Very light to Warmest">
                 <span class="f-label wt-presets-k">Not sure?</span>
-                <button class="wt-preset" data-row="Tee" aria-label="Tee">Tee</button>
-                <button class="wt-preset" data-row="Normal shirt" aria-label="Shirt">Shirt</button>
-                <button class="wt-preset" data-row="Thick sweater" aria-label="Sweater">Sweater</button>
-                <button class="wt-preset" data-row="Coat" aria-label="Coat">Coat</button>
-                <button class="wt-preset" data-row="Parka" aria-label="Parka">Parka</button>
+                <button class="wt-preset" data-row="Tee" aria-label="Very light">Very light</button>
+                <button class="wt-preset" data-row="Normal shirt" aria-label="Light">Light</button>
+                <button class="wt-preset" data-row="Thick sweater" aria-label="Mid-season">Mid-season</button>
+                <button class="wt-preset" data-row="Coat" aria-label="Warm,">Warm</button>
+                <button class="wt-preset" data-row="Parka" aria-label="Warmest">Warmest</button>
               </div>
             </div>
               <div class="field">
@@ -2434,20 +2509,20 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
               <div class="field">
                   <span class="f-label">Warmth</span>
                   <div class="wt-read">Comfortable <span class="wt-word">Warm</span></div>
-                  <div class="warmth" style="--wset:56.25%;--wmin:56.25%;--wmax:65%" role="group" aria-label="Comfortable temperature range">
+                  <div class="warmth" style="--wset:60%;--wmin:50%;--wmax:70%" role="group" aria-label="Comfortable temperature range,">
                     <div class="wt-track">
                       <div class="wt-fill"></div><div class="wt-zero"></div>
-                      <button class="wt-h" type="button" role="slider" aria-label="How warm this is" aria-valuemin="-40" aria-valuemax="40" aria-valuenow="5" aria-valuetext="+5 degrees, Warm"></button>
+                      <button class="wt-h" type="button" role="slider" aria-label="How warm this is" aria-valuemin="-40" aria-valuemax="40" aria-valuenow="8" aria-valuetext="0 to +16 degrees, Warm"></button>
                     </div>
                   </div>
                   <div class="wt-ends"><span>&minus;40&deg;</span><span>0&deg;</span><span>+40&deg;</span></div>
-                  <div class="wt-presets" role="group" aria-label="Set the warmth from a typical garment">
+                  <div class="wt-presets" role="group" aria-label="Set the warmth from Very light to Warmest">
                     <span class="f-label wt-presets-k">Not sure?</span>
-                    <button class="wt-preset" data-row="Tee" aria-label="Tee">Tee</button>
-                    <button class="wt-preset" data-row="Normal shirt" aria-label="Shirt">Shirt</button>
-                    <button class="wt-preset" data-row="Thick sweater" aria-label="Sweater">Sweater</button>
-                    <button class="wt-preset" data-row="Coat" aria-label="Coat">Coat</button>
-                    <button class="wt-preset" data-row="Parka" aria-label="Parka">Parka</button>
+                    <button class="wt-preset" data-row="Tee" aria-label="Very light">Very light</button>
+                    <button class="wt-preset" data-row="Normal shirt" aria-label="Light">Light</button>
+                    <button class="wt-preset" data-row="Thick sweater" aria-label="Mid-season">Mid-season</button>
+                    <button class="wt-preset" data-row="Coat" aria-label="Warm,">Warm</button>
+                    <button class="wt-preset" data-row="Parka" aria-label="Warmest">Warmest</button>
                   </div>
                 </div>
               <div class="field">
@@ -2552,20 +2627,20 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
               <div class="field">
                   <span class="f-label">Warmth</span>
                   <div class="wt-read">Comfortable <span class="wt-word">Warm</span></div>
-                  <div class="warmth" style="--wset:56.25%;--wmin:56.25%;--wmax:65%" role="group" aria-label="Comfortable temperature range">
+                  <div class="warmth" style="--wset:60%;--wmin:50%;--wmax:70%" role="group" aria-label="Comfortable temperature range,">
                     <div class="wt-track">
                       <div class="wt-fill"></div><div class="wt-zero"></div>
-                      <button class="wt-h" type="button" role="slider" aria-label="How warm this is" aria-valuemin="-40" aria-valuemax="40" aria-valuenow="5" aria-valuetext="+5 degrees, Warm"></button>
+                      <button class="wt-h" type="button" role="slider" aria-label="How warm this is" aria-valuemin="-40" aria-valuemax="40" aria-valuenow="8" aria-valuetext="0 to +16 degrees, Warm"></button>
                     </div>
                   </div>
                   <div class="wt-ends"><span>&minus;40&deg;</span><span>0&deg;</span><span>+40&deg;</span></div>
-                  <div class="wt-presets" role="group" aria-label="Set the warmth from a typical garment">
+                  <div class="wt-presets" role="group" aria-label="Set the warmth from Very light to Warmest">
                     <span class="f-label wt-presets-k">Not sure?</span>
-                    <button class="wt-preset" data-row="Tee" aria-label="Tee">Tee</button>
-                    <button class="wt-preset" data-row="Normal shirt" aria-label="Shirt">Shirt</button>
-                    <button class="wt-preset" data-row="Thick sweater" aria-label="Sweater">Sweater</button>
-                    <button class="wt-preset" data-row="Coat" aria-label="Coat">Coat</button>
-                    <button class="wt-preset" data-row="Parka" aria-label="Parka">Parka</button>
+                    <button class="wt-preset" data-row="Tee" aria-label="Very light">Very light</button>
+                    <button class="wt-preset" data-row="Normal shirt" aria-label="Light">Light</button>
+                    <button class="wt-preset" data-row="Thick sweater" aria-label="Mid-season">Mid-season</button>
+                    <button class="wt-preset" data-row="Coat" aria-label="Warm,">Warm</button>
+                    <button class="wt-preset" data-row="Parka" aria-label="Warmest">Warmest</button>
                   </div>
                 </div>
               <div class="field">
@@ -2880,10 +2955,10 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
 
     var anchored=Math.abs(num('--wmax')-num('--wset'))<0.01 && Math.abs(num('--wmin')-num('--wset'))>0.01;
     var zero=anchored ? num('--wmin') : null;
-    function place(p, hiDeg){
+    function place(p, loDeg, hiDeg){
       var was=num('--wset'), lo=num('--wmin'), hi=num('--wmax');
       if(anchored){ lo=Math.min(zero,p); hi=Math.max(zero,p); }
-      else if(hiDeg!==undefined){ lo=p; hi=pct(hiDeg); }
+      else if(hiDeg!==undefined){ lo=pct(loDeg); hi=pct(hiDeg); }
       else { lo+=p-was; hi+=p-was; }
       lo=Math.max(0,lo); hi=Math.min(100,hi);
       w.style.setProperty('--wset',p+'%'); w.style.setProperty('--wmin',lo+'%'); w.style.setProperty('--wmax',hi+'%');
@@ -2892,7 +2967,8 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
         var d=deg(p);
         h.setAttribute('aria-valuenow',String(d));
         var rest=(h.getAttribute('aria-valuetext')||'').split(' degrees').slice(1).join(' degrees');
-        h.setAttribute('aria-valuetext',(d>0?'+':'')+d+' degrees'+rest);
+        var sign=function(c){ return (c>0?'+':'')+c; };
+        h.setAttribute('aria-valuetext',(anchored ? sign(d) : sign(deg(lo))+' to '+sign(deg(hi)))+' degrees'+rest);
       }
       if(anchored) return;
       var b=read && read.querySelector('b');
@@ -2903,7 +2979,7 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
       .querySelectorAll('.wt-preset').forEach(function(b){
         b.addEventListener('click',function(){
           var m=(b.getAttribute('aria-label')||'').split('−').join('-').match(/([+-]?[0-9]+)° to ([+-]?[0-9]+)°/);
-          if(m) place(pct(+m[1]), +m[2]);
+          if(m) place(pct(Math.round((+m[1] + +m[2])/2)), +m[1], +m[2]);
         });
       });
     w.querySelectorAll('.wt-h').forEach(function(h){
@@ -2957,6 +3033,42 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
     if(e.key !== 'Escape') return;
     document.querySelectorAll('.why.why-open').forEach(function(w){ closeWhy(w.closest('.screen')); });
   });
+})();
+</script>
+<script>
+
+(function(){
+  var root = document.documentElement;
+  if (root.getAttribute('data-frame') !== 'screen') return;
+  var want = 'Fig ' + root.getAttribute('data-fig');
+  var plate = [].filter.call(document.querySelectorAll('figure.plate'), function(f){
+    var c = f.querySelector(':scope > figcaption .fig');
+    return c && c.textContent.trim() === want;
+  })[0];
+  if (!plate) return;
+  plate.classList.add('is-shown');
+  [].forEach.call(plate.querySelectorAll(':scope > figcaption'), function(c){ c.classList.add('is-off'); });
+  for (var el = plate; el.parentElement && el !== document.body; el = el.parentElement) {
+    if (el !== plate) el.classList.add('is-path');
+    [].forEach.call(el.parentElement.children, function(s){
+      if (s !== el && s.namespaceURI === 'http://www.w3.org/1999/xhtml' && !/^(SCRIPT|STYLE)$/.test(s.tagName)) s.classList.add('is-off');
+    });
+  }
+  root.classList.add('is-found');
+})();
+</script>
+<script>
+
+(function(){
+  var px = +(new URLSearchParams(location.search).get('scroll') || 0);
+  function end(){
+    [].forEach.call(document.querySelectorAll('[data-scrolled="end"]'), function(b){ b.scrollTop = b.scrollHeight; });
+    if (px && document.documentElement.getAttribute('data-frame') === 'screen')
+      [].forEach.call(document.querySelectorAll('.plate.is-shown .screen > .body'), function(b){ b.scrollTop = px; });
+  }
+  if (document.readyState === 'complete') end(); else window.addEventListener('load', end);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(end);
+  window.addEventListener('resize', end);
 })();
 </script>
 </html>

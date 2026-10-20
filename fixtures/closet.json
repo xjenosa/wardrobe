@@ -1,0 +1,7 @@
+[
+  { "id": "g1", "name": "Navy overcoat", "category": "Outerwear", "warmth": "Warmest" },
+  { "id": "g2", "name": "Oatmeal crewneck", "category": "Sweaters", "warmth": "Warm" },
+  { "id": "g3", "name": "Charcoal trousers", "category": "Bottoms", "warmth": "Mid-season" },
+  { "id": "g4", "name": "Espresso leather boot", "category": "Shoes", "warmth": "Warm" },
+  { "id": "g5", "name": "Charcoal beanie", "category": "Accessories" }
+]
