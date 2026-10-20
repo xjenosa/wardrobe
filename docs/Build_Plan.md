@@ -111,7 +111,7 @@ purpose:
 - **A navigator** with a route per screen in the table above, each one a stub
   that renders its own name.
 - **`src/theme/tokens.ts` and `src/strings/drawn.ts` are already written**, by
-  `node tools/extract.mjs`, which reads the mockup. **55 tokens and 365 drawn
+  `node tools/extract.mjs`, which reads the mockup. **56 tokens and 370 drawn
   sentences.** Nobody types a colour or retypes a sentence: five people
   matching a colour by eye produce five colours, and five people writing the
   same sentence from memory write five sentences.
