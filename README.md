@@ -6,10 +6,10 @@ A React Native app that reads the day's forecast, looks at what is actually in
 your closet, and picks an outfit for it. Not a style feed and not a shopping
 app: it only ever recommends things you already own.
 
-> **Status: in progress.** The app is not scaffolded yet. What exists today is
-> the drawings, the request and response contract, and the offline fixture.
-> Everything below describes the app those are being built into rather than
-> something that runs.
+> **Status: in progress.** The app runs as a shell: every screen below is a
+> placeholder that shows its own name, the client for the recommendation service
+> answers from the offline fixture, and the closet is saved on the phone. The
+> screens themselves are being built, one track each (docs/Build_Plan.md).
 >
 > Built as a capstone project. See [Acknowledgements](#acknowledgements) - this
 > is not the first wardrobe app and it does not pretend to be.
@@ -111,7 +111,7 @@ service exists (ADR 0021).
   every screen              ISO 9920 tables
   the charts
 
-           └──►  fixtures/pick.json  (offline, and for tests)
+           └──►  fixtures/  (no service set, and for tests)
 ```
 
 ## Getting started
@@ -123,8 +123,36 @@ npm install
 npm start
 ```
 
-No API key is needed to run against the fixture. Point `PICK_URL` at the service
-when you have one.
+`npm start` prints a QR code. **Scan it with Expo Go** on your phone, from the
+App Store or Google Play, and the app opens. Phone and computer need to be on
+the same network.
+
+- **On campus Wi-Fi, run `npx expo start --tunnel` instead.** A campus network
+  usually stops its devices reaching each other; the tunnel goes through the
+  internet. The first time, Expo asks to install `@expo/ngrok`: say yes. A
+  phone hotspot with the computer on it works too.
+- **If Expo Go is signed in to an Expo account, sign the computer in to the
+  same one** with `npx expo login`, or sign Expo Go out. A signed-in phone does
+  not open the app from a signed-out computer.
+- **If Expo Go says the project is incompatible with it**, the two are on
+  different SDKs. ADR 0018 says which one the project follows.
+
+**No API key is needed to run against the fixture.** The fixture answers only
+the sample closet: open You and tap **Use the sample closet** to put it on the
+phone, and **Answer: nothing fits** to see Fig 09. When there is a service, set
+`EXPO_PUBLIC_PICK_URL` to its address and the app posts to `/pick` there. Expo
+builds that value into the app, so it has to be an address that may be public.
+
+| command | checks |
+|---|---|
+| `npm test` | the tests: `pick()`, the closet store, and that every screen is where its plate puts it |
+| `npm run typecheck` | the types |
+| `npm run lint` | the lint rules, with no warnings allowed |
+| `npm run check:extract` | `tokens.ts` and `drawn.ts` still match the mockup |
+| `npm run check:leaks` | nothing from the private design repository is here |
+
+Every pull request runs all five on GitHub, and a red one is not merged
+(ADR 0015).
 
 ## Acknowledgements
 
