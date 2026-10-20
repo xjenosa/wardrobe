@@ -15,4 +15,7 @@ export const screens = {
 /* The placeholders' own controls, until each track draws the real ones. */
 export const stub = {
   back: 'Back',
+  sampleCloset: 'Use the sample closet',
+  fixtureFits: 'Answer: something fits',
+  fixtureNothingFits: 'Answer: nothing fits',
 } as const;
