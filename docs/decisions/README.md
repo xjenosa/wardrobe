@@ -86,3 +86,6 @@ premise changes there is something to re-read.**
 - **0020 The request's words are the words the mockup draws.** Category,
   warmth, vibe and style are Fig 18's and Fig 08's own lists, the sky is a WMO
   code, and a test holds the mockup, `src/lib` and README.md to one list.
+- **0021 The fixture answers when there is no service, never when it fails.**
+  After a failure Today shows the last real answer or the failure state, since
+  the fixture would draw garments the person does not own.

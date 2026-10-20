@@ -21,9 +21,12 @@ here and its arithmetic is not here.**
   harder to remove than one that is missing, because nothing fails while it is
   wrong: the app keeps recommending, just badly, and the day somebody replaces
   it every screenshot in the report changes.
-- **If the service is not ready, use the fixture.** `fixtures/pick.json` holds
-  the response shape README.md documents, and it is what the app reads with the
-  network off.
+- **If the service is not ready, use the fixture.** With no service address
+  set, the app reads `fixtures/`: answers in the shape README.md documents, and
+  the sample closet they were made for, so every screen runs before the service
+  exists. With an address set it asks the service, and when that fails Today
+  shows that day's last real answer or the failure state. **Never the
+  fixture**, which would draw garments the person does not own (ADR 0021).
 - **If a screen seems to need something the response does not carry**, say so
   and stop. Either the boundary is in the wrong place or something is leaking,
   and both are decisions rather than code.

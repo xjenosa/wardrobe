@@ -12,7 +12,8 @@ the running app.
 
 - [ ] **Every colour comes from `src/theme/tokens.ts`.** No hex in a component.
 - [ ] **Every word comes from `src/strings/`.** No sentence typed into a view.
-- [ ] **It works with the network off**, on the fixture, end to end.
+- [ ] **It works with no service address set**, on the fixtures and the sample
+      closet, end to end.
 - [ ] **Its loading state is drawn**, and is the shape of what is coming rather
       than a spinner over nothing.
 - [ ] **Its failure state is drawn**, and keeps whatever the screen already had.
