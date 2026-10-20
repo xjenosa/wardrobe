@@ -1,3 +1,5 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import empty from '../../fixtures/pick-empty.json';
 import nothingFits from '../../fixtures/pick-nothing-fits.json';
 import day from '../../fixtures/pick.json';
@@ -40,12 +42,17 @@ export type PickResponse = {
 };
 
 /* A FAILURE IS A VALUE, NOT A THROW, so a screen cannot forget the failed state:
-   it has to branch on `ok` to reach the answer at all. `noService` is no
-   service address set and a closet the fixtures were not made for, which is a
-   state of the build and not a broken answer. */
+   it has to branch on `ok` to reach the answer at all. A failure carries the
+   day's last real answer when one is kept for it, and null when none is.
+   `noService` is no service address set and a closet the fixtures were not made
+   for, which is a state of the build and not a broken answer. */
 export type PickFailure = 'network' | 'timeout' | 'status' | 'malformed' | 'noService';
 
-export type PickResult = { ok: true; response: PickResponse } | { ok: false; failure: PickFailure };
+type Asked = { ok: true; response: PickResponse } | { ok: false; failure: PickFailure };
+
+export type PickResult =
+  | { ok: true; response: PickResponse }
+  | { ok: false; failure: PickFailure; kept: PickResponse | null };
 
 const TIMEOUT_MS = 15000;
 
@@ -75,7 +82,7 @@ export function isPickResponse(v: unknown): v is PickResponse {
 
 /* AN ANSWER NAMES ONLY GARMENTS IT WAS SENT. One naming any other is a garment
    a screen cannot draw, so it fails as malformed rather than reaching one. */
-function accept(request: PickRequest, body: unknown): PickResult {
+function accept(request: PickRequest, body: unknown): Asked {
   const sent = new Set(request.garments.map((g) => g.id));
   return isPickResponse(body) && body.wear.every((id) => sent.has(id))
     ? { ok: true, response: body }
@@ -94,23 +101,73 @@ export function chooseFixture(next: FixtureDay) {
   fixtureDay = next;
 }
 
+/* THE DAY'S LAST REAL ANSWER IS KEPT, AND ONLY FOR THAT DAY AND THAT CLOSET: its
+   lines describe that day's weather, and its outfit, or its finding that
+   nothing fits, describes the closet it was asked about (ADR 0021). After a
+   failed ask it comes back beside the failure only if it was made today for the
+   same closet, garment for garment, in the same units, since its sentences print
+   degrees. A fixture is never kept, so one can never stand in for a failure. */
+const KEPT = 'wardrobe.lastAnswer';
+
+const dayOf = (d: Date) =>
+  [d.getFullYear(), d.getMonth() + 1, d.getDate()].map((n) => String(n).padStart(2, '0')).join('-');
+
+/* a closet as one string, whatever order its garments come in */
+const closetOf = (garments: unknown): string | null =>
+  Array.isArray(garments)
+    ? garments.map((g: Partial<PickGarment>) => JSON.stringify([g.id, g.name, g.category, g.warmth ?? null])).sort().join('\n')
+    : null;
+
+async function keep(request: PickRequest, response: PickResponse, now: Date) {
+  try {
+    await AsyncStorage.setItem(KEPT, JSON.stringify({ day: dayOf(now), closet: closetOf(request.garments), units: request.units, response }));
+  } catch {
+    /* a kept answer is a courtesy; failing to keep one fails nothing */
+  }
+}
+
+async function kept(request: PickRequest, now: Date): Promise<PickResponse | null> {
+  try {
+    const raw = await AsyncStorage.getItem(KEPT);
+    const saved = raw === null ? null : (JSON.parse(raw) as { day?: unknown; closet?: unknown; units?: unknown; response?: unknown } | null);
+    if (!saved || saved.day !== dayOf(now) || saved.closet !== closetOf(request.garments)) return null;
+    if (saved.units !== request.units) return null;
+    const still = accept(request, saved.response);
+    return still.ok ? still.response : null;
+  } catch {
+    return null;
+  }
+}
+
 /* EXPO_PUBLIC_PICK_URL is the service's base address. Expo builds it into the
    app, so it is public by construction and never a secret. */
 export const hasService = () => Boolean(process.env.EXPO_PUBLIC_PICK_URL);
 
 export async function pick(
   request: PickRequest,
-  { url = process.env.EXPO_PUBLIC_PICK_URL, timeoutMs = TIMEOUT_MS }: { url?: string; timeoutMs?: number } = {},
+  {
+    url = process.env.EXPO_PUBLIC_PICK_URL,
+    timeoutMs = TIMEOUT_MS,
+    now = () => new Date(),
+  }: { url?: string; timeoutMs?: number; now?: () => Date } = {},
 ): Promise<PickResult> {
   if (!url) {
     const fixture = request.garments.length === 0 ? empty : fixtureDay === 'fits' ? day : nothingFits;
     const answered = accept(request, fixture);
-    return answered.ok ? answered : { ok: false, failure: 'noService' };
+    return answered.ok ? answered : { ok: false, failure: 'noService', kept: null };
   }
+  const asked = await ask(request, url, timeoutMs);
+  if (asked.ok) {
+    await keep(request, asked.response, now());
+    return asked;
+  }
+  return { ...asked, kept: await kept(request, now()) };
+}
 
+async function ask(request: PickRequest, url: string, timeoutMs: number): Promise<Asked> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
-  const cut = (): PickResult => ({ ok: false, failure: controller.signal.aborted ? 'timeout' : 'network' });
+  const cut = (): Asked => ({ ok: false, failure: controller.signal.aborted ? 'timeout' : 'network' });
   try {
     let response: Response;
     try {

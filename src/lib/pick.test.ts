@@ -1,3 +1,5 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import empty from '../../fixtures/pick-empty.json';
 import nothingFits from '../../fixtures/pick-nothing-fits.json';
 import fixture from '../../fixtures/pick.json';
@@ -16,13 +18,15 @@ const answer = (body: string, status = 200) =>
   ({ ok: status >= 200 && status < 300, status, text: () => Promise.resolve(body) }) as unknown as Response;
 
 let fetchMock: jest.Mock;
-beforeEach(() => {
+beforeEach(async () => {
+  await AsyncStorage.clear();
   fetchMock = jest.fn();
   globalThis.fetch = fetchMock;
   delete process.env.EXPO_PUBLIC_PICK_URL;
   chooseFixture('fits');
 });
 afterEach(() => {
+  jest.restoreAllMocks();
   jest.useRealTimers();
   delete process.env.EXPO_PUBLIC_PICK_URL;
 });
@@ -52,7 +56,7 @@ describe('pick() with no service', () => {
 
   it('fails as noService for any other closet, not as a broken answer', async () => {
     const other = { ...request, garments: [{ id: 'x1', name: 'Camel topcoat', category: 'Outerwear', warmth: 'Warm' }] };
-    await expect(pick(other as PickRequest)).resolves.toEqual({ ok: false, failure: 'noService' });
+    await expect(pick(other as PickRequest)).resolves.toEqual({ ok: false, failure: 'noService', kept: null });
   });
 });
 
@@ -76,22 +80,22 @@ describe('pick() with a service', () => {
 
   it('fails as network when the request never connects', async () => {
     fetchMock.mockRejectedValue(new TypeError('Network request failed'));
-    await expect(pick(request, { url: URL })).resolves.toEqual({ ok: false, failure: 'network' });
+    await expect(pick(request, { url: URL })).resolves.toEqual({ ok: false, failure: 'network', kept: null });
   });
 
   it('fails as network when the connection drops mid-answer', async () => {
     fetchMock.mockResolvedValue({ ok: true, status: 200, text: () => Promise.reject(new TypeError('dropped')) });
-    await expect(pick(request, { url: URL })).resolves.toEqual({ ok: false, failure: 'network' });
+    await expect(pick(request, { url: URL })).resolves.toEqual({ ok: false, failure: 'network', kept: null });
   });
 
   it('fails as status when the service errors, or refuses a word', async () => {
     fetchMock.mockResolvedValue(answer('{"error":"vibe"}', 400));
-    await expect(pick(request, { url: URL })).resolves.toEqual({ ok: false, failure: 'status' });
+    await expect(pick(request, { url: URL })).resolves.toEqual({ ok: false, failure: 'status', kept: null });
   });
 
   it('fails as malformed when the body is not JSON', async () => {
     fetchMock.mockResolvedValue(answer('<html>gateway</html>'));
-    await expect(pick(request, { url: URL })).resolves.toEqual({ ok: false, failure: 'malformed' });
+    await expect(pick(request, { url: URL })).resolves.toEqual({ ok: false, failure: 'malformed', kept: null });
   });
 
   /* Each is the fixture with one thing wrong, so each line fails for one reason. */
@@ -110,7 +114,7 @@ describe('pick() with a service', () => {
     ['a fits that is not true or false', { ...fixture, fits: 'yes' }],
   ])('fails as malformed for %s', async (_case, body) => {
     fetchMock.mockResolvedValue(answer(JSON.stringify(body)));
-    await expect(pick(request, { url: URL })).resolves.toEqual({ ok: false, failure: 'malformed' });
+    await expect(pick(request, { url: URL })).resolves.toEqual({ ok: false, failure: 'malformed', kept: null });
   });
 
   it('refuses a wear holding something other than an id', () => {
@@ -127,6 +131,90 @@ describe('pick() with a service', () => {
     );
     const result = pick(request, { url: URL, timeoutMs: 1000 });
     jest.advanceTimersByTime(1000);
-    await expect(result).resolves.toEqual({ ok: false, failure: 'timeout' });
+    await expect(result).resolves.toEqual({ ok: false, failure: 'timeout', kept: null });
+  });
+});
+
+describe('pick() after a failed ask', () => {
+  const thursday = () => new Date(2027, 0, 7, 8, 0);
+  const later = () => new Date(2027, 0, 7, 17, 30);
+  const friday = () => new Date(2027, 0, 8, 7, 0);
+  const askedOnce = async () => {
+    fetchMock.mockResolvedValueOnce(answer(JSON.stringify(fixture)));
+    await expect(pick(request, { url: URL, now: thursday })).resolves.toEqual({ ok: true, response: fixture });
+  };
+
+  it("hands back the day's last real answer beside the failure", async () => {
+    await askedOnce();
+    fetchMock.mockRejectedValueOnce(new TypeError('Network request failed'));
+    await expect(pick(request, { url: URL, now: later })).resolves.toEqual({ ok: false, failure: 'network', kept: fixture });
+  });
+
+  it('never hands back an answer made on another day', async () => {
+    await askedOnce();
+    fetchMock.mockResolvedValueOnce(answer('{}', 503));
+    await expect(pick(request, { url: URL, now: friday })).resolves.toEqual({ ok: false, failure: 'status', kept: null });
+  });
+
+  it('hands it back for the same closet in another order', async () => {
+    await askedOnce();
+    const reordered = { ...request, garments: [...sampleCloset].reverse() };
+    fetchMock.mockRejectedValueOnce(new TypeError('Network request failed'));
+    await expect(pick(reordered, { url: URL, now: later })).resolves.toEqual({ ok: false, failure: 'network', kept: fixture });
+  });
+
+  /* An outfit, or the finding that nothing fits, is about the closet it was asked for. */
+  it.each([
+    ['a garment is gone', sampleCloset.filter((g) => g.id !== 'g4')],
+    ['a garment is added', [...sampleCloset, { id: 'g6', name: 'Camel topcoat', category: 'Outerwear', warmth: 'Warm' }]],
+    ['a garment is rated warmer', sampleCloset.map((g) => (g.id === 'g3' ? { ...g, warmth: 'Warm' } : g))],
+    ['a garment is renamed', sampleCloset.map((g) => (g.id === 'g1' ? { ...g, name: 'Navy coat' } : g))],
+  ])('never hands it back once %s', async (_change, garments) => {
+    await askedOnce();
+    fetchMock.mockRejectedValueOnce(new TypeError('Network request failed'));
+    const changed = { ...request, garments: garments as PickRequest['garments'] };
+    await expect(pick(changed, { url: URL, now: later })).resolves.toEqual({ ok: false, failure: 'network', kept: null });
+  });
+
+  it('never hands it back in other units, since its sentences print degrees', async () => {
+    await askedOnce();
+    fetchMock.mockRejectedValueOnce(new TypeError('Network request failed'));
+    await expect(pick({ ...request, units: 'F' }, { url: URL, now: later })).resolves.toEqual({
+      ok: false,
+      failure: 'network',
+      kept: null,
+    });
+  });
+
+  it("never hands back an empty closet's answer once garments are added", async () => {
+    fetchMock.mockResolvedValueOnce(answer(JSON.stringify(empty)));
+    await pick({ ...request, garments: [] }, { url: URL, now: thursday });
+    fetchMock.mockRejectedValueOnce(new TypeError('Network request failed'));
+    await expect(pick(request, { url: URL, now: later })).resolves.toEqual({ ok: false, failure: 'network', kept: null });
+  });
+
+  it('never keeps a fixture, so one cannot stand in for a failure', async () => {
+    await pick(request, { url: '', now: thursday });
+    fetchMock.mockRejectedValueOnce(new TypeError('Network request failed'));
+    await expect(pick(request, { url: URL, now: later })).resolves.toEqual({ ok: false, failure: 'network', kept: null });
+  });
+
+  it('ignores a kept answer that is not the contract', async () => {
+    await AsyncStorage.setItem('wardrobe.lastAnswer', JSON.stringify({ day: '2027-01-07', response: { wear: 'g1' } }));
+    fetchMock.mockRejectedValueOnce(new TypeError('Network request failed'));
+    await expect(pick(request, { url: URL, now: later })).resolves.toEqual({ ok: false, failure: 'network', kept: null });
+  });
+
+  it('still fails plainly when the kept answer cannot be read', async () => {
+    await askedOnce();
+    jest.spyOn(AsyncStorage, 'getItem').mockRejectedValueOnce(new Error('disk'));
+    fetchMock.mockRejectedValueOnce(new TypeError('Network request failed'));
+    await expect(pick(request, { url: URL, now: later })).resolves.toEqual({ ok: false, failure: 'network', kept: null });
+  });
+
+  it('still answers when the answer cannot be kept', async () => {
+    jest.spyOn(AsyncStorage, 'setItem').mockRejectedValueOnce(new Error('full'));
+    fetchMock.mockResolvedValueOnce(answer(JSON.stringify(fixture)));
+    await expect(pick(request, { url: URL, now: thursday })).resolves.toEqual({ ok: true, response: fixture });
   });
 });
