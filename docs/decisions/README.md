@@ -78,3 +78,7 @@ premise changes there is something to re-read.**
 - **0018 The SDK is the one Expo Go runs.** A phone's Expo Go opens only its own
   SDK and reaches the stores weeks after a release, so the project stays on the
   stores' SDK, 57 today, and moves up in its own pull request.
+- **0019 The answer carries the day's lines and whether anything fits.**
+  `dayLine`, `takeLine` and `fits` join the answer as sentences and a yes or no,
+  `units` and each garment's `name` join the request, and an empty closet is
+  still sent (Figs 08, 09 and 10b).
