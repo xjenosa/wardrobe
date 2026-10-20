@@ -10,8 +10,11 @@ the running app.
 
 ## Every screen, before its own list
 
-- [ ] **Every colour comes from `src/theme/tokens.ts`.** No hex in a component.
+- [ ] **Every colour comes from `src/theme/tokens.ts`.** No hex or colour name
+      in a component; `npm run lint` refuses both.
 - [ ] **Every word comes from `src/strings/`.** No sentence typed into a view.
+      `npm run lint` refuses one written into a view, a label or an alert; one
+      put in a variable first gets past it, so look.
 - [ ] **It works with no service address set**, on the fixtures and the sample
       closet, end to end.
 - [ ] **Its loading state is drawn**, and is the shape of what is coming rather
