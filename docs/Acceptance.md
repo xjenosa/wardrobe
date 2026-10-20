@@ -77,7 +77,7 @@ the running app.
 
 ## What this file does not cover
 
-**Automated tests.** Nothing here runs by itself, and that is a gap rather than
-a decision: these are boxes a person ticks. Whether this project has a test
-suite, and what it covers, is not decided. docs/Build_Plan.md says the same and
-says it should be settled before step 1.
+**What the checks already prove.** ADR 0015 says how the app is tested: the
+tests, the type check and lint run on every pull request, and a red one is not
+merged. These boxes are what those checks cannot see, so a person ticks them in
+Expo Go.
