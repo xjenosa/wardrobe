@@ -46,30 +46,59 @@ POST /pick
 
 {
   "weather":  { "lowC": -4, "highC": 2, "feelsLowC": -9, "feelsHighC": -1,
-                "condition": "light snow", "windKph": 12, "humidity": 78 },
-  "garments": [ { "id": "g1", "category": "wholebody_up", "row": "Coat" },
-                { "id": "g2", "category": "lowerbody",    "row": "Flannel trousers" },
-                { "id": "g3", "category": "shoes",        "row": "Thick-soled shoes" } ],
-  "vibe":     "Everyday"
+                "code": 71, "windKph": 12, "humidity": 78 },
+  "garments": [ { "id": "g1", "name": "Navy overcoat", "category": "Outerwear", "warmth": "Warmest" },
+                { "id": "g2", "name": "Oatmeal crewneck", "category": "Sweaters", "warmth": "Warm" },
+                { "id": "g3", "name": "Charcoal trousers", "category": "Bottoms", "warmth": "Mid-season" },
+                { "id": "g4", "name": "Espresso leather boot", "category": "Shoes", "warmth": "Warm" },
+                { "id": "g5", "name": "Charcoal beanie", "category": "Accessories" } ],
+  "vibe":     "Everyday",
+  "units":    "C"
 }
 
 200
 
 {
-  "wear":    ["g1", "g2", "g3"],
-  "suitsC":  { "lowC": -3, "highC": 5 },
-  "because": "Cold, and this is the warmest thing you own that is not a parka."
+  "wear":     ["g1", "g2", "g3", "g4"],
+  "suitsC":   { "lowC": -9, "highC": 1 },
+  "because":  "Light snow and −7°. The navy overcoat over the oatmeal crewneck, with the espresso leather boot for fresh snow.",
+  "dayLine":  "Cold, with snow on the wind.",
+  "takeLine": "Take a beanie and gloves.",
+  "fits":     true
 }
 ```
 
-**A garment is described by a WORD, not by a number.** The app says `"Coat"`; the
-service knows what a coat is worth in insulation terms. That is the whole
+**A garment is described by a WORD, not by a number.** The app says `"Warm"`; the
+service knows what warm is worth in insulation terms. That is the whole
 boundary: the client owns the screens and the service owns the physics, and
 neither needs to know how the other works.
 
-**The app runs without the service.** A saved response lives in `fixtures/` and
-drives every screen, so the UI can be built, tested and demonstrated with the
-network off.
+**The words are the ones the mockup draws** (ADR 0020). The app sends the word it
+shows and keeps no lookup, and the service answers a word that is not on its
+list with a 400 that names the field.
+
+| field | one of |
+|---|---|
+| `category` | `Tops`, `Sweaters`, `Outerwear`, `Bottoms`, `Shoes`, `Accessories` |
+| `warmth` | `Very light`, `Light`, `Mid-season`, `Warm`, `Warmest`; an accessory may leave it out |
+| `vibe` | `Everyday`, `Smart`, `Active`, `Occasion` |
+| `units` | `C`, `F`: what the sentences print degrees in; the numbers are always Celsius |
+
+`code` is the forecast's own WMO weather code. The words Today prints for the
+sky are the app's, from WMO's published table; the service never reads one.
+
+**The answer is sentences, not codes** (ADR 0019). `dayLine` and `takeLine` are
+drawn as they come, and left out when they are empty. `fits` is false on a day
+nothing owned suits (Fig 09): `wear` is then the closest the closet comes,
+`because` says how far it falls short, and the button says "Wear it anyway".
+An empty closet is still sent, and its answer has an empty `wear` and `because`,
+a `suitsC` of `null` and `fits` false; the app draws Fig 10b from its own empty
+closet, never from the answer.
+
+**The app runs without the service.** Saved answers live in `fixtures/`, with
+the sample closet they were made for, and drive every screen whenever no service
+address is set, so the UI can be built, tested and demonstrated before the
+service exists (ADR 0021).
 
 ## Architecture
 

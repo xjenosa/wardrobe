@@ -1,0 +1,8 @@
+{
+  "wear": ["g1", "g2", "g3", "g4"],
+  "suitsC": { "lowC": -9, "highC": 1 },
+  "because": "Your warmest is the navy overcoat, good to about 0°. Today feels like −21°, so it may not be enough on its own. Layering the oatmeal crewneck under it is the warmest you own.",
+  "dayLine": "Colder than anything you own is made for.",
+  "takeLine": "Wear thermals. Take a beanie and gloves.",
+  "fits": false
+}
