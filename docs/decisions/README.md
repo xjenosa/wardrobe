@@ -72,3 +72,6 @@ premise changes there is something to re-read.**
 - **0016 The build splits five ways.** Minh and Cris joined, so Natasha keeps
   the day, Minh takes Weather, Cris takes Closet and Paul keeps capture, the
   heaviest track. No screen is added; Outfits waits until a track runs dry.
+- **0017 Navigation is React Navigation, with the routes in one place.** Expo
+  Router would put every route file in one shared folder; React Navigation keeps
+  the routes in Max's `src/nav/` and each screen in its own track's folder.
