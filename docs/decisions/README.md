@@ -21,8 +21,9 @@ premise changes there is something to re-read.**
   Computing it here would mean publishing the clothing-insulation table and the
   ranking in a public repository. Records why the fixture is not a convenience.
 - **0002 A garment crosses the wire as a WORD, not as a number.** The request
-  says `"row": "Coat"` and never what a coat is worth. Sending the value is
-  simpler and publishes the table one garment at a time.
+  says `"warmth": "Warm"` and never what that is worth. Sending the value is
+  simpler and publishes the table one garment at a time. ADR 0020 lists the
+  words.
 - **0003 The no-forecast screen is built first, not last.** A weather-dependent
   app whose weather can fail meets that state on an ordinary day, and a state
   deferred to the end is a state that gets skipped.
@@ -82,3 +83,6 @@ premise changes there is something to re-read.**
   `dayLine`, `takeLine` and `fits` join the answer as sentences and a yes or no,
   `units` and each garment's `name` join the request, and an empty closet is
   still sent (Figs 08, 09 and 10b).
+- **0020 The request's words are the words the mockup draws.** Category,
+  warmth, vibe and style are Fig 18's and Fig 08's own lists, the sky is a WMO
+  code, and a test holds the mockup, `src/lib` and README.md to one list.

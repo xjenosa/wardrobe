@@ -49,3 +49,9 @@ that has to exempt itself is a rule with a hole in it.
 **PREMISE:** one endpoint in prose is not reconstructable into the table. If the
 app ever draws enough of them, together they are the table and this is the
 paragraph to re-read.
+
+## Amended by ADR 0020, 2026-10-20
+
+**The field is now `"warmth": "Warm"`**, one of the five warmths Fig 18 draws,
+and README.md's contract closes the list. The decision stands: a word, never
+what it is worth.
