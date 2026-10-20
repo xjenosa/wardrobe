@@ -108,8 +108,9 @@ purpose:
 - **The app boots** on a phone and in a simulator. It is an Expo project in
   TypeScript (ADR 0013), and it arrives with ADR 0015's test tooling and the
   checks every pull request has to pass.
-- **A navigator** with a route per screen in the table above, each one a stub
-  that renders its own name.
+- **A navigator** that puts every screen in the table above where its plate
+  puts it, under the tab bar or over it (ADR 0017), each one a stub that
+  renders its own name.
 - **`src/theme/tokens.ts` and `src/strings/drawn.ts` are already written**, by
   `node tools/extract.mjs`, which reads the mockup. **56 tokens and 370 drawn
   sentences.** Nobody types a colour or retypes a sentence: five people
@@ -118,13 +119,20 @@ purpose:
   Both files are committed, so the app builds without running anything, and
   `node tools/extract.mjs --check` fails when they drift from the drawing.
 - **`src/lib/pick.ts`**: sends the request in README.md and returns the
-  response. **With no `PICK_URL` set it reads `fixtures/pick.json`**, which is
-  how every screen gets built before a service exists.
+  response. **With no `EXPO_PUBLIC_PICK_URL` set it answers from `fixtures/`**,
+  which is how every screen gets built before a service exists (ADR 0021). The
+  answers were made for the sample closet in `fixtures/closet.json`, and You's
+  stub puts that closet on the phone and chooses which day the fixture answers.
+  With an address set, a failed ask comes back with the day's last real answer
+  beside it, when one is kept.
 - **`src/lib/store.ts`**: save and load the closet on the device. One module, so
-  that two tracks storing garments do not write two.
+  that two tracks storing garments do not write two. A change is made to the
+  closet as saved, one at a time, and a closet that could not be read is never
+  written over.
 
 **Step 0 is done when each of the five can run the app, land on a stub for
-their own screens, and call `pick()` and get the fixture back.**
+their own screens where its plate puts it, save the closet and read it back,
+and ask `pick()` about the sample closet and get the fixture back.**
 
 ### Step 1 is four tracks, in parallel
 
