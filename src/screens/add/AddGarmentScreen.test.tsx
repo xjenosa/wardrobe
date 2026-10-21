@@ -1,9 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { render, screen, userEvent } from '@testing-library/react-native';
 
-import App from '../../../App';
 import { loadCloset, resetCloset } from '../../lib/store';
-import { navigationRef } from '../../nav/RootNavigator';
+import { navigationRef, RootNavigator } from '../../nav/RootNavigator';
 import { capture } from '../../strings/capture';
 import { drawn } from '../../strings/drawn';
 import { screens } from '../../strings/screens';
@@ -12,7 +11,7 @@ const t = drawn.fig18;
 
 async function openAdd() {
   const user = userEvent.setup();
-  await render(<App />);
+  await render(<RootNavigator />);
   await user.press(screen.getByRole('button', { name: /^Closet, tab,/ }));
   await user.press(screen.getByRole('button', { name: screens.addGarment }));
   await screen.findByRole('header', { name: t.newGarment });
