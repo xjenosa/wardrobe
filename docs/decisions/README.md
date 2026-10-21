@@ -93,3 +93,6 @@ premise changes there is something to re-read.**
   is built as the by-hand form and Fig 19 reuses it, with no slider, since the
   range behind a word is the service's. Capture waits for a tagging contract and
   the camera packages.
+- **0023 What was worn is kept on the phone, one outfit a day.** Today records
+  the outfit when "Wear this" is pressed, and the editor and the closet read how
+  often and how lately each garment was worn. It is never sent.
