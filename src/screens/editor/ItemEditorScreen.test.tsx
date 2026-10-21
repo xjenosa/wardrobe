@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { render, screen, userEvent } from '@testing-library/react-native';
+import { act, render, screen, userEvent } from '@testing-library/react-native';
+import { Alert } from 'react-native';
 
 import { sampleCloset } from '../../lib/sample';
 import { loadCloset, resetCloset } from '../../lib/store';
@@ -99,18 +100,39 @@ it('says the garment is not in the closet rather than showing an empty form', as
   expect(screen.queryByRole('button', { name: t.save })).not.toBeOnTheScreen();
 });
 
-it('holds an unsaved edit for the next time the garment is opened', async () => {
-  await resetCloset(sampleCloset);
-  const user = await openEditor();
+/* Close discards an unsaved edit and nothing asks (docs/States.md), so the
+   garment opens next time as it was saved. */
+async function editTheName(user: Awaited<ReturnType<typeof openEditor>>) {
   await screen.findByRole('header', { name: 'Navy overcoat' });
   await user.clear(screen.getByLabelText(t.name));
   await user.type(screen.getByLabelText(t.name), 'Navy parka');
-  await user.press(screen.getByRole('button', { name: t.close }));
-  expect(onTop()).toBe('Tabs');
+}
 
+async function reopenedAsSaved(user: Awaited<ReturnType<typeof openEditor>>) {
+  expect(onTop()).toBe('Tabs');
   await user.press(screen.getByRole('button', { name: screens.itemEditor }));
-  expect(await screen.findByLabelText(t.name)).toHaveDisplayValue('Navy parka');
-  expect(saveButton()).toBeEnabled();
+  expect(await screen.findByLabelText(t.name)).toHaveDisplayValue('Navy overcoat');
+  expect(saveButton()).toBeDisabled();
   const closet = await loadCloset();
   expect(closet.ok && closet.garments[0].name).toBe('Navy overcoat');
+}
+
+it('discards an unsaved edit on Close, and asks nothing', async () => {
+  await resetCloset(sampleCloset);
+  const asked = jest.spyOn(Alert, 'alert');
+  const user = await openEditor();
+  await editTheName(user);
+  await user.press(screen.getByRole('button', { name: t.close }));
+
+  expect(asked).not.toHaveBeenCalled();
+  await reopenedAsSaved(user);
+});
+
+it('discards an unsaved edit on the back gesture too', async () => {
+  await resetCloset(sampleCloset);
+  const user = await openEditor();
+  await editTheName(user);
+  await act(() => navigationRef.goBack());
+
+  await reopenedAsSaved(user);
 });

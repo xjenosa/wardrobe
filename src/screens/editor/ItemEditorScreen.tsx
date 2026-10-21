@@ -21,18 +21,18 @@ import {
 
 const t = drawn.fig19;
 
-/* AN EDIT IS HELD, NOT GUARDED (docs/States.md). Leaving with unsaved changes
-   keeps them for the next time this garment is opened, until it is saved. They
-   live as long as the app does. */
-const held = new Map<string, FormValues>();
-
 type Loaded =
   | { state: 'loading' }
   | { state: 'failed'; failure: LoadFailure }
   | { state: 'ready'; garment: Garment | undefined };
 
 /* Fig 19, page one's fields. The cut-out and the photograph (Fig 19b) wait
-   for the garment to carry a picture. */
+   for the garment to carry a picture.
+
+   CLOSE DISCARDS AN UNSAVED EDIT, AND NOTHING ASKS (docs/States.md). Save is
+   the only way to keep a change. Every other way out, Close, the back gesture
+   or the back button, leaves the garment as saved, so the editor never opens
+   on fields the closet does not hold. */
 export function ItemEditorScreen() {
   const navigation = useNavigation();
   const { id } = useRoute<RouteProp<RootStackParamList, 'ItemEditor'>>().params;
@@ -42,16 +42,14 @@ export function ItemEditorScreen() {
   const [saving, setSaving] = useState(false);
   const [original, setOriginal] = useState<FormValues | undefined>();
   const pressed = useRef(false);
-  const latest = useRef<{ values?: FormValues; original?: FormValues; saved: boolean }>({ saved: false });
 
   const apply = useCallback(
     (result: Awaited<ReturnType<typeof loadCloset>>) => {
       if (!result.ok) return setLoaded({ state: 'failed', failure: result.failure });
       const garment = result.garments.find((g) => g.id === id);
       const now = garment && valuesOf(garment);
-      latest.current.original = now;
       setOriginal(now);
-      setValues(garment && (held.get(id) ?? now));
+      setValues(now);
       setLoaded({ state: 'ready', garment });
     },
     [id],
@@ -64,19 +62,6 @@ export function ItemEditorScreen() {
       live = false;
     };
   }, [apply]);
-
-  useEffect(() => {
-    latest.current.values = values;
-  }, [values]);
-
-  /* Whatever way the editor goes away, an unsaved change is kept. */
-  useEffect(() => {
-    const ref = latest.current;
-    return () => {
-      const { values: v, original, saved } = ref;
-      if (!saved && v && original && !sameValues(v, original)) held.set(id, v);
-    };
-  }, [id]);
 
   const retry = () => {
     setLoaded({ state: 'loading' });
@@ -94,8 +79,6 @@ export function ItemEditorScreen() {
     setFailed(false);
     const result = await updateCloset((garments) => garments.map((g) => (g.id === id ? edited : g)));
     if (result.ok) {
-      latest.current.saved = true;
-      held.delete(id);
       navigation.goBack();
     } else {
       pressed.current = false;

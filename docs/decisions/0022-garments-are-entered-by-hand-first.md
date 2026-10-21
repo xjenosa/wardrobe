@@ -21,8 +21,13 @@ the camera packages.
 temperature range, and the range behind a word is the service's (ADR 0001).
 Drawing one here would mean computing it here.
 
-**An unsaved edit in the editor is held in memory** for the next time that
-garment is opened, as docs/States.md asks, and is lost when the app closes.
+**Close discards an unsaved edit, and nothing asks.** Save is the only way to
+keep a change, and every other way out leaves the garment as saved. An edit
+held for the next opening was built first, and it reopened looking saved while
+the closet still showed the old garment, with no way to drop it. A "Not saved
+yet." line with a Discard button would have fixed that with words and a button
+no plate draws, and a question on leaving interrupts every exit. Max's review
+chose discarding, since four short fields are cheap to type again.
 
 **The words with no plate are in `src/strings/capture.ts`**, so `screens.ts`,
 which is Max's, stays as it was.

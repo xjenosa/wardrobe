@@ -166,8 +166,6 @@ export const formStyles = StyleSheet.create({
   title: { fontSize: 15, fontWeight: '600', color: light.ink },
   body: { padding: 24, paddingTop: 20 },
   note: { fontSize: 13, color: light.muted, marginBottom: 16 },
-  held: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 16 },
-  heldText: { flex: 1, fontSize: 13, color: light.muted },
   problem: { fontSize: 13, color: light.grave, marginTop: 4 },
   foot: { flexDirection: 'row', justifyContent: 'flex-end', gap: 12, padding: 16, borderTopWidth: 1, borderTopColor: light.hairline },
 });

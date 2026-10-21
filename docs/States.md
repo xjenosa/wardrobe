@@ -64,7 +64,7 @@ table says in words what to build, and that row is the specification.
 |---|---|---|---|
 | **Page one** | opened from a garment | the cut-out | **Fig 19** |
 | **Page two** | swiped | your photograph | **Fig 19b** |
-| **Unsaved on leaving** | edited, then dismissed | no plate. Hold the edit rather than guard it: return to the garment with the change still there |
+| **Unsaved on leaving** | edited, then dismissed | no plate. Close discards the edit and nothing asks, and so does every other way out but Save, the back gesture and the back button included. The garment opens next time as it was saved |
 
 ## You
 
