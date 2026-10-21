@@ -1,7 +1,6 @@
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { RootStackParamList } from '../../nav/routes';
 import { loadCloset, updateCloset, type Garment, type LoadFailure } from '../../lib/store';
@@ -10,6 +9,7 @@ import { drawn } from '../../strings/drawn';
 import { screens } from '../../strings/screens';
 import {
   FormButton,
+  FormFrame,
   FormSkeleton,
   formStyles,
   garmentOf,
@@ -41,6 +41,7 @@ export function ItemEditorScreen() {
   const [failed, setFailed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [original, setOriginal] = useState<FormValues | undefined>();
+  const pressed = useRef(false);
   const latest = useRef<{ values?: FormValues; original?: FormValues; saved: boolean }>({ saved: false });
 
   const apply = useCallback(
@@ -87,7 +88,8 @@ export function ItemEditorScreen() {
   const edited = values && garmentOf(id, values);
 
   async function save() {
-    if (!edited || saving) return;
+    if (!edited || pressed.current) return;
+    pressed.current = true;
     setSaving(true);
     setFailed(false);
     const result = await updateCloset((garments) => garments.map((g) => (g.id === id ? edited : g)));
@@ -96,13 +98,14 @@ export function ItemEditorScreen() {
       held.delete(id);
       navigation.goBack();
     } else {
+      pressed.current = false;
       setSaving(false);
       setFailed(true);
     }
   }
 
   return (
-    <SafeAreaView style={formStyles.page}>
+    <FormFrame>
       <View style={formStyles.topbar}>
         <Text accessibilityRole="header" style={formStyles.title}>
           {garment ? garment.name : screens.itemEditor}
@@ -130,6 +133,6 @@ export function ItemEditorScreen() {
         <FormButton label={t.close} onPress={() => navigation.goBack()} />
         {garment && <FormButton label={t.save} primary disabled={!dirty || !edited || saving} onPress={save} />}
       </View>
-    </SafeAreaView>
+    </FormFrame>
   );
 }

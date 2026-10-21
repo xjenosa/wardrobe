@@ -34,9 +34,9 @@ colours, material or season, the form grows to fill them and Fig 19b is built.
 
 - The form lives in `src/screens/add/` and the editor imports it.
 - Category is a row of choices, not the plate's select, since a phone has no
-  select to draw in this style.
-- Style is one choice that a second tap clears, since `Garment.style` is one
-  word.
+  select to draw in this style. The chips are radios.
+- Style and warmth are each one choice that a second tap clears, since
+  `Garment.style` is one word and only an accessory may leave warmth out.
 - Save and photograph another, Delete and "Worn n times" are not built.
 
 ## What would show this was wrong

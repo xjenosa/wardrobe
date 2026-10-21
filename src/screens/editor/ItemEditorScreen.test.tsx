@@ -36,8 +36,8 @@ it('opens the garment with its own words in the fields', async () => {
 
   expect(await screen.findByRole('header', { name: 'Navy overcoat' })).toBeOnTheScreen();
   expect(screen.getByLabelText(t.name)).toHaveDisplayValue('Navy overcoat');
-  expect(screen.getByRole('button', { name: 'Outerwear' })).toBeSelected();
-  expect(screen.getByRole('button', { name: 'Warmest' })).toBeSelected();
+  expect(screen.getByRole('radio', { name: 'Outerwear' })).toBeChecked();
+  expect(screen.getByRole('radio', { name: 'Warmest' })).toBeChecked();
   expect(saveButton()).toBeDisabled();
 });
 
@@ -45,7 +45,7 @@ it('saves a change to that garment and no other', async () => {
   await resetCloset(sampleCloset);
   const user = await openEditor();
   await screen.findByRole('header', { name: 'Navy overcoat' });
-  await user.press(screen.getByRole('button', { name: 'Warm' }));
+  await user.press(screen.getByRole('radio', { name: 'Warm' }));
   expect(saveButton()).toBeEnabled();
   await user.press(saveButton());
 
@@ -61,7 +61,7 @@ it('clears the style when it is chosen again', async () => {
   await resetCloset([{ ...sampleCloset[0], style: 'Smart' }]);
   const user = await openEditor();
   await screen.findByRole('header', { name: 'Navy overcoat' });
-  await user.press(screen.getByRole('button', { name: 'Smart' }));
+  await user.press(screen.getByRole('radio', { name: 'Smart' }));
   await user.press(saveButton());
 
   const closet = await loadCloset();
@@ -72,12 +72,12 @@ it('keeps every field when the save fails', async () => {
   await resetCloset(sampleCloset);
   const user = await openEditor();
   await screen.findByRole('header', { name: 'Navy overcoat' });
-  await user.press(screen.getByRole('button', { name: 'Warm' }));
+  await user.press(screen.getByRole('radio', { name: 'Warm' }));
   jest.spyOn(AsyncStorage, 'setItem').mockRejectedValueOnce(new Error('disk full'));
   await user.press(saveButton());
 
   expect(await screen.findByText(capture.saveFailed)).toBeOnTheScreen();
-  expect(screen.getByRole('button', { name: 'Warm' })).toBeSelected();
+  expect(screen.getByRole('radio', { name: 'Warm' })).toBeChecked();
   expect(onTop()).toBe('ItemEditor');
 });
 
