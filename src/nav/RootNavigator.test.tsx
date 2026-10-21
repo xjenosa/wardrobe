@@ -1,6 +1,7 @@
 import { render, screen, userEvent } from '@testing-library/react-native';
 
 import App from '../../App';
+import { drawn } from '../strings/drawn';
 import { screens, stub } from '../strings/screens';
 import { navigationRef } from './RootNavigator';
 
@@ -15,7 +16,7 @@ const paths: [string, string[], string][] = [
   [screens.closet, ['tab:' + screens.closet], 'Tabs'],
   [screens.you, [screens.you], 'You'],
   [screens.firstRun, [screens.you, screens.firstRun], 'FirstRun'],
-  [screens.addGarment, ['tab:' + screens.closet, screens.addGarment], 'AddGarment'],
+  [drawn.fig18.newGarment, ['tab:' + screens.closet, screens.addGarment], 'AddGarment'],
   [screens.itemEditor, ['tab:' + screens.closet, screens.itemEditor], 'ItemEditor'],
 ];
 
