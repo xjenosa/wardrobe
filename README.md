@@ -145,7 +145,7 @@ builds that value into the app, so it has to be an address that may be public.
 
 | command | checks |
 |---|---|
-| `npm test` | the tests: `pick()`, the closet store, and that every screen is where its plate puts it |
+| `npm test` | the tests: `pick()`, the closet store, the wear record, and that every screen is where its plate puts it |
 | `npm run typecheck` | the types |
 | `npm run lint` | the lint rules, with no warnings allowed |
 | `npm run check:extract` | `tokens.ts` and `drawn.ts` still match the mockup |
