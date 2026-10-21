@@ -89,3 +89,7 @@ premise changes there is something to re-read.**
 - **0021 The fixture answers when there is no service, never when it fails.**
   After a failure Today shows the last real answer or the failure state, since
   the fixture would draw garments the person does not own.
+- **0022 A garment is entered by hand first, and warmth is five words.** Fig 18
+  is built as the by-hand form and Fig 19 reuses it, with no slider, since the
+  range behind a word is the service's. Capture waits for a tagging contract and
+  the camera packages.
