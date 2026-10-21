@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import empty from '../../fixtures/pick-empty.json';
 import nothingFits from '../../fixtures/pick-nothing-fits.json';
 import day from '../../fixtures/pick.json';
+import { dayOf } from './day';
 import type { Category, Units, Vibe, Warmth } from './words';
 
 /* The contract in README.md. The app sends words, never what a garment is worth
@@ -108,9 +109,6 @@ export function chooseFixture(next: FixtureDay) {
    same closet, garment for garment, in the same units, since its sentences print
    degrees. A fixture is never kept, so one can never stand in for a failure. */
 const KEPT = 'wardrobe.lastAnswer';
-
-const dayOf = (d: Date) =>
-  [d.getFullYear(), d.getMonth() + 1, d.getDate()].map((n) => String(n).padStart(2, '0')).join('-');
 
 /* a closet as one string, whatever order its garments come in */
 const closetOf = (garments: unknown): string | null =>
