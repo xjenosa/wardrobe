@@ -1,12 +1,11 @@
 import { useNavigation } from '@react-navigation/native';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { updateCloset } from '../../lib/store';
 import { capture } from '../../strings/capture';
 import { drawn } from '../../strings/drawn';
-import { emptyValues, FormButton, formStyles, garmentOf, GarmentForm, type FormValues } from './GarmentForm';
+import { emptyValues, FormButton, FormFrame, formStyles, garmentOf, GarmentForm, type FormValues } from './GarmentForm';
 
 const t = drawn.fig18;
 
@@ -21,23 +20,26 @@ export function AddGarmentScreen() {
   const [failed, setFailed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [id] = useState(newId);
+  const pressed = useRef(false);
   const garment = garmentOf(id, values);
 
   async function save() {
-    if (!garment || saving) return;
+    if (!garment || pressed.current) return;
+    pressed.current = true;
     setSaving(true);
     setFailed(false);
-    const result = await updateCloset((garments) => [...garments, garment]);
+    const result = await updateCloset((garments) => (garments.some((g) => g.id === garment.id) ? garments : [...garments, garment]));
     if (result.ok) {
       navigation.goBack();
     } else {
+      pressed.current = false;
       setSaving(false);
       setFailed(true);
     }
   }
 
   return (
-    <SafeAreaView style={formStyles.page}>
+    <FormFrame>
       <View style={formStyles.topbar}>
         <Text accessibilityRole="header" style={formStyles.title}>
           {t.newGarment}
@@ -56,6 +58,6 @@ export function AddGarmentScreen() {
         <FormButton label={t.cancel} onPress={() => navigation.goBack()} />
         <FormButton label={t.saveToCloset} primary disabled={!garment || saving} onPress={save} />
       </View>
-    </SafeAreaView>
+    </FormFrame>
   );
 }

@@ -6,5 +6,7 @@ export const capture = {
   saveFailed: 'Could not save. What you entered is still here.',
   closetUnreadable: 'The closet could not be read.',
   tryAgain: 'Try again',
+  notSavedYet: 'Not saved yet.',
+  discard: 'Discard',
   notInCloset: 'This garment is not in your closet.',
 } as const;

@@ -1,4 +1,5 @@
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import type { Garment } from '../../lib/store';
 import { categories, vibes, warmths, type Category, type Vibe, type Warmth } from '../../lib/words';
@@ -55,7 +56,7 @@ export function GarmentForm({ values, onChange }: Props) {
         <Chips options={categories} chosen={values.category} label={t.category} onChoose={(category) => set({ category })} />
       </Field>
       <Field label={t.warmth}>
-        <Chips options={warmths} chosen={values.warmth} label={t.warmth} onChoose={(warmth) => set({ warmth })} />
+        <Chips options={warmths} chosen={values.warmth} label={t.warmth} onChoose={(warmth) => set({ warmth: warmth === values.warmth ? undefined : warmth })} />
       </Field>
       <Field label={t.style}>
         <Chips
@@ -109,8 +110,8 @@ function Chips<T extends string>({
         return (
           <Pressable
             key={option}
-            accessibilityRole="button"
-            accessibilityState={{ selected: on }}
+            accessibilityRole="radio"
+            accessibilityState={{ checked: on }}
             onPress={() => onChoose(option)}
             style={[styles.chip, on && styles.chipOn]}
           >
@@ -119,6 +120,18 @@ function Chips<T extends string>({
         );
       })}
     </View>
+  );
+}
+
+/* The page both screens sit on. The footer is lifted with the keyboard, so
+   Save is not covered once the name has been typed. */
+export function FormFrame({ children }: { children: React.ReactNode }) {
+  return (
+    <SafeAreaView style={formStyles.page}>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={formStyles.page}>
+        {children}
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -140,9 +153,9 @@ export function FormButton({
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
-      style={[styles.button, primary && styles.buttonPrimary, disabled && styles.buttonDisabled]}
+      style={[styles.button, primary && !disabled && styles.buttonPrimary]}
     >
-      <Text style={[styles.buttonText, primary && styles.buttonTextPrimary]}>{label}</Text>
+      <Text style={[styles.buttonText, primary && !disabled && styles.buttonTextPrimary, disabled && styles.buttonTextDisabled]}>{label}</Text>
     </Pressable>
   );
 }
@@ -153,6 +166,8 @@ export const formStyles = StyleSheet.create({
   title: { fontSize: 15, fontWeight: '600', color: light.ink },
   body: { padding: 24, paddingTop: 20 },
   note: { fontSize: 13, color: light.muted, marginBottom: 16 },
+  held: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 16 },
+  heldText: { flex: 1, fontSize: 13, color: light.muted },
   problem: { fontSize: 13, color: light.grave, marginTop: 4 },
   foot: { flexDirection: 'row', justifyContent: 'flex-end', gap: 12, padding: 16, borderTopWidth: 1, borderTopColor: light.hairline },
 });
@@ -169,7 +184,7 @@ const styles = StyleSheet.create({
   chipTextOn: { color: light.paper },
   button: { height: 44, justifyContent: 'center', paddingHorizontal: 20, borderWidth: 1, borderColor: light.edge },
   buttonPrimary: { backgroundColor: light.ink, borderColor: light.ink, paddingHorizontal: 24 },
-  buttonDisabled: { opacity: 0.4 },
   buttonText: { fontSize: 13, fontWeight: '500', color: light.ink },
   buttonTextPrimary: { color: light.paper },
+  buttonTextDisabled: { color: light.disabled },
 });
