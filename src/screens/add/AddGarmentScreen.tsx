@@ -39,7 +39,7 @@ export function AddGarmentScreen() {
   }
 
   return (
-    <FormFrame>
+    <FormFrame fullScreen>
       <View style={formStyles.topbar}>
         <Text accessibilityRole="header" style={formStyles.title}>
           {t.newGarment}
