@@ -1,5 +1,5 @@
 import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { Garment } from '../../lib/store';
 import { categories, vibes, warmths, type Category, type Vibe, type Warmth } from '../../lib/words';
@@ -124,10 +124,18 @@ function Chips<T extends string>({
 }
 
 /* The page both screens sit on. The footer is lifted with the keyboard, so
-   Save is not covered once the name has been typed. */
-export function FormFrame({ children }: { children: React.ReactNode }) {
+   Save is not covered once the name has been typed.
+
+   A screen that covers the whole phone says `fullScreen`. The native
+   SafeAreaView drew Add garment's top bar under the status bar when it opened
+   as a full-screen modal, though the insets it was given were right, so the
+   top is made room for by hand there. In a sheet, which already starts below
+   the status bar, the same insets would push the bar down twice. */
+export function FormFrame({ children, fullScreen = false }: { children: React.ReactNode; fullScreen?: boolean }) {
+  const { top } = useSafeAreaInsets();
   return (
     <SafeAreaView style={formStyles.page}>
+      {fullScreen && <View style={{ height: top }} />}
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={formStyles.page}>
         {children}
       </KeyboardAvoidingView>
