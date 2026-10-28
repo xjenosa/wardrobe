@@ -16,7 +16,7 @@ and nothing is built for a store (ADR 0014).
 ## Decision
 
 **The project is on the SDK the stores' Expo Go runs, not the newest one.**
-Today that is SDK 57. Expo Go's version number starts with its SDK, so the
+Today that is SDK 58. Expo Go's version number starts with its SDK, so the
 store page says when the next one has arrived. Moving to it is its own pull
 request, once Expo Go for it is in both stores.
 
@@ -38,3 +38,10 @@ waiting for Expo Go and this is re-read.
 **A member who cannot open the app because the two stores moved apart**, one on
 the next SDK while the other is not, or an Expo module the app needs that only
 the newer SDK has.
+
+## Moved to SDK 58, 2026-10-28
+
+Expo Go 58.0.5 reached the App Store on 22 October and Google Play after it,
+and an updated iPhone could no longer open the project. The project moved to
+SDK 58: React Native 0.88, React 19.3 and Jest 30. Its tunnel is Expo's own,
+so `--tunnel` no longer installs ngrok.

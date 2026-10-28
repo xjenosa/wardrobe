@@ -129,8 +129,7 @@ the same network.
 
 - **On campus Wi-Fi, run `npx expo start --tunnel` instead.** A campus network
   usually stops its devices reaching each other; the tunnel goes through the
-  internet. The first time, Expo asks to install `@expo/ngrok`: say yes. A
-  phone hotspot with the computer on it works too.
+  internet. A phone hotspot with the computer on it works too.
 - **If Expo Go is signed in to an Expo account, sign the computer in to the
   same one** with `npx expo login`, or sign Expo Go out. A signed-in phone does
   not open the app from a signed-out computer.
