@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { stub } from '../strings/screens';
+import { font } from '../theme/font';
 import { light } from '../theme/tokens';
 
 type Link = { label: string; onPress: () => void };
@@ -34,7 +35,7 @@ export function Stub({ title, links = [] }: { title: string; links?: Link[] }) {
 
 const styles = StyleSheet.create({
   page: { flex: 1, backgroundColor: light.paper, padding: 24, gap: 12 },
-  title: { fontSize: 28, fontWeight: '600', color: light.ink, marginBottom: 12 },
+  title: { fontFamily: font.semibold, fontSize: 28, color: light.ink, marginBottom: 12 },
   link: { borderWidth: 1, borderColor: light.edge, paddingVertical: 12, paddingHorizontal: 16 },
-  linkText: { fontSize: 15, color: light.ink },
+  linkText: { fontFamily: font.regular, fontSize: 15, color: light.ink },
 });

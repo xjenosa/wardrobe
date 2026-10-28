@@ -16,6 +16,7 @@ import { TodayScreen } from '../screens/today/TodayScreen';
 import { WeatherScreen } from '../screens/weather/WeatherScreen';
 import { YouScreen } from '../screens/you/YouScreen';
 import { screens } from '../strings/screens';
+import { font } from '../theme/font';
 import { light } from '../theme/tokens';
 import type { RootStackParamList, TabParamList, TodayParamList } from './routes';
 
@@ -28,7 +29,9 @@ export const navigationRef = createNavigationContainerRef<RootStackParamList>();
 /* No navigator draws a header: every plate draws its own top bar, or none. */
 const bare = { headerShown: false } as const;
 
-/* Light only (ADR 0008), so one theme, built from the drawn palette. */
+/* Light only (ADR 0008), so one theme, built from the drawn palette and the
+   drawn typeface. A face carries its own weight (src/theme/font.ts), and the
+   heaviest is 600 because that is the heaviest the mockup loads. */
 const theme: Theme = {
   ...DefaultTheme,
   colors: {
@@ -38,6 +41,12 @@ const theme: Theme = {
     card: light.paper,
     text: light.ink,
     border: light.hairline,
+  },
+  fonts: {
+    regular: { fontFamily: font.regular, fontWeight: 'normal' },
+    medium: { fontFamily: font.medium, fontWeight: 'normal' },
+    bold: { fontFamily: font.semibold, fontWeight: 'normal' },
+    heavy: { fontFamily: font.semibold, fontWeight: 'normal' },
   },
 };
 
