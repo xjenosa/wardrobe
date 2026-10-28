@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text } from 'react-native';
 import { font } from '../theme/font';
 import type { Icon } from '../theme/icons';
 import { light } from '../theme/tokens';
+import { reach } from './reach';
 
 /* THE CHIPS THE PLATES DRAW: a ruled pill that fills with ink when it is on.
    Four looks, one for each place they sit.
@@ -48,6 +49,7 @@ export function Chip({
       accessibilityState={role === 'radio' ? { checked: on, disabled } : { selected: on, disabled }}
       disabled={disabled}
       onPress={onPress}
+      hitSlop={reach(height[kind])}
       style={({ pressed }) => [styles.chip, look[kind], pressed && !inked && touched[kind], inked && styles.on]}
     >
       {({ pressed }) => (
@@ -62,16 +64,23 @@ export function Chip({
 
 const pill = (token: string) => parseFloat(token);
 
+const height: Record<ChipKind, number> = {
+  option: pill(light.pillL),
+  feedback: pill(light.pillM),
+  filter: pill(light.pillM),
+  preset: pill(light.pillM),
+};
+
 const styles = StyleSheet.create({
   chip: { flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1, borderColor: light.edge },
   on: { backgroundColor: light.ink, borderColor: light.ink },
 });
 
 const look = StyleSheet.create({
-  option: { height: pill(light.pillL), paddingHorizontal: 16, backgroundColor: light.field },
-  feedback: { height: pill(light.pillM), paddingHorizontal: 12 },
-  filter: { height: pill(light.pillM), paddingHorizontal: 16 },
-  preset: { height: pill(light.pillM), paddingHorizontal: 12, backgroundColor: light.field },
+  option: { height: height.option, paddingHorizontal: 16, backgroundColor: light.field },
+  feedback: { height: height.feedback, paddingHorizontal: 12 },
+  filter: { height: height.filter, paddingHorizontal: 16 },
+  preset: { height: height.preset, paddingHorizontal: 12, backgroundColor: light.field },
 });
 
 const touched = StyleSheet.create({

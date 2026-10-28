@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { font } from '../theme/font';
 import { light } from '../theme/tokens';
+import { reach } from './reach';
 
 /* ONE CHOICE FROM A FEW, side by side in a ruled field (.vibe, .seg): a radio
    group, so a screen reader says which is chosen and how many there are.
@@ -37,6 +38,7 @@ export function Segmented<T extends string>({
             accessibilityState={{ checked: chosen, disabled }}
             disabled={disabled}
             onPress={() => onChange(option)}
+            hitSlop={reach(wide ? tall.wide : tall.inline)}
             style={[wide ? styles.segWide : styles.seg, chosen && (disabled ? styles.ringed : styles.on)]}
           >
             {({ pressed }) => (
@@ -56,12 +58,16 @@ export function Segmented<T extends string>({
   );
 }
 
+/* Vibe's segments are drawn 27 tall; Units' fill the 32 field less its padding
+   and rule. */
+const tall = { wide: 27, inline: parseFloat(light.pillM) - 2 * 4 - 2 * 1 };
+
 const styles = StyleSheet.create({
   group: { flexDirection: 'row', gap: 4, padding: 4, borderWidth: 1, borderColor: light.edge, backgroundColor: light.field },
   wide: { alignSelf: 'stretch' },
   inline: { alignSelf: 'flex-start', height: parseFloat(light.pillM) },
-  segWide: { flex: 1, height: 27, alignItems: 'center', justifyContent: 'center' },
-  seg: { paddingHorizontal: 12, alignItems: 'center', justifyContent: 'center' },
+  segWide: { flex: 1, height: tall.wide, alignItems: 'center', justifyContent: 'center' },
+  seg: { height: tall.inline, paddingHorizontal: 12, alignItems: 'center', justifyContent: 'center' },
   on: { backgroundColor: light.ink },
   ringed: { borderWidth: 1, borderColor: light.edge },
   words: {

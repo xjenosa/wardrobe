@@ -1,11 +1,19 @@
 import { render, screen, userEvent } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
 
 import { vibes } from '../lib/words';
 import { drawn } from '../strings/drawn';
 import { light } from '../theme/tokens';
+import { TOUCH } from './reach';
 import { Segmented } from './Segmented';
 
 const t = drawn.fig08;
+
+/* How tall a finger finds it: its drawn height and the slop above and below. */
+const reachOf = (el: ReturnType<typeof screen.getByRole>) => {
+  const slop = el.props.hitSlop ?? {};
+  return Number(StyleSheet.flatten(el.props.style).height) + (slop.top ?? 0) + (slop.bottom ?? 0);
+};
 
 /* A group is a container, not something a screen reader stops on, so it is
    found by its label rather than by its role. */
@@ -43,4 +51,9 @@ it('sits at its own width, as You draws Units, unless it is wide', async () => {
   const u = drawn.fig23;
   await render(<Segmented label={u.units} options={[u.c, u.f]} value={u.c} onChange={() => {}} />);
   expect(group(u.units)).toHaveStyle({ alignSelf: 'flex-start' });
+});
+
+it.each([true, false])('reaches 44 to the touch with every choice, wide %s', async (wide) => {
+  await render(<Segmented label={t.vibe} options={vibes} value={t.everyday} onChange={() => {}} wide={wide} />);
+  for (const name of vibes) expect(reachOf(screen.getByRole('radio', { name }))).toBeGreaterThanOrEqual(TOUCH);
 });

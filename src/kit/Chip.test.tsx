@@ -1,13 +1,20 @@
 import { render, screen, userEvent } from '@testing-library/react-native';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { drawn } from '../strings/drawn';
 import { Sun } from '../theme/icons';
 import { light } from '../theme/tokens';
 import { Chip } from './Chip';
+import { TOUCH } from './reach';
 
 const t = drawn.fig08;
 const f = drawn.fig18;
+
+/* How tall a finger finds it: its drawn height and the slop above and below. */
+const reachOf = (el: ReturnType<typeof screen.getByRole>) => {
+  const slop = el.props.hitSlop ?? {};
+  return Number(StyleSheet.flatten(el.props.style).height) + (slop.top ?? 0) + (slop.bottom ?? 0);
+};
 
 it('is a button that says whether it is on', async () => {
   await render(<Chip label={t.tooWarm} kind="feedback" icon={Sun} onPress={() => {}} />);
@@ -60,4 +67,9 @@ it.each([
 ] as const)('draws a %s chip at the height its plate does, %s', async (kind, height) => {
   await render(<Chip label={f.warm} kind={kind} onPress={() => {}} />);
   expect(screen.getByRole('button', { name: f.warm })).toHaveStyle({ height: parseFloat(height) });
+});
+
+it.each(['option', 'feedback', 'filter', 'preset'] as const)('the %s chip reaches 44 to the touch, however tall it is drawn', async (kind) => {
+  await render(<Chip label={f.warm} kind={kind} onPress={() => {}} />);
+  expect(reachOf(screen.getByRole('button', { name: f.warm }))).toBeGreaterThanOrEqual(TOUCH);
 });
