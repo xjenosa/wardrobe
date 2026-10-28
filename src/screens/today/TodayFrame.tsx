@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { vibes, type Vibe } from '../../lib/words';
@@ -19,10 +19,13 @@ export const weekdayOf = (now: Date) => part(now, { weekday: 'long' });
 const dateOf = (now: Date) =>
   [part(now, { weekday: 'short' }), part(now, { day: 'numeric' }), part(now, { month: 'short' })].join(' ');
 
+/* The page scrolls, as the plate's does: on a small phone or at a large text
+   size the boxes outgrow the space above the tab bar. flexGrow lets the hero
+   still take what a tall phone has spare. */
 export function TodayPage({ children }: { children: ReactNode }) {
   return (
     <SafeAreaView edges={['top']} style={styles.page}>
-      {children}
+      <ScrollView contentContainerStyle={styles.body}>{children}</ScrollView>
     </SafeAreaView>
   );
 }
@@ -132,7 +135,8 @@ export function WhyRow({ disabled }: { disabled: boolean }) {
 const caps = { textTransform: 'uppercase', fontSize: 11, lineHeight: 11 } as const;
 
 const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: light.paper, paddingTop: 12, paddingHorizontal: 24 },
+  page: { flex: 1, backgroundColor: light.paper },
+  body: { flexGrow: 1, paddingTop: 12, paddingHorizontal: 24 },
   eyebrow: { ...caps, fontWeight: '500', lineHeight: 15.4, letterSpacing: 1.65, color: light.muted },
   display: { marginTop: 4, fontSize: 28, lineHeight: 33.6, fontWeight: '600', letterSpacing: -0.62, color: light.ink },
   rule: { height: 1, marginTop: 16, backgroundColor: light.hairline },
