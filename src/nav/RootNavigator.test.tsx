@@ -1,8 +1,12 @@
 import { render, screen, userEvent } from '@testing-library/react-native';
+import { Children, type ReactElement, type ReactNode } from 'react';
+import { processColor, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 
 import App from '../../App';
 import { drawn } from '../strings/drawn';
 import { screens, stub } from '../strings/screens';
+import { Hanger, Sunrise, type Icon } from '../theme/icons';
+import { light } from '../theme/tokens';
 import { navigationRef } from './RootNavigator';
 
 /* THE CLOCK IS FAKE AND SET TO FIG 11'S OWN THURSDAY (ADR 0015), so No forecast
@@ -54,4 +58,34 @@ it('comes back from a screen that covers the tabs', async () => {
   const user = await walk([screens.you]);
   await user.press(screen.getByRole('button', { name: stub.back }));
   expect(onTop()).toBe('Tabs');
+});
+
+/* THE TAB BAR DRAWS THE PLATE'S ICONS (Figs 06 to 15), ink on the open tab and
+   muted on the other. The bar draws each icon twice and fades one out, so this
+   reads the copy that shows. */
+type Drawn = { type: string; props: Record<string, unknown>; children: (Drawn | string)[] };
+const nodes = (n: Drawn | string): Drawn[] => (typeof n === 'string' ? [] : [n, ...n.children.flatMap(nodes)]);
+const shown = (tab: Drawn) =>
+  nodes(tab).find(
+    (n) =>
+      StyleSheet.flatten(n.props.style as StyleProp<ViewStyle>)?.opacity === 1 &&
+      n.children.some((c) => typeof c !== 'string' && c.type === 'RNSVGSvgView'),
+  );
+const pathsOf = (n: Drawn) => nodes(n).flatMap((c) => (c.type === 'RNSVGPath' ? [c.props.d] : []));
+const inkOf = (n: Drawn) => nodes(n).flatMap((c) => (c.type === 'RNSVGGroup' ? [(c.props.stroke as { payload?: unknown })?.payload] : []));
+const drawingOf = (icon: Icon) =>
+  Children.toArray((icon({}) as ReactElement<{ children: ReactNode }>).props.children).map(
+    (c) => (c as ReactElement<{ d?: string }>).props.d,
+  );
+
+it.each([
+  [screens.today, Sunrise, light.ink],
+  [screens.closet, Hanger, light.muted],
+] as const)('the %s tab draws its icon from the plate, in the colour of an open or closed tab', async (name, icon, ink) => {
+  await render(<App />);
+  const tab = screen.getByRole('button', { name: new RegExp('^' + name + ', tab,') }) as unknown as Drawn;
+  const icons = shown(tab);
+  if (!icons) throw new Error('the ' + name + ' tab shows no icon');
+  expect(pathsOf(icons)).toEqual(drawingOf(icon));
+  expect(inkOf(icons)).toEqual([processColor(ink)]);
 });

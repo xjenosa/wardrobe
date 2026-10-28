@@ -99,4 +99,6 @@ premise changes there is something to re-read.**
 - **0024 Screens are built from one kit, in the mockup's type and icons.**
   Inter loads before anything draws, the icons are generated like the tokens,
   and what two screens draw alike is built once in `src/kit/`, track A's. Each
-  track swaps its own hand-built pieces in its own pull request.
+  track swaps its own hand-built pieces in its own pull request. Revised the
+  same day, when the tab bar gained its icons and the label, the field and the
+  garment tile joined the kit.

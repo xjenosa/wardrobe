@@ -1,6 +1,6 @@
 # 0024. Screens are built from one kit, in the mockup's type and icons
 
-Status: Accepted, 2026-10-28.
+Status: Accepted, 2026-10-28. Revised the same day with four more pieces, below.
 
 ## Context
 
@@ -53,3 +53,21 @@ this is re-read.
 
 **A kit piece growing a prop that only one screen uses**, more than once. That
 is a screen's own piece living in the kit, and it moves back to the screen.
+
+## Four more pieces, 2026-10-28
+
+**The tab bar draws the plate's icons**, Sunrise for Today and Hanger for
+Closet, at 22 over the tab names in small capitals, and the two tabs sit
+together in the middle of the bar as Figs 06 to 15 draw them rather than spread
+to its ends. That is in `src/nav/`, where the tab bar is.
+
+**`Label`, `Field` and `GarmentTile` join the kit.** The label is the small
+capitals over a field, which the garment form, Today's Vibe and You's sections
+all draw, a hundredth of an em apart in spacing, so the kit draws one. The
+field is the garment form's box to type in, on Add garment and the editor
+alike; its wrong and hint states are the stylesheet's, since no plate draws
+them. The tile is one garment in the closet's grid, with its heart.
+
+**A piece also joins when one screen repeats it many times.** The tile is the
+closet's alone, but Fig 15 draws it twenty times and Figs 19 and 19b draw it
+again behind the editor, and it joined at Max's ask. The premise above stands.
