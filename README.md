@@ -147,7 +147,7 @@ builds that value into the app, so it has to be an address that may be public.
 | `npm test` | the tests: `pick()`, the closet store, the wear record, and that every screen is where its plate puts it |
 | `npm run typecheck` | the types |
 | `npm run lint` | the lint rules, with no warnings allowed |
-| `npm run check:extract` | `tokens.ts` and `drawn.ts` still match the mockup |
+| `npm run check:extract` | `tokens.ts`, `drawn.ts` and `icons.tsx` still match the mockup, and every icon has a name |
 | `npm run check:leaks` | nothing from the private design repository is here |
 
 Every pull request runs all five on GitHub, and a red one is not merged

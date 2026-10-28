@@ -1,25 +1,29 @@
 #!/usr/bin/env node
 /*
- * extract: read the mockup and write the two files nobody should type by hand.
+ * extract: read the mockup and write the files nobody should type by hand.
  *
- *   node tools/extract.mjs           write src/theme/tokens.ts and src/strings/drawn.ts
- *   node tools/extract.mjs --check   fail if either is out of date
+ *   node tools/extract.mjs           write src/theme/tokens.ts, src/strings/drawn.ts
+ *                                    and src/theme/icons.tsx
+ *   node tools/extract.mjs --check   fail if any is out of date
  *
  * WHY THIS IS A TOOL AND NOT A ONE-TIME COPY. Three people building from one
  * drawing will not agree on a colour by eye, and they will not phrase the same
  * sentence the same way. The mockup already holds both: 55 custom properties in
  * its stylesheet and every user-facing word it draws. Copying them by hand
- * makes a second source that drifts the first time the drawing changes.
+ * makes a second source that drifts the first time the drawing changes. The
+ * same goes for its icons, which are inline SVG.
  *
  * The mockup is generated upstream and regenerated when the design moves, so
  * this runs again and the difference shows up in a pull request.
  */
+import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 
 const SRC = 'docs/design/mobile.html';
 const OUT_TOKENS = 'src/theme/tokens.ts';
 const OUT_STRINGS = 'src/strings/drawn.ts';
+const OUT_ICONS = 'src/theme/icons.tsx';
 const CHECK = process.argv.includes('--check');
 
 const html = readFileSync(SRC, 'utf8');
@@ -201,12 +205,248 @@ function stringsFile() {
   return parts.join('\n');
 }
 
+/* -------------------------------------------------------------- icons --- */
+/* AN ICON IS A DRAWING IN A PLATE THAT TAKES THE COLOUR OF THE TEXT AROUND IT,
+   which is what currentColor means. A drawing made of <use> is a garment or a
+   figure from the sprite, and one with no currentColor is a chart; neither is
+   an icon. Each icon is written once, however many plates draw it.
+
+   THE SAME ICON IS THE SAME DRAWING, compared after every paint attribute has
+   been resolved from the svg down to its shapes, and leaving out the two
+   things a plate varies freely, its size and its outer stroke width. Those two
+   become props, defaulting to the way the plates draw it most often.
+
+   A NAME IS A PERSON'S CALL, so it is written below against the drawing's
+   fingerprint and never guessed from the markup. A drawing nobody has named
+   fails the run, and so does a name whose drawing has gone: a new or changed
+   icon reaches a pull request as a question, not as a quiet rename. */
+const ICONS = {
+  Alert: 'ff373b5d',
+  Back: '1dbaf542',
+  Camera: 'baa1fb5d',
+  Check: '7df86f85',
+  ChevronDown: '864b104c',
+  ChevronRight: 'b1f66a79',
+  ChevronUp: '95aed1d5',
+  Close: 'a37a5f11',
+  /* a second cross, a hair larger in its box than Close, drawn only on the
+     editor's picture; the two are kept apart because the drawing keeps them
+     apart */
+  CloseEditor: '90bbf2c8',
+  Cloud: '88bae49a',
+  Eyedropper: '56250d8a',
+  Flash: 'c767c5f7',
+  Hanger: '1b7c15b1',
+  Heart: 'b370cd74',
+  Moon: 'aec4544c',
+  PartlyCloudy: 'cdc9846b',
+  Picture: '10fc771c',
+  Plus: '99b66792',
+  Precipitation: 'b1ab0ce8',
+  Refresh: '2a19a37a',
+  Search: '51afefd3',
+  Share: '6826a0cf',
+  Shuffle: '2d32ebde',
+  Snow: '176cbb40',
+  Snowflake: 'f0f1107c',
+  Sort: '2a557b6f',
+  Sparkle: '0e251df1',
+  Sun: '9d44bcbf',
+  Sunrise: '91f1e6fc',
+  Sunset: 'a6db5baf',
+  Trash: '7652c4b3',
+};
+/* The phone's own status bar, which the phone draws and the app never does. */
+const NOT_ICONS = {
+  statusSignal: '4fbbd896',
+  statusWifi: '0d766371',
+  statusBattery: '2a3f0a9a',
+};
+
+/* A drawn icon in the mockup, as a tree of {name, attrs, kids}. */
+function svgTree(markup) {
+  const root = { kids: [] };
+  const open = [root];
+  for (const m of markup.matchAll(/<(\/?)([a-zA-Z][a-zA-Z0-9-]*)((?:\s+[a-zA-Z_:][-a-zA-Z0-9_:.]*\s*=\s*"[^"]*")*)\s*(\/?)>/g)) {
+    const [, close, name, attrText, self] = m;
+    if (close) { open.pop(); continue; }
+    const attrs = {};
+    for (const a of attrText.matchAll(/([a-zA-Z_:][-a-zA-Z0-9_:.]*)\s*=\s*"([^"]*)"/g)) attrs[a[1]] = a[2];
+    const el = { name, attrs, kids: [] };
+    open[open.length - 1].kids.push(el);
+    if (!self) open.push(el);
+  }
+  return root.kids[0];
+}
+
+const SHAPES = new Set(['path', 'circle', 'rect']);
+const GEOMETRY = ['d', 'cx', 'cy', 'r', 'x', 'y', 'width', 'height', 'rx'];
+/* what SVG draws when nothing says otherwise */
+const PAINT = {
+  fill: 'black', 'fill-opacity': '1', stroke: 'none', 'stroke-width': '1',
+  'stroke-opacity': '1', 'stroke-linecap': 'butt', 'stroke-linejoin': 'miter',
+};
+const ROOT_ATTRS = new Set(['width', 'height', 'viewBox', 'class', 'aria-hidden', ...Object.keys(PAINT)]);
+const SHAPE_ATTRS = new Set([...GEOMETRY, 'class', ...Object.keys(PAINT)]);
+/* A TWO-STATE ICON draws a `line` shape when off and a `fill` shape when on,
+   and the stylesheet swaps them (.heart .fill, .heart.is-on .line). It becomes
+   a `filled` prop. Any other class on a shape is a state this does not know. */
+const STATES = new Set(['line', 'fill']);
+
+/* Every shape with its paint resolved. The outer stroke width is kept as a
+   marker, not a number, since it is the prop. Paint that cannot show is
+   dropped, so two drawings that look the same compare the same. */
+function drawingOf(svg) {
+  const shapes = [];
+  const walk = (el, inherited) => {
+    const paint = { ...inherited };
+    for (const k of Object.keys(PAINT)) {
+      if (el.attrs[k] !== undefined) paint[k] = el === svg && k === 'stroke-width' ? 'outer' : el.attrs[k];
+    }
+    if (SHAPES.has(el.name)) {
+      const shape = { tag: el.name, state: el.attrs.class || null, geometry: {}, paint: { ...paint } };
+      for (const k of GEOMETRY) if (el.attrs[k] !== undefined) shape.geometry[k] = el.attrs[k];
+      if (shape.paint.stroke === 'none') {
+        for (const k of ['stroke-width', 'stroke-opacity', 'stroke-linecap', 'stroke-linejoin']) delete shape.paint[k];
+      }
+      if (shape.paint.fill === 'none') delete shape.paint['fill-opacity'];
+      shapes.push(shape);
+    }
+    for (const k of el.kids) walk(k, paint);
+  };
+  walk(svg, { ...PAINT });
+  return { viewBox: svg.attrs.viewBox, shapes };
+}
+const fingerprint = d => createHash('sha256').update(JSON.stringify(d)).digest('hex').slice(0, 8);
+/* the drawing a two-state icon makes when it is on */
+const filledOf = d => ({ viewBox: d.viewBox, shapes: d.shapes.filter(s => s.state !== 'line').map(s => ({ ...s, state: null })) });
+
+const drawings = new Map();
+for (const [, body, fig] of plates) {
+  for (const [markup] of body.matchAll(/<svg\b[^>]*>[^]*?<\/svg>/g)) {
+    if (/<use\b/.test(markup) || !/currentColor/.test(markup)) continue;
+    const svg = svgTree(markup);
+    const drawing = drawingOf(svg);
+    const id = fingerprint(drawing);
+    if (!drawings.has(id)) {
+      const twoState = drawing.shapes.some(s => s.state);
+      drawings.set(id, { id, svg, drawing, twoState, filledId: twoState ? fingerprint(filledOf(drawing)) : null, uses: [] });
+    }
+    drawings.get(id).uses.push({
+      fig: fig.trim().replace(/^Fig /, ''),
+      size: svg.attrs.width ? Number(svg.attrs.width) : null,
+      stroke: svg.attrs['stroke-width'] ? Number(svg.attrs['stroke-width']) : null,
+      filled: false,
+    });
+  }
+}
+/* A one-state drawing that is exactly what a two-state icon draws when on is
+   that icon, drawn filled. */
+for (const two of [...drawings.values()].filter(d => d.twoState)) {
+  const same = drawings.get(two.filledId);
+  if (!same || same.twoState) continue;
+  two.uses.push(...same.uses.map(u => ({ ...u, filled: true })));
+  drawings.delete(same.id);
+}
+
+const nameOf = new Map(Object.entries(ICONS).map(([name, id]) => [id, name]));
+const skipped = new Set(Object.values(NOT_ICONS));
+const icons = [...drawings.values()]
+  .filter(d => nameOf.has(d.id))
+  .map(d => ({ ...d, name: nameOf.get(d.id) }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+
+const mostOften = values => {
+  const n = new Map();
+  for (const v of values) n.set(v, (n.get(v) || 0) + 1);
+  return [...n].sort((a, b) => b[1] - a[1])[0]?.[0];
+};
+const figs = list => {
+  const f = [...new Set(list)];
+  return (f.length > 1 ? 'Figs ' + f.slice(0, -1).join(', ') + ' and ' + f[f.length - 1] : 'Fig ' + f[0]);
+};
+/* Where the plates draw it, grouped by how. */
+function drawnAt(icon) {
+  const how = new Map();
+  for (const u of icon.uses) {
+    const k = [u.size === null ? 'sized by the stylesheet' : 'at ' + u.size,
+      u.stroke === null ? '' : 'stroke ' + u.stroke, u.filled ? 'filled' : ''].filter(Boolean).join(', ');
+    if (!how.has(k)) how.set(k, []);
+    how.get(k).push(u.fig);
+  }
+  return [...how].map(([k, f]) => figs(f) + ', ' + k + '.');
+}
+
+const JSX_NAME = { path: 'Path', circle: 'Circle', rect: 'Rect' };
+const prop = k => k.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+/* currentColor is the colour prop, and a custom property is its token. */
+function value(v) {
+  if (v === 'currentColor') return '{color}';
+  const token = v.match(/^var\(--([a-z0-9-]+)\)$/);
+  if (token) return '{light.' + camel(token[1]) + '}';
+  return lit(v);
+}
+function iconSource(icon) {
+  const { svg } = icon;
+  const size = mostOften(icon.uses.map(u => u.size).filter(s => s !== null))
+    ?? Number(svg.attrs.viewBox.split(/\s+/)[2]);
+  const outer = icon.drawing.shapes.some(s => s.paint['stroke-width'] === 'outer');
+  const stroke = outer ? mostOften(icon.uses.map(u => u.stroke)) : null;
+  const params = ['size = ' + size, 'color = light.ink',
+    ...(outer ? ['strokeWidth = ' + stroke] : []), ...(icon.twoState ? ['filled = false'] : [])];
+  const rootAttrs = ['width={size}', 'height={size}', 'viewBox=' + lit(svg.attrs.viewBox)];
+  for (const [k, v] of Object.entries(svg.attrs)) {
+    if (k in PAINT) rootAttrs.push(prop(k) + '=' + (k === 'stroke-width' ? '{strokeWidth}' : value(v)));
+  }
+  const shape = el => {
+    const attrs = Object.entries(el.attrs).filter(([k]) => k !== 'class').map(([k, v]) => prop(k) + '=' + value(v));
+    const tag = '<' + JSX_NAME[el.name] + ' ' + attrs.join(' ') + ' />';
+    if (el.attrs.class === 'line') return '{!filled && ' + tag + '}';
+    if (el.attrs.class === 'fill') return '{filled && ' + tag + '}';
+    return tag;
+  };
+  return [
+    ...drawnAt(icon).map((l, i, all) => (i === 0 ? '/* ' : '   ') + l + (i === all.length - 1 ? ' */' : '')),
+    'export function ' + icon.name + '({ ' + params.join(', ') + ' }: IconProps' + (icon.twoState ? ' & { filled?: boolean }' : '') + ') {',
+    '  return (',
+    '    <Svg ' + rootAttrs.join(' ') + '>',
+    ...svg.kids.map(k => '      ' + shape(k)),
+    '    </Svg>',
+    '  );',
+    '}',
+  ].join('\n');
+}
+
+function iconsFile() {
+  const used = [...new Set(icons.flatMap(i => i.svg.kids.map(k => JSX_NAME[k.name])))].sort();
+  return [
+    '/* GENERATED by tools/extract.mjs from ' + SRC + '. Do not edit.',
+    '   Run `node tools/extract.mjs` after the mockup changes. The mockup draws',
+    '   each icon in the colour of the text around it, so pass that colour. The',
+    '   size and stroke default to the way the plates draw it most often. */',
+    '',
+    'import type { ReactElement } from \'react\';',
+    'import Svg, { ' + used.join(', ') + ' } from \'react-native-svg\';',
+    '',
+    'import { light } from \'./tokens\';',
+    '',
+    'export type IconProps = { size?: number; color?: string; strokeWidth?: number };',
+    'export type Icon = (props: IconProps) => ReactElement;',
+    '',
+    ...icons.map(i => iconSource(i) + '\n'),
+    'export const icons = { ' + icons.map(i => i.name).join(', ') + ' } satisfies Record<string, Icon>;',
+    '',
+    'export type IconName = keyof typeof icons;',
+    '',
+  ].join('\n');
+}
+
 /* -------------------------------------------------------------- build --- */
 /* THE CHECKS GATE THE WRITE, OR THEY ARE A REPORT. This used to write both
    files and then check them, so a run whose checks failed had already replaced
-   the build inputs. Both files are now built in memory, every check below reads
+   the build inputs. Every file is now built in memory, every check below reads
    that, and nothing touches the disk until all of them pass. */
-const want = { [OUT_TOKENS]: tokensFile(), [OUT_STRINGS]: stringsFile() };
+const want = { [OUT_TOKENS]: tokensFile(), [OUT_STRINGS]: stringsFile(), [OUT_ICONS]: iconsFile() };
 const stalePaths = Object.keys(want)
   .filter(p => (existsSync(p) ? readFileSync(p, 'utf8') : null) !== want[p]);
 const stale = stalePaths.length;
@@ -232,6 +472,49 @@ add('every-plate-read', 'every plate in the mockup contributes a strings group',
 add('keys-unique', 'no group has two of the same key',
   (() => { for (const s of screens) { const k = new Set(); for (const t of s.lines) { const x = slug(t); if (k.has(x)) return false; k.add(x); } } return true; })(),
   'within a group, after the de-duplicating suffix');
+{
+  const unnamed = [...drawings.values()].filter(d => !nameOf.has(d.id) && !skipped.has(d.id))
+    .map(d => d.id + ' (' + figs(d.uses.map(u => u.fig)) + ')');
+  add('icons-named', 'every icon the plates draw has a name in tools/extract.mjs',
+    unnamed.length === 0,
+    unnamed.length ? unnamed.length + ' unnamed: ' + unnamed.join(', ')
+      : icons.length + ' icons, drawn ' + icons.reduce((n, i) => n + i.uses.length, 0) + ' times');
+}
+{
+  const gone = [...Object.entries(ICONS), ...Object.entries(NOT_ICONS)]
+    .filter(([, id]) => !drawings.has(id)).map(([name]) => name);
+  const twice = Object.keys(ICONS).filter(name => Object.keys(NOT_ICONS).includes(name)
+    || Object.entries(ICONS).filter(([, id]) => id === ICONS[name]).length > 1);
+  add('icon-names-live', 'every name finds its drawing in the mockup, and only one',
+    gone.length === 0 && twice.length === 0,
+    gone.length ? 'no drawing for ' + gone.join(', ') : twice.length ? 'one drawing named twice: ' + twice.join(', ')
+      : 'none stale');
+}
+{
+  const odd = [];
+  for (const i of icons) {
+    const { svg } = i;
+    const box = (svg.attrs.viewBox || '').split(/\s+/).map(Number);
+    if (box.length !== 4 || box[2] !== box[3]) odd.push(i.name + ' viewBox ' + svg.attrs.viewBox);
+    if (svg.attrs.width !== svg.attrs.height) odd.push(i.name + ' is not square');
+    for (const k of Object.keys(svg.attrs)) if (!ROOT_ATTRS.has(k)) odd.push(i.name + ' <svg ' + k + '>');
+    for (const el of svg.kids) {
+      if (!SHAPES.has(el.name) || el.kids.length) odd.push(i.name + ' <' + el.name + '>');
+      for (const k of Object.keys(el.attrs)) if (!SHAPE_ATTRS.has(k)) odd.push(i.name + ' <' + el.name + ' ' + k + '>');
+      if (el.attrs.class && !STATES.has(el.attrs.class)) odd.push(i.name + ' class ' + el.attrs.class);
+    }
+    for (const v of [...Object.values(svg.attrs), ...svg.kids.flatMap(k => Object.values(k.attrs))]) {
+      const token = v.match(/^var\(--([a-z0-9-]+)\)$/);
+      if (token && !light.has(token[1])) odd.push(i.name + ' ' + v + ' is no token');
+      if (/["{}\\]/.test(v)) odd.push(i.name + ' value ' + v);
+    }
+  }
+  add('icons-understood', 'every element, attribute and state in an icon is one the generator writes',
+    odd.length === 0, odd.length ? odd.slice(0, 6).join(', ') : 'square, flat, and nothing dropped');
+}
+add('colour-is-a-prop', 'icons.tsx draws no currentColor, so every icon takes the colour it is given',
+  !want[OUT_ICONS].includes('currentColor') && !/#[0-9a-fA-F]{3,8}\b|rgba?\(/.test(want[OUT_ICONS]),
+  'currentColor is the color prop, and a custom property is its token');
 /* -------------------------------------------------------------- write --- */
 const refused = results.some(r => !r.ok);
 let written = 0;
@@ -242,11 +525,11 @@ if (!CHECK && !refused) {
     written++;
   }
 }
-add('up-to-date', CHECK ? 'both generated files match the mockup' : 'both generated files written',
+add('up-to-date', CHECK ? 'every generated file matches the mockup' : 'every generated file written',
   CHECK ? stale === 0 : true,
-  CHECK ? (stale ? stale + ' file(s) are out of date, run node tools/extract.mjs' : 'both current')
-    : refused ? 'nothing written: a check above failed, so both files are as they were'
-    : (written ? written + ' file(s) rewritten' : 'both already current'));
+  CHECK ? (stale ? stalePaths.join(', ') + ' out of date, run node tools/extract.mjs' : 'all current')
+    : refused ? 'nothing written: a check above failed, so every file is as it was'
+    : (written ? written + ' file(s) rewritten' : 'all already current'));
 
 let bad = 0;
 for (const r of results) {
