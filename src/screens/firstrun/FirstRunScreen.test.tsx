@@ -1,5 +1,5 @@
 import { act, render, screen, userEvent } from '@testing-library/react-native';
-import { Linking } from 'react-native';
+import { Linking, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { pickReference } from '../../lib/reference';
@@ -94,13 +94,25 @@ it('skips without a photo, and leaves the closet open to use', async () => {
 });
 
 /* #4: a full-screen modal's SafeAreaView pads the top on Android and not on
-   iOS, so First run adds the inset itself and nothing else may add it again. */
+   iOS, so First run adds the inset itself and nothing else may add it again.
+   A second gap can come from anywhere on the screen, above the title or beside
+   it, as padding, a margin, an offset or a spacer as tall as the inset, so
+   every element of the screen is read and the inset may appear once. */
+type Drawn = { type: string; props: Record<string, unknown>; children: (Drawn | string)[] };
+const everything = (el: Drawn): Drawn[] => [el, ...el.children.flatMap((c) => (typeof c === 'string' ? [] : everything(c)))];
+const GAPS = ['paddingTop', 'paddingVertical', 'padding', 'marginTop', 'marginVertical', 'margin', 'top', 'height'] as const;
+
 it('makes room for the status bar exactly once', async () => {
-  jest.mocked(useSafeAreaInsets).mockReturnValue({ top: 62, bottom: 34, left: 0, right: 0 });
+  const top = 62;
+  jest.mocked(useSafeAreaInsets).mockReturnValue({ top, bottom: 34, left: 0, right: 0 });
   await open();
-  const above = [];
-  for (let el = screen.getByRole('header', { name: t.aPhotoOfYou }).parent; el; el = el.parent) above.push(el);
-  const padded = above.filter((el) => [el.props.style].flat(3).some((s) => s && s.paddingTop === 62));
-  expect(padded).toHaveLength(1);
-  expect(above.some((el) => el.type === 'RNCSafeAreaView')).toBe(false);
+  let page = screen.getByRole('header', { name: t.aPhotoOfYou }) as unknown as Drawn & { parent: Drawn | null };
+  while (page.parent && !/^RNS.*Screen$/.test(page.type)) page = page.parent as typeof page;
+  const elements = everything(page);
+  const gaps = elements.flatMap((el) => {
+    const style = (StyleSheet.flatten(el.props.style as StyleProp<ViewStyle>) ?? {}) as Record<string, unknown>;
+    return GAPS.filter((k) => style[k] === top).map((k) => el.type + ' ' + k);
+  });
+  expect(gaps).toHaveLength(1);
+  expect(elements.some((el) => el.type === 'RNCSafeAreaView')).toBe(false);
 });
