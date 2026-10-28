@@ -39,6 +39,16 @@ it('draws every control in its place, and none of them works', async () => {
   }
 });
 
+/* On a small phone or at a large text size the boxes outgrow the space above
+   the tab bar, so the last of them has to be reachable by scrolling. */
+it('scrolls, so Why this is never stranded under the tab bar', async () => {
+  await render(<NoForecastScreen onRetry={() => {}} now={thursday} />);
+  const scrolls = (el: { type: unknown; parent: unknown } | null): boolean =>
+    el !== null && (el.type === 'RCTScrollView' || scrolls(el.parent as typeof el));
+  expect(scrolls(screen.getByRole('button', { name: t.whyThis }))).toBe(true);
+  expect(scrolls(screen.getByRole('header', { name: t.thursday }))).toBe(true);
+});
+
 it('asks for no pick', async () => {
   const asked = jest.spyOn(pick, 'pick');
   await render(<NoForecastScreen onRetry={() => {}} now={thursday} />);
