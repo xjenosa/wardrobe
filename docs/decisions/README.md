@@ -96,3 +96,7 @@ premise changes there is something to re-read.**
 - **0023 What was worn is kept on the phone, one outfit a day.** Today records
   the outfit when "Wear this" is pressed, and the editor and the closet read how
   often and how lately each garment was worn. It is never sent.
+- **0024 Screens are built from one kit, in the mockup's type and icons.**
+  Inter loads before anything draws, the icons are generated like the tokens,
+  and what two screens draw alike is built once in `src/kit/`, track A's. Each
+  track swaps its own hand-built pieces in its own pull request.
