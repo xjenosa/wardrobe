@@ -162,6 +162,11 @@ export async function pick(
   return { ...asked, kept: await kept(request, now()) };
 }
 
+/* ONLY WHAT README.md NAMES CROSSES THE WIRE. A screen may hand pick() the
+   closet as it is saved, which also carries what stays on the phone: a
+   garment's style, and whether it is a favourite (ADR 0027). */
+const onTheWire = ({ id, name, category, warmth }: PickGarment) => ({ id, name, category, warmth });
+
 async function ask(request: PickRequest, url: string, timeoutMs: number): Promise<Asked> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -172,7 +177,7 @@ async function ask(request: PickRequest, url: string, timeoutMs: number): Promis
       response = await fetch(url.replace(/\/+$/, '') + '/pick', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(request),
+        body: JSON.stringify({ ...request, garments: request.garments.map(onTheWire) }),
         signal: controller.signal,
       });
     } catch {

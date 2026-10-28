@@ -71,6 +71,13 @@ describe('pick() with a service', () => {
     expect(JSON.parse(init.body)).toEqual(request);
   });
 
+  it('sends each garment as README.md names it, and nothing the phone keeps for itself', async () => {
+    fetchMock.mockResolvedValue(answer(JSON.stringify(fixture)));
+    const saved = sampleCloset.map((g) => ({ ...g, style: 'Everyday', favourite: true }));
+    await pick({ ...request, garments: saved }, { url: URL });
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).garments).toEqual(sampleCloset);
+  });
+
   it('takes its address from EXPO_PUBLIC_PICK_URL', async () => {
     process.env.EXPO_PUBLIC_PICK_URL = URL;
     fetchMock.mockResolvedValue(answer(JSON.stringify(fixture)));
