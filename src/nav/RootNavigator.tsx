@@ -7,6 +7,7 @@ import {
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { StatusBar } from 'expo-status-bar';
+import { StyleSheet, useWindowDimensions } from 'react-native';
 
 import { AddGarmentScreen } from '../screens/add/AddGarmentScreen';
 import { ClosetScreen } from '../screens/closet/ClosetScreen';
@@ -17,6 +18,7 @@ import { WeatherScreen } from '../screens/weather/WeatherScreen';
 import { YouScreen } from '../screens/you/YouScreen';
 import { screens } from '../strings/screens';
 import { font } from '../theme/font';
+import { Hanger, Sunrise } from '../theme/icons';
 import { light } from '../theme/tokens';
 import type { RootStackParamList, TabParamList, TodayParamList } from './routes';
 
@@ -59,16 +61,36 @@ function TodayTab() {
   );
 }
 
+/* THE TAB BAR AS FIGS 06 TO 15 DRAW IT (.tabbar). Each tab has its icon at
+   22 over its name in small capitals, ink when open and muted when not. The two
+   sit together in the middle, 74 wide and 36 apart, so each tab is given 110
+   and the bar is padded to hold them there instead of spreading them to its
+   ends. */
+const TAB = 74 + 36;
+const todayIcon = ({ color }: { color: string }) => <Sunrise color={color} size={22} />;
+const closetIcon = ({ color }: { color: string }) => <Hanger color={color} size={22} />;
+
 function Tabs() {
+  const { width } = useWindowDimensions();
   return (
     <Tab.Navigator
-      screenOptions={{ ...bare, tabBarActiveTintColor: light.ink, tabBarInactiveTintColor: light.muted }}
+      screenOptions={{
+        ...bare,
+        tabBarActiveTintColor: light.ink,
+        tabBarInactiveTintColor: light.muted,
+        tabBarLabelStyle: tabStyles.label,
+        tabBarStyle: { paddingHorizontal: Math.max(0, (width - 2 * TAB) / 2) },
+      }}
     >
-      <Tab.Screen name="TodayTab" component={TodayTab} options={{ title: screens.today }} />
-      <Tab.Screen name="Closet" component={ClosetScreen} options={{ title: screens.closet }} />
+      <Tab.Screen name="TodayTab" component={TodayTab} options={{ title: screens.today, tabBarIcon: todayIcon }} />
+      <Tab.Screen name="Closet" component={ClosetScreen} options={{ title: screens.closet, tabBarIcon: closetIcon }} />
     </Tab.Navigator>
   );
 }
+
+const tabStyles = StyleSheet.create({
+  label: { fontFamily: font.semibold, fontSize: 11, letterSpacing: 1.21, textTransform: 'uppercase' },
+});
 
 /* First run has no way back on its plate (Fig 05), so it cannot be swiped away;
    the editor and You are drawn over what opened them (Figs 19 and 23). */
