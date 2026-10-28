@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     padding: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundImage: `linear-gradient(178deg, ${light.renderA}, ${light.renderB})`,
+    experimental_backgroundImage: `linear-gradient(178deg, ${light.renderA}, ${light.renderB})`,
   },
   heroSay: { maxWidth: 190, textAlign: 'center', fontSize: 13, lineHeight: 19.5, color: light.muted },
   vibeRow: { marginTop: 12 },
