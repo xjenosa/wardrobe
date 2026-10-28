@@ -201,6 +201,10 @@ IN THE SOFTWARE.
   non-commercial use under CC BY 4.0.
 - **ISO 9920** for tabulated clothing insulation values. The recommendation
   service holds those values; this application does not.
+- **[Inter](https://github.com/rsms/inter)**, the typeface every screen is set
+  in, copyright The Inter Project Authors, under the SIL Open Font License 1.1.
+  Each font file the app carries names its copyright and its licence inside
+  itself.
 
 > Once this project has npm dependencies, their licences belong in a generated
 > `THIRD-PARTY-NOTICES.txt` rather than here. A hand-maintained list of hundreds
