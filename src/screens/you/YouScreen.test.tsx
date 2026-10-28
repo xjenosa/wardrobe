@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { render, screen, userEvent } from '@testing-library/react-native';
+import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 
 import { loadPrefs } from '../../lib/prefs';
 import { loadReference, removeReference } from '../../lib/reference';
@@ -69,6 +70,31 @@ it("lists its sections and rows in Fig 23's order, with no theme among them", as
   expect(at.every((i) => i >= 0)).toBe(true);
   expect([...at].sort((a, b) => a - b)).toEqual(at);
   expect(screen.queryByText(/theme/i)).toBeNull();
+});
+
+/* Fig 23 sets You's title row 4 in from each side (.you-name) and runs the
+   rule under it the page's full width. Each edge is measured from the page's
+   own padding, adding every margin on the way down and every padding above. */
+type Drawn = { type: string; props: Record<string, unknown>; parent: Drawn | null; children: (Drawn | string)[] };
+const n = (v: unknown) => (typeof v === 'number' ? v : 0);
+function inFrom(side: 'Left' | 'Right', el: Drawn) {
+  let at = 0;
+  for (let node: Drawn | null = el; node && node.parent?.type !== 'RCTScrollView'; node = node.parent) {
+    const s = (StyleSheet.flatten(node.props.style as StyleProp<ViewStyle>) ?? {}) as Record<string, unknown>;
+    at += n(s['margin' + side] ?? s.marginHorizontal ?? s.margin);
+    if (node !== el) at += n(s['padding' + side] ?? s.paddingHorizontal ?? s.padding);
+  }
+  return at;
+}
+
+it("sets the title row in by 4 and runs the rule under it the full width, as Fig 23 does", async () => {
+  await openYou();
+  const row = (screen.getByRole('header', { name: screens.you }) as unknown as Drawn).parent!.parent!;
+  const rule = row.parent!.children[1] as Drawn;
+  for (const side of ['Left', 'Right'] as const) {
+    expect(inFrom(side, row)).toBe(4);
+    expect(inFrom(side, rule)).toBe(0);
+  }
 });
 
 it('closes back to what opened it', async () => {

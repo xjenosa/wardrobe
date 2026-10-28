@@ -95,7 +95,7 @@ export function YouScreen() {
     <SafeAreaView style={styles.page}>
       <ScrollView contentContainerStyle={styles.body}>
         <View style={styles.name}>
-          <ScreenHeader title={screens.you} onClose={() => navigation.goBack()} />
+          <ScreenHeader title={screens.you} onClose={() => navigation.goBack()} inset={4} />
         </View>
         {problem ? <Notice text={problem.text} action={drawn.fig11.tryAgain} onPress={problem.retry} style={styles.notice} /> : null}
 
@@ -195,7 +195,7 @@ const ROW_BUTTON = parseFloat(light.pillM);
 const styles = StyleSheet.create({
   page: { flex: 1, backgroundColor: light.paper },
   body: { paddingTop: 8, paddingHorizontal: 24, paddingBottom: 24 },
-  name: { marginTop: 4, marginHorizontal: 4 },
+  name: { marginTop: 4 },
   notice: { marginTop: 16 },
   legend: { marginTop: 24, marginHorizontal: 4, letterSpacing: 1.76 },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16, paddingVertical: 16 },

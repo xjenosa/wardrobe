@@ -10,6 +10,18 @@ it('titles the screen as a header, under its eyebrow', async () => {
   expect(screen.getByText(drawn.fig06.yourWardrobe)).toBeOnTheScreen();
 });
 
+/* Every plate but You draws the title row at the page's edge, so the default
+   insets nothing. */
+it('sets the title row in only when asked, and never the rule', async () => {
+  await render(<ScreenHeader title={screens.closet} />);
+  const row = screen.getByRole('header', { name: screens.closet }).parent!.parent!;
+  expect(row).not.toHaveStyle({ marginHorizontal: 4 });
+  await render(<ScreenHeader title={screens.you} inset={4} />);
+  const inset = screen.getByRole('header', { name: screens.you }).parent!.parent!;
+  expect(inset).toHaveStyle({ marginHorizontal: 4 });
+  expect(inset.parent!.children[1]).not.toHaveStyle({ marginHorizontal: 4 });
+});
+
 it('draws no way out unless the screen closes', async () => {
   await render(<ScreenHeader title={screens.closet} />);
   expect(screen.queryByRole('button')).toBeNull();
