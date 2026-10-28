@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { vibes, type Vibe } from '../../lib/words';
 import { drawn } from '../../strings/drawn';
+import { today } from '../../strings/today';
 import { light } from '../../theme/tokens';
 
 /* THE PARTS EVERY TODAY PLATE SHARES (Figs 08 to 12): the head, the hero, the
@@ -36,7 +37,7 @@ export function TodayHead({ now, place, children }: { now: Date; place?: string;
   const date = dateOf(now);
   return (
     <View>
-      <Text style={styles.eyebrow}>{place ? [place, date].join(' · ') : date}</Text>
+      <Text style={styles.eyebrow}>{place ? [place, date].join(today.placeDate) : date}</Text>
       <Text accessibilityRole="header" style={styles.display}>
         {weekdayOf(now)}
       </Text>
