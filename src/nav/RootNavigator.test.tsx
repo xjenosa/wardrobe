@@ -27,7 +27,7 @@ const paths: [string, string[], string][] = [
   [screens.weather, [screens.weather], 'Tabs'],
   [screens.closet, ['tab:' + screens.closet], 'Tabs'],
   [screens.you, [screens.you], 'You'],
-  [screens.firstRun, [screens.you, screens.firstRun], 'FirstRun'],
+  [drawn.fig05.aPhotoOfYou, [screens.you, screens.firstRun], 'FirstRun'],
   [drawn.fig18.newGarment, ['tab:' + screens.closet, screens.addGarment], 'AddGarment'],
   [screens.itemEditor, ['tab:' + screens.closet, screens.itemEditor], 'ItemEditor'],
 ];

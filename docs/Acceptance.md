@@ -31,8 +31,8 @@ the running app.
 
 ## First run, Fig 05
 
-- [ ] Asks for one photograph and explains what it is for in one line.
-- [ ] Can be skipped, and skipping does not block the closet.
+- [x] Asks for one photograph and explains what it is for in one line.
+- [x] Can be skipped, and skipping does not block the closet.
 
 ## Closet, Figs 06 and 15
 
