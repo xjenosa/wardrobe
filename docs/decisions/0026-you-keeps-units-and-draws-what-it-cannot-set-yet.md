@@ -35,7 +35,8 @@ the place, this is re-read and the row opens what it should.
   pull request. Until then the request's units are Today's to set.
 - With no service set, You keeps the sample closet and the fixture's days in a
   section of their own, so every track can still build against them.
-- docs/States.md gains You's three failures.
+- docs/States.md gains You's failures. Each load that fails stays said at the
+  top until it reads, the photo's included.
 
 ## What would show this was wrong
 

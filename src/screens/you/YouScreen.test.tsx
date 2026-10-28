@@ -161,6 +161,44 @@ it('resets preferences it cannot read, the way out of a save that will never rea
   await expect(loadPrefs()).resolves.toEqual({ ok: true, prefs: { units: 'C' } });
 });
 
+it('says a reference photo it cannot read could not be read, and reads it again', async () => {
+  let readable = false;
+  jest.mocked(loadReference).mockImplementation(() => (readable ? { ok: true, uri: 'file:///documents/reference/photo-1.jpg' } : { ok: false }));
+  const user = await openYou();
+  expect(screen.getByRole('alert')).toHaveTextContent(frame.photoUnreadable);
+  readable = true;
+  await user.press(screen.getByRole('button', { name: drawn.fig11.tryAgain }));
+  expect(screen.queryByRole('alert')).toBeNull();
+  expect(screen.getByRole('button', { name: t.remove })).toBeEnabled();
+});
+
+it('can remove a photo it cannot read', async () => {
+  jest.mocked(loadReference).mockReturnValue({ ok: false });
+  const user = await openYou();
+  await user.press(screen.getByRole('button', { name: t.remove }));
+  expect(removeReference).toHaveBeenCalled();
+  expect(screen.queryByRole('alert')).toBeNull();
+  expect(screen.getByRole('button', { name: t.remove })).toBeDisabled();
+});
+
+it('says every load that failed, not only one', async () => {
+  jest.spyOn(AsyncStorage, 'getItem').mockRejectedValueOnce(new Error('io'));
+  jest.mocked(loadReference).mockReturnValue({ ok: false });
+  await openYou();
+  const said = screen.getAllByRole('alert').map((el) => el.props.children);
+  expect(said).toEqual([frame.prefsUnreadable, frame.photoUnreadable]);
+});
+
+it('says the sample closet could not be put on the phone, and tries again', async () => {
+  const user = await openYou();
+  jest.spyOn(AsyncStorage, 'setItem').mockRejectedValueOnce(new Error('full'));
+  await user.press(screen.getByRole('button', { name: stub.sampleCloset }));
+  expect(screen.getByRole('alert')).toHaveTextContent(frame.sampleNotPutOn);
+  expect(onTop()).toBe('You');
+  await user.press(screen.getByRole('button', { name: drawn.fig11.tryAgain }));
+  expect(onTop()).toBe('Tabs');
+});
+
 it('draws Location and the key as values not known yet, which open nothing', async () => {
   await openYou();
   expect(screen.getAllByText(drawn.fig14D.s)).toHaveLength(2);

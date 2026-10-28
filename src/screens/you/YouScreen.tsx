@@ -37,30 +37,36 @@ type Problem = { text: string; retry: () => void };
      draws, so they open nothing until one is drawn at the source (ADR 0006),
      and the place is the forecast's to find (track B).
    - Reference photo is the one First run keeps (ADR 0025). Change opens First
-     run, and Remove forgets it.
+     run, and Remove forgets it, even one that cannot be read.
    - With no service set, the sample closet and the fixture's days stay here,
      under a heading of their own, so every track can still build on them.
 
    Anything that fails says so at the top, under the title, with a way to try
-   again, so it is seen without scrolling. */
+   again, so it is seen without scrolling. A load that fails stays said until
+   it reads, whatever else succeeds meanwhile. */
 export function YouScreen() {
   const navigation = useNavigation();
   const [prefs, setPrefs] = useState<Loaded | null>(null);
   const [photo, setPhoto] = useState<Kept>({ ok: true, uri: null });
+  /* the last thing a press asked for that did not happen */
   const [problem, setProblem] = useState<Problem | null>(null);
 
   const read = useCallback(async () => {
     const loaded = await loadPrefs();
     setPrefs(loaded);
-    setProblem(loaded.ok ? null : { text: frame.prefsUnreadable, retry: () => read() });
   }, []);
+  const look = useCallback(() => setPhoto(loadReference()), []);
 
   useEffect(() => {
-    read();
-  }, [read]);
+    let live = true;
+    loadPrefs().then((loaded) => live && setPrefs(loaded));
+    return () => {
+      live = false;
+    };
+  }, []);
 
   /* First run may have kept a new photo while You sat under it. */
-  useFocusEffect(useCallback(() => setPhoto(loadReference()), []));
+  useFocusEffect(look);
 
   const ready = prefs?.ok ? prefs.prefs : null;
 
@@ -86,10 +92,17 @@ export function YouScreen() {
     setProblem(null);
   }
 
-  const loadSample = async () => {
-    if ((await resetCloset(sampleCloset)).ok) navigation.navigate('Tabs', { screen: 'Closet' });
-  };
+  async function loadSample() {
+    if (!(await resetCloset(sampleCloset)).ok) return setProblem({ text: frame.sampleNotPutOn, retry: () => loadSample() });
+    setProblem(null);
+    navigation.navigate('Tabs', { screen: 'Closet' });
+  }
 
+  const notices: Problem[] = [
+    ...(prefs && !prefs.ok ? [{ text: frame.prefsUnreadable, retry: () => read() }] : []),
+    ...(photo.ok ? [] : [{ text: frame.photoUnreadable, retry: look }]),
+    ...(problem ? [problem] : []),
+  ];
   const uri = photo.ok ? photo.uri : null;
   const units = (ready ?? defaults).units;
 
@@ -99,7 +112,13 @@ export function YouScreen() {
         <View style={styles.name}>
           <ScreenHeader title={screens.you} onClose={() => navigation.goBack()} inset={4} />
         </View>
-        {problem ? <Notice text={problem.text} action={drawn.fig11.tryAgain} onPress={problem.retry} style={styles.notice} /> : null}
+        {notices.length ? (
+          <View style={styles.notices}>
+            {notices.map((n) => (
+              <Notice key={n.text} text={n.text} action={drawn.fig11.tryAgain} onPress={n.retry} />
+            ))}
+          </View>
+        ) : null}
 
         <Label style={styles.legend}>{t.preferences}</Label>
         <Row label={t.location} ruled>
@@ -130,7 +149,7 @@ export function YouScreen() {
             <Text style={styles.key}>{t.referencePhoto}</Text>
             <View style={styles.refActs}>
               <RowButton label={t.change} onPress={() => navigation.navigate('FirstRun')} wide />
-              <RowButton label={t.remove} onPress={remove} disabled={!uri} wide />
+              <RowButton label={t.remove} onPress={remove} disabled={photo.ok && !uri} wide />
             </View>
           </View>
         </View>
@@ -198,7 +217,7 @@ const styles = StyleSheet.create({
   page: { flex: 1, backgroundColor: light.paper },
   body: { paddingTop: 8, paddingHorizontal: 24, paddingBottom: 24 },
   name: { marginTop: 4 },
-  notice: { marginTop: 16 },
+  notices: { marginTop: 16, gap: 8 },
   legend: { marginTop: 24, marginHorizontal: 4, letterSpacing: 1.76 },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 16, paddingVertical: 16 },
   ruled: { borderBottomWidth: 1, borderBottomColor: light.hairline },
