@@ -109,3 +109,7 @@ premise changes there is something to re-read.**
 - **0026 You keeps the units, and draws what it cannot set yet.** Units is kept
   on the phone and Reset forgets it. Location and the image model's key show
   Fig 14d's dash and open nothing until their choosers are drawn.
+- **0027 A garment can be a favourite, kept on the phone.** The closet keeps a
+  yes or no per garment and `pick()` never sends it, nor anything else but
+  README.md's fields. The closet's order is the order garments were added, so
+  Recently added needs no date; Colour and Custom wait.

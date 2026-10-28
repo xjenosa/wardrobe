@@ -46,7 +46,7 @@ describe('loadCloset()', () => {
   });
 
   it.each(['id', 'name', 'category', 'warmth'])('reports a garment with no %s as corrupt', async (field) => {
-    const garment: Record<string, string> = { ...coat };
+    const garment: Record<string, unknown> = { ...coat };
     delete garment[field];
     await saveRaw({ version: 1, garments: [garment] });
     await expect(loadCloset()).resolves.toEqual({ ok: false, failure: 'corrupt' });
@@ -63,6 +63,16 @@ describe('loadCloset()', () => {
     ['a style', { style: 'Formal' }],
   ])('reports %s that is not one of the drawn words as corrupt', async (_what, change) => {
     await saveRaw({ version: 1, garments: [{ ...coat, ...change }] });
+    await expect(loadCloset()).resolves.toEqual({ ok: false, failure: 'corrupt' });
+  });
+
+  it('reads back a favourite', async () => {
+    await saveRaw({ version: 1, garments: [{ ...coat, favourite: true }] });
+    await expect(loadCloset()).resolves.toEqual({ ok: true, garments: [{ ...coat, favourite: true }] });
+  });
+
+  it('reports a favourite that is not a yes or a no as corrupt', async () => {
+    await saveRaw({ version: 1, garments: [{ ...coat, favourite: 'yes' }] });
     await expect(loadCloset()).resolves.toEqual({ ok: false, failure: 'corrupt' });
   });
 
