@@ -135,15 +135,30 @@ it('says a choice could not be saved, keeps the one there was, and tries again',
   expect(screen.queryByRole('alert')).toBeNull();
 });
 
-it('says preferences it cannot read could not be read, and changes nothing until they can be', async () => {
+it('says preferences it cannot read could not be read, holds Units still, and reads them again', async () => {
   jest.spyOn(AsyncStorage, 'getItem').mockRejectedValueOnce(new Error('io'));
   const user = await openYou();
   expect(screen.getByRole('alert')).toHaveTextContent(frame.prefsUnreadable);
   expect(screen.getByRole('radio', { name: t.c })).toBeDisabled();
-  expect(screen.getByRole('button', { name: t.reset })).toBeDisabled();
+  expect(screen.getByRole('button', { name: t.reset })).toBeEnabled();
   await user.press(screen.getByRole('button', { name: drawn.fig11.tryAgain }));
   expect(screen.queryByRole('alert')).toBeNull();
   expect(screen.getByRole('radio', { name: t.c })).toBeEnabled();
+});
+
+/* Reset is the person's say-so, as forgetting the wear log is (ADR 0023), and
+   the only way out of a save from another version, which reading again never
+   fixes (ADR 0026). */
+it('resets preferences it cannot read, the way out of a save that will never read', async () => {
+  await AsyncStorage.setItem('wardrobe.prefs', JSON.stringify({ version: 2, units: 'F' }));
+  const user = await openYou();
+  await user.press(screen.getByRole('button', { name: drawn.fig11.tryAgain }));
+  expect(screen.getByRole('alert')).toHaveTextContent(frame.prefsUnreadable);
+  await user.press(screen.getByRole('button', { name: t.reset }));
+  expect(screen.queryByRole('alert')).toBeNull();
+  expect(screen.getByRole('radio', { name: t.c })).toBeChecked();
+  expect(screen.getByRole('radio', { name: t.c })).toBeEnabled();
+  await expect(loadPrefs()).resolves.toEqual({ ok: true, prefs: { units: 'C' } });
 });
 
 it('draws Location and the key as values not known yet, which open nothing', async () => {

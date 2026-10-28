@@ -29,7 +29,9 @@ type Problem = { text: string; retry: () => void };
    so it pads with the SafeAreaView as the editor does.
 
    - Units is kept on the phone (src/lib/prefs.ts), and Reset preferences
-     forgets it.
+     forgets it. Reset works even when the preferences cannot be read, since
+     it is the person's say-so and the only way out of a save that is corrupt
+     or from another version (ADR 0026). Units waits until they read.
    - Location and the image model's key are drawn as the plate draws them,
      with the dash for a value not known yet. Each opens a chooser no plate
      draws, so they open nothing until one is drawn at the source (ADR 0006),
@@ -113,7 +115,7 @@ export function YouScreen() {
           />
         </Row>
         <Row label={t.resetPreferences}>
-          <RowButton label={t.reset} onPress={reset} disabled={!ready} />
+          <RowButton label={t.reset} onPress={reset} />
         </Row>
 
         <Label style={styles.legend}>{t.pictures}</Label>

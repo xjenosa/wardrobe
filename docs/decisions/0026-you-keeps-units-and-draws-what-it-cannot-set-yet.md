@@ -15,7 +15,10 @@ forecast's to find (track B), and nothing yet takes a key.
 
 **Units is kept on the phone by `src/lib/prefs.ts`**, Celsius until the person
 chooses, and Reset preferences forgets it. Preferences that cannot be read are
-reported and never written over, as the closet is not.
+reported, and Units waits until they read. Reset still works then, because it
+is the person's say-so, as forgetting the wear log is (ADR 0023), and the only
+way out of a save that is corrupt or from another version, which Try again
+only reads again. Nothing else writes over them.
 
 **Location and the key are drawn as Fig 23 draws them, with the dash Fig 14d
 draws for a value nobody knows yet, and open nothing.** A row that pretended to
