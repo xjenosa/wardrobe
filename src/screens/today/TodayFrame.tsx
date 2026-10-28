@@ -31,8 +31,9 @@ export function TodayPage({ children }: { children: ReactNode }) {
   );
 }
 
-/* The place is the forecast's, so with no place known the line is the date
-   alone rather than a place that might be wrong. */
+/* The place is where the phone is, and the plates draw it even when the
+   forecast failed (Figs 11 and 14d). Until something finds it, the line is the
+   date alone rather than a place that might be wrong. */
 export function TodayHead({ now, place, children }: { now: Date; place?: string; children: ReactNode }) {
   const date = dateOf(now);
   return (
