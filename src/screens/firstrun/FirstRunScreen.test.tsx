@@ -97,7 +97,9 @@ it('skips without a photo, and leaves the closet open to use', async () => {
    iOS, so First run adds the inset itself and nothing else may add it again.
    A second gap can come from anywhere on the screen, above the title or beside
    it, as padding, a margin, an offset or a spacer as tall as the inset, so
-   every element of the screen is read and the inset may appear once. */
+   every element of the screen is read and the inset may appear once. Every
+   style an element carries is read, not only `style`, because a scroll view's
+   contentContainerStyle or a list's header style can hold a gap as well. */
 type Drawn = { type: string; props: Record<string, unknown>; children: (Drawn | string)[] };
 const everything = (el: Drawn): Drawn[] => [el, ...el.children.flatMap((c) => (typeof c === 'string' ? [] : everything(c)))];
 const GAPS = ['paddingTop', 'paddingVertical', 'padding', 'marginTop', 'marginVertical', 'margin', 'top', 'height'] as const;
@@ -109,10 +111,14 @@ it('makes room for the status bar exactly once', async () => {
   let page = screen.getByRole('header', { name: t.aPhotoOfYou }) as unknown as Drawn & { parent: Drawn | null };
   while (page.parent && !/^RNS.*Screen$/.test(page.type)) page = page.parent as typeof page;
   const elements = everything(page);
-  const gaps = elements.flatMap((el) => {
-    const style = (StyleSheet.flatten(el.props.style as StyleProp<ViewStyle>) ?? {}) as Record<string, unknown>;
-    return GAPS.filter((k) => style[k] === top).map((k) => el.type + ' ' + k);
-  });
+  const gaps = elements.flatMap((el) =>
+    Object.keys(el.props)
+      .filter((prop) => prop === 'style' || prop.endsWith('Style'))
+      .flatMap((prop) => {
+        const style = (StyleSheet.flatten(el.props[prop] as StyleProp<ViewStyle>) ?? {}) as Record<string, unknown>;
+        return GAPS.filter((k) => style[k] === top).map((k) => el.type + ' ' + prop + ' ' + k);
+      }),
+  );
   expect(gaps).toHaveLength(1);
   expect(elements.some((el) => el.type === 'RNCSafeAreaView')).toBe(false);
 });
