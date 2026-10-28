@@ -106,3 +106,6 @@ premise changes there is something to re-read.**
   it with the camera or chooses it from the library and keeps one copy in the
   app's documents. Skipping blocks nothing, and First run is reached from You
   until step 3 makes it the first launch's screen.
+- **0026 You keeps the units, and draws what it cannot set yet.** Units is kept
+  on the phone and Reset forgets it. Location and the image model's key show
+  Fig 14d's dash and open nothing until their choosers are drawn.

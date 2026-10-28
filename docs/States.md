@@ -73,6 +73,12 @@ table says in words what to build, and that row is the specification.
 | state | when | what it shows | plate |
 |---|---|---|---|
 | **Normal** | always | the settings list | **Fig 23** |
+| **Not known yet** | no place found and no key kept | no plate. Location and the key show the dash Fig 14d draws for a value nobody knows, and open nothing (ADR 0026) |
+| **Preferences unreadable** | the saved preferences cannot be read | no plate. Say so at the top with Try again, show Celsius, and hold Units still until they read. Reset preferences still works, since it is the person's say-so and the only way out of a save that is corrupt or from another version. Nothing else writes over them (ADR 0026) |
+| **Change not saved** | a choice or a reset could not be written | no plate. Say so at the top with Try again, and keep showing what is saved |
+| **Photo not removed** | the reference photo could not be removed | no plate. Say so at the top with Try again, and keep showing the photo |
+| **Photo unreadable** | the reference photo cannot be read | no plate. Say so at the top with Try again, leave the thumbnail empty, and let Remove still clear it |
+| **Sample closet not put on** | with no service set, the sample closet could not be saved | no plate. Say so at the top with Try again, and stay on You |
 
 ## The rules behind the empty rows
 

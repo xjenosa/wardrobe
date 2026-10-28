@@ -18,4 +18,6 @@ export const stub = {
   sampleCloset: 'Use the sample closet',
   fixtureFits: 'Answer: something fits',
   fixtureNothingFits: 'Answer: nothing fits',
+  /* the heading over the three above on You, which no plate draws */
+  withoutService: 'Without a service',
 } as const;

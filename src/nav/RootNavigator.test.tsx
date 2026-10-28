@@ -4,7 +4,7 @@ import { processColor, StyleSheet, type StyleProp, type ViewStyle } from 'react-
 
 import App from '../../App';
 import { drawn } from '../strings/drawn';
-import { screens, stub } from '../strings/screens';
+import { screens } from '../strings/screens';
 import { Hanger, Sunrise, type Icon } from '../theme/icons';
 import { light } from '../theme/tokens';
 import { navigationRef } from './RootNavigator';
@@ -27,7 +27,7 @@ const paths: [string, string[], string][] = [
   [screens.weather, [screens.weather], 'Tabs'],
   [screens.closet, ['tab:' + screens.closet], 'Tabs'],
   [screens.you, [screens.you], 'You'],
-  [drawn.fig05.aPhotoOfYou, [screens.you, screens.firstRun], 'FirstRun'],
+  [drawn.fig05.aPhotoOfYou, [screens.you, drawn.fig23.change], 'FirstRun'],
   [drawn.fig18.newGarment, ['tab:' + screens.closet, screens.addGarment], 'AddGarment'],
   [screens.itemEditor, ['tab:' + screens.closet, screens.itemEditor], 'ItemEditor'],
 ];
@@ -56,7 +56,7 @@ it.each(paths)('reaches %s', async (title, steps, top) => {
 
 it('comes back from a screen that covers the tabs', async () => {
   const user = await walk([screens.you]);
-  await user.press(screen.getByRole('button', { name: stub.back }));
+  await user.press(screen.getByRole('button', { name: drawn.fig23.close }));
   expect(onTop()).toBe('Tabs');
 });
 

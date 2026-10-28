@@ -9,11 +9,25 @@ import { TopButton } from './TopButton';
 /* THE HEAD OF A SCREEN THAT IS A PLACE OF ITS OWN (.title-row, .head-rule):
    an eyebrow, the title, and a hairline under both. Today, Closet and the
    editor draw the eyebrow (Figs 06 to 12, 15, 19); You draws none and closes
-   from the same row (Fig 23), which is what onClose adds. */
-export function ScreenHeader({ title, eyebrow, onClose }: { title: string; eyebrow?: string; onClose?: () => void }) {
+   from the same row (Fig 23), which is what onClose adds.
+
+   You also sets its title row in from the sides (.you-name, Fig 23) while the
+   rule under it keeps the full width, which is what `inset` does. No other
+   plate does, so it is nothing by default. */
+export function ScreenHeader({
+  title,
+  eyebrow,
+  onClose,
+  inset = 0,
+}: {
+  title: string;
+  eyebrow?: string;
+  onClose?: () => void;
+  inset?: number;
+}) {
   return (
     <View>
-      <View style={styles.row}>
+      <View style={[styles.row, inset ? { marginHorizontal: inset } : null]}>
         <View style={styles.words}>
           {eyebrow ? (
             <Text numberOfLines={1} style={styles.eyebrow}>
