@@ -63,7 +63,7 @@ token, so installing the CLI is the shorter way.
 
 | | member | GitHub | track | screens | owns these directories |
 |---|---|---|---|---|---|
-| A | **Max** | `xjenosa` | **the frame** | First run, You | `src/lib/`, `src/theme/`, `src/nav/`, `src/screens/firstrun/`, `src/screens/you/` |
+| A | **Max** | `xjenosa` | **the frame** | First run, You | `src/lib/`, `src/theme/`, `src/nav/`, `src/kit/`, `src/screens/firstrun/`, `src/screens/you/` |
 | B | **Natasha** | `natashaejercito` | **the day** | No forecast, Today | `src/screens/today/`, `src/lib/forecast/` |
 | C | **Minh** | `mhuy1112` | **the weather** | Weather | `src/screens/weather/` |
 | D | **Cris** | `flitoo` | **the closet** | Closet | `src/screens/closet/` |
@@ -169,9 +169,9 @@ pass over the whole app with the network off.
 - **One pull request does one thing**, so it can be reviewed and so it can be
   reverted on its own.
 - **If you need to change a file outside your directories, open a pull request
-  against it and say who it is for.** `src/lib/` and `src/theme/` are Max's after
-  step 0. This is not ceremony: two people editing a theme token on the same
-  afternoon is how five people lose a day.
+  against it and say who it is for.** `src/lib/`, `src/theme/` and `src/kit/`
+  are Max's after step 0. This is not ceremony: two people editing a theme token
+  on the same afternoon is how five people lose a day.
 - **A screen is done when every box in [`docs/Acceptance.md`](Acceptance.md) is
   ticked.** That file is what stops "done" being a matter of opinion.
 - **Every state a screen has is in [`docs/States.md`](States.md)**, with the
