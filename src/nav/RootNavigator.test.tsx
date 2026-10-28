@@ -1,10 +1,17 @@
 import { render, screen, userEvent } from '@testing-library/react-native';
 
 import App from '../../App';
-import { weekdayOf } from '../screens/today/TodayFrame';
 import { drawn } from '../strings/drawn';
 import { screens, stub } from '../strings/screens';
 import { navigationRef } from './RootNavigator';
+
+/* THE CLOCK IS FAKE AND SET TO FIG 11'S OWN THURSDAY (ADR 0015), so No forecast
+   is titled with the plate's word whatever day the suite runs, and a run that
+   crosses midnight cannot read two days. Both the date and its weekday are
+   local, so the time zone cannot move it either. */
+const thursday = new Date(2026, 0, 8, 9, 41);
+beforeEach(() => jest.useFakeTimers({ now: thursday }));
+afterEach(() => jest.useRealTimers());
 
 /* STEP 0 IS DONE WHEN EVERY TRACK CAN LAND ON ITS OWN SCREEN, WHERE ITS PLATE
    PUTS IT (docs/Build_Plan.md). Every screen is reached from the first one, the
@@ -12,7 +19,7 @@ import { navigationRef } from './RootNavigator';
    tab bar shows, or the one screen that covers them. */
 const paths: [string, string[], string][] = [
   [screens.today, [], 'Tabs'],
-  [weekdayOf(new Date()), [screens.noForecast], 'Tabs'],
+  [drawn.fig11.thursday, [screens.noForecast], 'Tabs'],
   [screens.weather, [screens.weather], 'Tabs'],
   [screens.closet, ['tab:' + screens.closet], 'Tabs'],
   [screens.you, [screens.you], 'You'],
