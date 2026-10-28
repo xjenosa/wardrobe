@@ -102,3 +102,7 @@ premise changes there is something to re-read.**
   track swaps its own hand-built pieces in its own pull request. Revised the
   same day, when the tab bar gained its icons and the label, the field and the
   garment tile joined the kit.
+- **0025 The reference photo is one file kept on the phone.** First run takes
+  it with the camera or chooses it from the library and keeps one copy in the
+  app's documents. Skipping blocks nothing, and First run is reached from You
+  until step 3 makes it the first launch's screen.

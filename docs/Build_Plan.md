@@ -155,6 +155,12 @@ editor, which reuses that form. Garments saved there are what the Closet shows.
 into a closet that has to exist before the door means anything, and You is a
 settings list whose rows mostly switch things the other tracks built.
 
+**Started early, on 2026-10-28.** Max began First run and You while the middle
+tracks were still building, once the kit they are drawn with was in. The reason
+above still holds for what the two screens connect to, so First run is reached
+from You until step 3 makes it the screen a first launch opens on, and the rows
+of You that switch something not built yet show what is known and open nothing.
+
 ### Step 3 is the seams, and it is all five together
 
 The things no single track can finish alone: moving between screens, the state

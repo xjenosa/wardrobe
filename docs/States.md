@@ -17,6 +17,8 @@ table says in words what to build, and that row is the specification.
 | state | when | what it shows | plate |
 |---|---|---|---|
 | **Reference photo** | the first launch, before anything is owned | the one screen asking for a photo of you, so renders have somebody to dress | **Fig 05** |
+| **Camera refused** | Take a photo, with the camera not allowed for the app | no plate. Keep the screen, say the camera is not allowed and offer to open Settings. Choose a photo and Skip for now still work |
+| **Photo not kept** | the photo could not be copied onto the phone | no plate. Keep the screen and any photo kept before, say so, and offer Try again the same way. Skip for now still works |
 
 ## Closet
 
