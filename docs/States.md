@@ -73,6 +73,10 @@ table says in words what to build, and that row is the specification.
 | state | when | what it shows | plate |
 |---|---|---|---|
 | **Normal** | always | the settings list | **Fig 23** |
+| **Not known yet** | no place found and no key kept | no plate. Location and the key show the dash Fig 14d draws for a value nobody knows, and open nothing (ADR 0026) |
+| **Preferences unreadable** | the saved preferences cannot be read | no plate. Say so at the top with Try again, show Celsius and change nothing until they can be read. Never write over them |
+| **Change not saved** | a choice or a reset could not be written | no plate. Say so at the top with Try again, and keep showing what is saved |
+| **Photo not removed** | the reference photo could not be removed | no plate. Say so at the top with Try again, and keep showing the photo |
 
 ## The rules behind the empty rows
 
