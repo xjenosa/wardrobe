@@ -1,6 +1,7 @@
 import { render, screen, userEvent } from '@testing-library/react-native';
 
 import App from '../../App';
+import { weekdayOf } from '../screens/today/TodayFrame';
 import { drawn } from '../strings/drawn';
 import { screens, stub } from '../strings/screens';
 import { navigationRef } from './RootNavigator';
@@ -11,7 +12,7 @@ import { navigationRef } from './RootNavigator';
    tab bar shows, or the one screen that covers them. */
 const paths: [string, string[], string][] = [
   [screens.today, [], 'Tabs'],
-  [screens.noForecast, [screens.noForecast], 'Tabs'],
+  [weekdayOf(new Date()), [screens.noForecast], 'Tabs'],
   [screens.weather, [screens.weather], 'Tabs'],
   [screens.closet, ['tab:' + screens.closet], 'Tabs'],
   [screens.you, [screens.you], 'You'],
