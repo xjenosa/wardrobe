@@ -7,4 +7,9 @@ export const capture = {
   closetUnreadable: 'The closet could not be read.',
   tryAgain: 'Try again',
   notInCloset: 'This garment is not in your closet.',
+  taggingFailed: 'The garment could not be read. Your photograph is still here.',
+  fillByHand: 'Fill it in by hand',
+  cameraRefused: 'Camera access was refused. You can upload a photo instead, or open Settings.',
+  openSettings: 'Open Settings',
+  photoFailed: 'The photograph could not be kept. Try again.',
 } as const;

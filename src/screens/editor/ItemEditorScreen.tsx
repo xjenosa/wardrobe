@@ -1,14 +1,15 @@
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { Button, ScreenHeader } from '../../kit';
 import type { RootStackParamList } from '../../nav/routes';
 import { loadCloset, updateCloset, type Garment, type LoadFailure } from '../../lib/store';
 import { capture } from '../../strings/capture';
 import { drawn } from '../../strings/drawn';
 import { screens } from '../../strings/screens';
+import { Check } from '../../theme/icons';
 import {
-  FormButton,
   FormFrame,
   FormSkeleton,
   formStyles,
@@ -89,10 +90,8 @@ export function ItemEditorScreen() {
 
   return (
     <FormFrame>
-      <View style={formStyles.topbar}>
-        <Text accessibilityRole="header" style={formStyles.title}>
-          {garment ? garment.name : screens.itemEditor}
-        </Text>
+      <View style={styles.head}>
+        <ScreenHeader eyebrow={t.yourWardrobe} title={garment ? garment.name : screens.itemEditor} />
       </View>
       <ScrollView contentContainerStyle={formStyles.body} keyboardShouldPersistTaps="handled">
         {loaded.state === 'loading' && <FormSkeleton />}
@@ -101,7 +100,7 @@ export function ItemEditorScreen() {
             <Text accessibilityRole="alert" style={formStyles.note}>
               {capture.closetUnreadable}
             </Text>
-            <FormButton label={capture.tryAgain} onPress={retry} />
+            <Button size="small" kind="outline" label={capture.tryAgain} onPress={retry} />
           </>
         )}
         {loaded.state === 'ready' && !garment && <Text style={formStyles.note}>{capture.notInCloset}</Text>}
@@ -113,9 +112,13 @@ export function ItemEditorScreen() {
         )}
       </ScrollView>
       <View style={formStyles.foot}>
-        <FormButton label={t.close} onPress={() => navigation.goBack()} />
-        {garment && <FormButton label={t.save} primary disabled={!dirty || !edited || saving} onPress={save} />}
+        <Button size="small" kind="outline" label={t.close} onPress={() => navigation.goBack()} />
+        {garment && <Button size="small" label={t.save} icon={Check} disabled={!dirty || !edited || saving} onPress={save} />}
       </View>
     </FormFrame>
   );
 }
+
+const styles = StyleSheet.create({
+  head: { paddingHorizontal: 24, paddingTop: 8 },
+});
