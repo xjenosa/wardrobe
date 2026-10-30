@@ -11,7 +11,7 @@ import { tag, type TagResponse } from '../../lib/tag';
 import { capture } from '../../strings/capture';
 import { drawn } from '../../strings/drawn';
 import { font } from '../../theme/font';
-import { Check, Flash, Picture } from '../../theme/icons';
+import { Check, Flash, Picture, Sparkle } from '../../theme/icons';
 import { light } from '../../theme/tokens';
 import { emptyValues, FormFrame, formStyles, garmentOf, GarmentForm, type FormValues } from './GarmentForm';
 
@@ -131,7 +131,7 @@ export function AddGarmentScreen() {
           ) : null}
           <View style={styles.controls}>
             <Pressable accessibilityRole="button" accessibilityLabel={cam.upload} onPress={() => take('library')} style={styles.side}>
-              <Picture color={light.ink} size={22} />
+              <Picture color={light.muted} size={22} />
               <Text style={styles.sideLabel}>{cam.upload}</Text>
             </Pressable>
             <Pressable
@@ -139,9 +139,11 @@ export function AddGarmentScreen() {
               accessibilityLabel={cam.capture}
               onPress={() => take('camera')}
               style={styles.shutter}
-              hitSlop={reach(72)}
+              hitSlop={reach(66)}
             >
-              <View style={styles.shutterInner} />
+              <View style={styles.shutterRing}>
+                <View style={styles.shutterInner} />
+              </View>
             </Pressable>
             <Pressable
               accessibilityRole="button"
@@ -151,7 +153,7 @@ export function AddGarmentScreen() {
               style={styles.side}
             >
               <Flash color={flash ? light.ink : light.muted} size={19} />
-              <Text style={[styles.sideLabel, !flash && styles.sideOff]}>{cam.flash}</Text>
+              <Text style={[styles.sideLabel, flash && styles.sideOn]}>{cam.flash}</Text>
             </Pressable>
           </View>
         </View>
@@ -198,18 +200,25 @@ export function AddGarmentScreen() {
   return (
     <FormFrame fullScreen>
       <TopBar title={t.newGarment} onBack={() => setStep({ kind: 'capture' })} />
-      <ScrollView contentContainerStyle={formStyles.body} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={styles.confirmBody} keyboardShouldPersistTaps="handled">
         {step.photo ? (
           <View style={styles.cut}>
-            <Image source={{ uri: step.photo }} style={styles.cutPhoto} />
             {step.tagged ? (
-              <Text style={styles.aiNote}>{t.taggedByAiFromYour}</Text>
-            ) : (
-              <Text style={formStyles.note}>{capture.byHand}</Text>
-            )}
+              <View style={styles.donePill} accessibilityLabel={t.cutOut}>
+                <Check color={light.muted} size={12} strokeWidth={2} />
+                <Text style={styles.donePillText}>{t.cutOut}</Text>
+              </View>
+            ) : null}
+            <Image source={{ uri: step.photo }} style={styles.cutPhoto} />
+          </View>
+        ) : null}
+        {step.tagged ? (
+          <View style={styles.aiNote}>
+            <Sparkle color={light.muted} size={14} />
+            <Text style={styles.aiNoteText}>{t.taggedByAiFromYour}</Text>
           </View>
         ) : (
-          <Text style={formStyles.note}>{capture.byHand}</Text>
+          <Text style={styles.byHandNote}>{capture.byHand}</Text>
         )}
         <GarmentForm values={values} onChange={setValues} />
         {saveFailed && (
@@ -236,36 +245,54 @@ function valuesFromTag(response: TagResponse): FormValues {
 }
 
 const styles = StyleSheet.create({
+  /* Fig 17 / 17b .capture-stage: 20 top, 24 sides, 126 foot for controls or the reading hint. */
   stage: { flex: 1, paddingHorizontal: 24, paddingTop: 20 },
   viewfinder: {
     flex: 1,
-    backgroundColor: light.renderA,
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
+    experimental_backgroundImage: `linear-gradient(176deg, ${light.renderA}, ${light.renderB})`,
   },
-  shot: { backgroundColor: light.renderB },
+  shot: {
+    experimental_backgroundImage: `linear-gradient(155deg, ${light.photoGround} 0%, ${light.photoShade} 100%)`,
+  },
   photo: { width: '100%', height: '100%', resizeMode: 'contain' },
-  corner: { position: 'absolute', width: 28, height: 28, borderColor: light.ink },
+  corner: { position: 'absolute', width: 26, height: 26, borderColor: light.ink, opacity: 0.5 },
   tl: { top: 16, left: 16, borderTopWidth: 2, borderLeftWidth: 2 },
   tr: { top: 16, right: 16, borderTopWidth: 2, borderRightWidth: 2 },
   bl: { bottom: 16, left: 16, borderBottomWidth: 2, borderLeftWidth: 2 },
   br: { bottom: 16, right: 16, borderBottomWidth: 2, borderRightWidth: 2 },
-  controls: { height: 126, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  side: { width: 72, alignItems: 'center', gap: 6 },
-  sideLabel: { fontFamily: font.medium, fontSize: 11, color: light.ink },
-  sideOff: { color: light.muted },
-  shutter: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    borderWidth: 4,
+  controls: {
+    minHeight: 126,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 8,
+  },
+  side: { width: 78, alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 44 },
+  sideLabel: {
+    fontFamily: font.semibold,
+    fontSize: 11,
+    lineHeight: 11,
+    letterSpacing: 1.21,
+    textTransform: 'uppercase',
+    color: light.muted,
+  },
+  sideOn: { color: light.ink },
+  /* .cap-shutter: 66 hit, 58 ink disc, paper then ink ring outside (shutter-ring). */
+  shutter: { width: 66, height: 66, alignItems: 'center', justifyContent: 'center' },
+  shutterRing: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    borderWidth: 2,
     borderColor: light.ink,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: light.paper,
   },
-  shutterInner: { width: 56, height: 56, borderRadius: 28, backgroundColor: light.ink },
+  shutterInner: { width: 58, height: 58, borderRadius: 29, backgroundColor: light.ink },
   hint: {
     height: 126,
     textAlign: 'center',
@@ -274,12 +301,73 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18.2,
     color: light.muted,
-    paddingTop: 48,
+    margin: 0,
+    paddingHorizontal: 8,
+    paddingTop: 54,
   },
   notice: { marginTop: 16 },
   byHand: { alignSelf: 'center', padding: 12 },
-  byHandText: { fontFamily: font.medium, fontSize: 13, color: light.muted, textDecorationLine: 'underline' },
-  cut: { alignItems: 'center', marginBottom: 8 },
-  cutPhoto: { width: 180, height: 225, resizeMode: 'contain', backgroundColor: light.renderA },
-  aiNote: { marginTop: 8, marginBottom: 16, fontFamily: font.regular, fontSize: 12, color: light.muted },
+  byHandText: {
+    fontFamily: font.regular,
+    fontSize: 12,
+    lineHeight: 16.8,
+    color: light.ink,
+    textDecorationLine: 'underline',
+    textDecorationColor: light.edge,
+  },
+  /* Fig 18 .body under the top bar: 12/24/24, confirm-cut first child sits 8 down. */
+  confirmBody: { paddingHorizontal: 24, paddingTop: 8, paddingBottom: 24 },
+  cut: {
+    alignSelf: 'center',
+    marginTop: 8,
+    marginBottom: 8,
+    height: 300,
+    aspectRatio: 0.8,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+    experimental_backgroundImage: `linear-gradient(176deg, ${light.renderA}, ${light.renderB})`,
+  },
+  cutPhoto: { width: '100%', height: '84%', resizeMode: 'contain' },
+  donePill: {
+    position: 'absolute',
+    top: 12,
+    left: 12,
+    zIndex: 1,
+    height: 28,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 12,
+    backgroundColor: light.surface,
+    borderWidth: 1,
+    borderColor: light.hairline,
+  },
+  donePillText: {
+    fontFamily: font.semibold,
+    fontSize: 11,
+    lineHeight: 11,
+    letterSpacing: 0.66,
+    color: light.ink,
+  },
+  aiNote: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginHorizontal: 4,
+    marginTop: 4,
+    marginBottom: 16,
+  },
+  aiNoteText: { flexShrink: 1, fontFamily: font.regular, fontSize: 12, lineHeight: 16.8, color: light.muted },
+  byHandNote: {
+    marginHorizontal: 4,
+    marginTop: -8,
+    marginBottom: 16,
+    fontFamily: font.regular,
+    fontSize: 12,
+    lineHeight: 16.8,
+    color: light.ink,
+    textDecorationLine: 'underline',
+    textDecorationColor: light.edge,
+  },
 });
