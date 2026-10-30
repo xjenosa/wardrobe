@@ -156,59 +156,63 @@ export function ItemEditorScreen() {
       <View style={styles.head}>
         <ScreenHeader eyebrow={t.yourWardrobe} title={garment ? garment.name : screens.itemEditor} />
       </View>
-      <ScrollView contentContainerStyle={formStyles.body} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
         {loaded.state === 'loading' && <FormSkeleton />}
         {loaded.state === 'failed' && <Notice text={capture.closetUnreadable} action={capture.tryAgain} onPress={retry} />}
         {loaded.state === 'ready' && !garment && <Text style={formStyles.note}>{capture.notInCloset}</Text>}
         {garment ? (
-          <View style={styles.pics}>
-            <ScrollView
-              ref={track}
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              onLayout={(e) => setTrackW(e.nativeEvent.layout.width)}
-              onMomentumScrollEnd={onPagesScroll}
-              style={styles.track}
-              accessibilityLabel={t.photo}
-            >
-              <View
-                style={[styles.page, trackW ? { width: trackW } : null]}
-                accessibilityElementsHidden={page !== 0}
-                importantForAccessibility={page === 0 ? 'yes' : 'no-hide-descendants'}
+          <View
+            style={styles.pics}
+            onLayout={(e) => setTrackW(e.nativeEvent.layout.width)}
+          >
+            {trackW > 0 ? (
+              <ScrollView
+                ref={track}
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                onMomentumScrollEnd={onPagesScroll}
+                style={styles.track}
+                accessibilityLabel={t.photo}
               >
-                {garment.photo ? (
-                  <Image
-                    source={{ uri: garment.photo }}
-                    style={styles.pic}
-                    accessibilityLabel={t.theCutOut}
-                    accessibilityIgnoresInvertColors
-                  />
-                ) : (
-                  <View style={styles.picEmpty} accessibilityLabel={t.theCutOut} />
-                )}
-              </View>
-              <View
-                style={[styles.page, styles.pagePhoto, trackW ? { width: trackW } : null]}
-                accessibilityElementsHidden={page !== 1}
-                importantForAccessibility={page === 1 ? 'yes' : 'no-hide-descendants'}
-              >
-                {garment.photo ? (
-                  <Image
-                    source={{ uri: garment.photo }}
-                    style={styles.pic}
-                    accessibilityLabel={t.yourPhotograph}
-                    accessibilityIgnoresInvertColors
-                  />
-                ) : (
-                  <View style={styles.picEmpty} accessibilityLabel={t.yourPhotograph} />
-                )}
-                <View style={styles.mark} accessibilityElementsHidden>
-                  <Camera color={light.muted} />
-                  <Text style={styles.markText}>{t.photo}</Text>
+                <View
+                  style={[styles.page, { width: trackW, height: trackW / 0.8 }]}
+                  accessibilityElementsHidden={page !== 0}
+                  importantForAccessibility={page === 0 ? 'yes' : 'no-hide-descendants'}
+                >
+                  {garment.photo ? (
+                    <Image
+                      source={{ uri: garment.photo }}
+                      style={styles.pic}
+                      accessibilityLabel={t.theCutOut}
+                      accessibilityIgnoresInvertColors
+                    />
+                  ) : (
+                    <View style={styles.picEmpty} accessibilityLabel={t.theCutOut} />
+                  )}
                 </View>
-              </View>
-            </ScrollView>
+                <View
+                  style={[styles.page, styles.pagePhoto, { width: trackW, height: trackW / 0.8 }]}
+                  accessibilityElementsHidden={page !== 1}
+                  importantForAccessibility={page === 1 ? 'yes' : 'no-hide-descendants'}
+                >
+                  {garment.photo ? (
+                    <Image
+                      source={{ uri: garment.photo }}
+                      style={styles.pic}
+                      accessibilityLabel={t.yourPhotograph}
+                      accessibilityIgnoresInvertColors
+                    />
+                  ) : (
+                    <View style={styles.picEmpty} accessibilityLabel={t.yourPhotograph} />
+                  )}
+                  <View style={styles.mark} accessibilityElementsHidden>
+                    <Camera color={light.muted} />
+                    <Text style={styles.markText}>{t.photo}</Text>
+                  </View>
+                </View>
+              </ScrollView>
+            ) : null}
             <View style={styles.dots} accessibilityRole="tablist" accessibilityLabel={t.photo}>
               <Pressable
                 accessibilityRole="tab"
@@ -269,20 +273,29 @@ function WornLine({ text, times }: { text: string; times: number }) {
 
 const styles = StyleSheet.create({
   head: { paddingHorizontal: 24, paddingTop: 8 },
-  pics: { marginHorizontal: -24, marginTop: -20, marginBottom: 20, backgroundColor: light.renderA },
-  track: { height: 220 },
+  /* Fig 19 .drawer-body: 20 sides and top, 8 bottom under the fields. */
+  body: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 8 },
+  /* Fig 19 .render is aspect .8 over the drawer body; pics bleed past the form padding. */
+  pics: {
+    marginHorizontal: -20,
+    marginTop: -20,
+    marginBottom: 20,
+    aspectRatio: 0.8,
+    backgroundColor: light.renderA,
+    overflow: 'hidden',
+  },
+  track: { ...StyleSheet.absoluteFill },
   page: {
-    height: 220,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 12,
-    backgroundColor: light.renderA,
+    experimental_backgroundImage: `linear-gradient(178deg, ${light.renderA}, ${light.renderB})`,
   },
   pagePhoto: {
     experimental_backgroundImage: `linear-gradient(155deg, ${light.photoGround} 0%, ${light.photoShade} 100%)`,
   },
-  pic: { width: '72%', height: '100%', resizeMode: 'contain' },
-  picEmpty: { width: '72%', height: '100%', backgroundColor: light.field },
+  pic: { width: '72%', height: '78%', resizeMode: 'contain' },
+  picEmpty: { width: '72%', height: '78%', backgroundColor: light.field },
   mark: {
     position: 'absolute',
     bottom: 16,
@@ -301,10 +314,11 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: 8,
+    bottom: 16,
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 0,
+    zIndex: 3,
   },
   dotHit: { width: 16, height: 24, alignItems: 'center', justifyContent: 'center' },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: light.ink, opacity: 0.2 },
