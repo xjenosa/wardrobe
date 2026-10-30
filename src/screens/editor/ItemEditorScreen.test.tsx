@@ -4,6 +4,8 @@ import { Alert } from 'react-native';
 
 import { sampleCloset } from '../../lib/sample';
 import { loadCloset, resetCloset } from '../../lib/store';
+import * as wears from '../../lib/wears';
+import { resetWears } from '../../lib/wears';
 import { navigationRef, RootNavigator } from '../../nav/RootNavigator';
 import { capture } from '../../strings/capture';
 import { drawn } from '../../strings/drawn';
@@ -40,6 +42,85 @@ it('opens the garment with its own words in the fields', async () => {
   expect(screen.getByRole('radio', { name: 'Outerwear' })).toBeChecked();
   expect(screen.getByRole('radio', { name: 'Warmest' })).toBeChecked();
   expect(saveButton()).toBeDisabled();
+});
+
+it('opens on the cut-out and can swipe to the photograph', async () => {
+  await resetCloset([{ ...sampleCloset[0], photo: 'file:///documents/garments/g1.jpg' }]);
+  const user = await openEditor();
+  await screen.findByRole('header', { name: 'Navy overcoat' });
+
+  expect(screen.getByRole('tab', { name: t.theCutOut })).toBeSelected();
+  expect(screen.getByRole('tab', { name: t.yourPhotograph })).not.toBeSelected();
+
+  await user.press(screen.getByRole('tab', { name: t.yourPhotograph }));
+  expect(screen.getByRole('tab', { name: t.yourPhotograph })).toBeSelected();
+  expect(screen.getByRole('tab', { name: t.theCutOut })).not.toBeSelected();
+});
+
+it('still offers both picture pages when the garment has no photograph', async () => {
+  await resetCloset(sampleCloset);
+  await openEditor();
+  await screen.findByRole('header', { name: 'Navy overcoat' });
+
+  expect(screen.getByRole('tab', { name: t.theCutOut })).toBeOnTheScreen();
+  expect(screen.getByRole('tab', { name: t.yourPhotograph })).toBeOnTheScreen();
+});
+
+it('keeps the photograph when a field is saved', async () => {
+  const withPhoto = { ...sampleCloset[0], photo: 'file:///documents/garments/g1.jpg', favourite: true };
+  await resetCloset([withPhoto, ...sampleCloset.slice(1)]);
+  const user = await openEditor();
+  await screen.findByRole('header', { name: 'Navy overcoat' });
+  await user.press(screen.getByRole('radio', { name: 'Warm' }));
+  await user.press(saveButton());
+
+  const closet = await loadCloset();
+  expect(closet).toEqual({
+    ok: true,
+    garments: sampleCloset.map((g) =>
+      g.id === 'g1' ? { ...g, warmth: 'Warm', photo: withPhoto.photo, favourite: true } : g,
+    ),
+  });
+});
+
+it('says how often the garment was worn, from the wear log', async () => {
+  await resetCloset(sampleCloset);
+  await resetWears({ '2026-01-03': ['g1'], '2026-01-10': ['g1'], '2026-01-17': ['g2', 'g1'] });
+  await openEditor();
+
+  expect(await screen.findByText('Worn 3 times · last on 17 Jan')).toBeOnTheScreen();
+});
+
+it('says a garment worn once in the singular', async () => {
+  await resetCloset(sampleCloset);
+  await resetWears({ '2026-01-03': ['g1'] });
+  await openEditor();
+
+  expect(await screen.findByText('Worn 1 time · last on 3 Jan')).toBeOnTheScreen();
+});
+
+it('draws no wear line when the garment has never been worn', async () => {
+  await resetCloset(sampleCloset);
+  await resetWears({ '2026-01-03': ['g2'] });
+  await openEditor();
+  await screen.findByRole('header', { name: 'Navy overcoat' });
+
+  expect(screen.queryByText(/^Worn /)).not.toBeOnTheScreen();
+});
+
+it('says so when the wear log cannot be read, and reads it again', async () => {
+  await resetCloset(sampleCloset);
+  const load = jest
+    .spyOn(wears, 'loadWears')
+    .mockResolvedValueOnce({ ok: false, failure: 'unreadable' })
+    .mockResolvedValueOnce({ ok: true, log: { '2026-01-03': ['g1'] } });
+  const user = await openEditor();
+  expect(await screen.findByText(capture.wearsUnreadable)).toBeOnTheScreen();
+  expect(screen.queryByText(/^Worn /)).not.toBeOnTheScreen();
+
+  await user.press(screen.getByRole('button', { name: capture.tryAgain }));
+  expect(await screen.findByText('Worn 1 time · last on 3 Jan')).toBeOnTheScreen();
+  expect(load).toHaveBeenCalledTimes(2);
 });
 
 it('saves a change to that garment and no other', async () => {
