@@ -2,7 +2,7 @@ import { useNavigation, useRoute, type RouteProp } from '@react-navigation/nativ
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Button, ScreenHeader } from '../../kit';
+import { Button, Notice, ScreenHeader } from '../../kit';
 import type { RootStackParamList } from '../../nav/routes';
 import { loadCloset, updateCloset, type Garment, type LoadFailure } from '../../lib/store';
 import { loadWears, wornOf, type Worn } from '../../lib/wears';
@@ -44,6 +44,7 @@ export function ItemEditorScreen() {
   const [loaded, setLoaded] = useState<Loaded>({ state: 'loading' });
   const [values, setValues] = useState<FormValues | undefined>();
   const [worn, setWorn] = useState<Worn | undefined>();
+  const [wearsFailed, setWearsFailed] = useState(false);
   const [failed, setFailed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [original, setOriginal] = useState<FormValues | undefined>();
@@ -61,11 +62,30 @@ export function ItemEditorScreen() {
     [id],
   );
 
+  const applyWears = useCallback(() => {
+    loadWears().then((result) => {
+      if (result.ok) {
+        setWorn(wornOf(result.log, id));
+        setWearsFailed(false);
+      } else {
+        setWorn(undefined);
+        setWearsFailed(true);
+      }
+    });
+  }, [id]);
+
   useEffect(() => {
     let live = true;
     loadCloset().then((result) => live && apply(result));
     loadWears().then((result) => {
-      if (live && result.ok) setWorn(wornOf(result.log, id));
+      if (!live) return;
+      if (result.ok) {
+        setWorn(wornOf(result.log, id));
+        setWearsFailed(false);
+      } else {
+        setWorn(undefined);
+        setWearsFailed(true);
+      }
     });
     return () => {
       live = false;
@@ -105,15 +125,13 @@ export function ItemEditorScreen() {
       <ScrollView contentContainerStyle={formStyles.body} keyboardShouldPersistTaps="handled">
         {loaded.state === 'loading' && <FormSkeleton />}
         {loaded.state === 'failed' && (
-          <>
-            <Text accessibilityRole="alert" style={formStyles.note}>
-              {capture.closetUnreadable}
-            </Text>
-            <Button size="small" kind="outline" label={capture.tryAgain} onPress={retry} />
-          </>
+          <Notice text={capture.closetUnreadable} action={capture.tryAgain} onPress={retry} />
         )}
         {loaded.state === 'ready' && !garment && <Text style={formStyles.note}>{capture.notInCloset}</Text>}
         {garment && values && <GarmentForm values={values} onChange={setValues} />}
+        {garment && wearsFailed ? (
+          <Notice text={capture.wearsUnreadable} action={capture.tryAgain} onPress={applyWears} style={styles.wearNotice} />
+        ) : null}
         {garment && wornText ? <WornLine text={wornText} times={worn!.times} /> : null}
         {failed && (
           <Text accessibilityRole="alert" style={formStyles.problem}>
@@ -153,4 +171,5 @@ const styles = StyleSheet.create({
   worn: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4, marginBottom: 16, marginHorizontal: 4 },
   wornText: { flexShrink: 1, fontFamily: font.regular, fontSize: 12, lineHeight: 12, color: light.muted },
   wornCount: { fontFamily: font.medium, color: light.ink, fontVariant: ['tabular-nums'] },
+  wearNotice: { marginBottom: 16 },
 });

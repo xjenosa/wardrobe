@@ -1,3 +1,5 @@
+import { drawn } from './drawn';
+
 /* The words the capture track needs where the mockup draws none: the states
    docs/States.md describes in words (Add garment, Item editor). The sentences
    the mockup does draw are in drawn.ts. */
@@ -7,12 +9,10 @@ export const capture = {
   closetUnreadable: 'The closet could not be read.',
   tryAgain: 'Try again',
   notInCloset: 'This garment is not in your closet.',
-  /* Fig 19's "Worn 12 times · last on 3 Jan", built from parts so the count
-     and the day change. The plate's middot is the separator. */
-  worn: 'Worn',
-  times: 'times',
-  lastOn: 'last on',
-  wornSep: ' · ',
+  /* The plate only draws the plural ("Worn 12 times · last on 3 Jan"). The
+     singular is the one line that has no plate. */
+  wornOnce: 'Worn 1 time · last on 3 Jan',
+  wearsUnreadable: 'The wear log could not be read.',
 } as const;
 
 /* "3 Jan" as Fig 19 draws the last day, in Canadian English order. */
@@ -23,6 +23,10 @@ export function lastWornDay(day: string): string {
   return [part({ day: 'numeric' }), part({ month: 'short' })].join(' ');
 }
 
+/* Fig 19's sentence with the count and the day filled in. Built from the
+   plate's own words so nobody retypes them; only the singular is ours. */
 export function wornLine(times: number, lastDay: string): string {
-  return [capture.worn, String(times), capture.times].join(' ') + capture.wornSep + [capture.lastOn, lastWornDay(lastDay)].join(' ');
+  const last = lastWornDay(lastDay);
+  if (times === 1) return capture.wornOnce.replace('3 Jan', last);
+  return drawn.fig19.worn12TimesLastOn.replace('12', String(times)).replace('3 Jan', last);
 }
