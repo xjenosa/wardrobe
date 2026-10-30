@@ -2,10 +2,12 @@ import { useNavigation } from '@react-navigation/native';
 import { useRef, useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
 
+import { Button, TopBar } from '../../kit';
 import { updateCloset } from '../../lib/store';
 import { capture } from '../../strings/capture';
 import { drawn } from '../../strings/drawn';
-import { emptyValues, FormButton, FormFrame, formStyles, garmentOf, GarmentForm, type FormValues } from './GarmentForm';
+import { Check } from '../../theme/icons';
+import { emptyValues, FormFrame, formStyles, garmentOf, GarmentForm, type FormValues } from './GarmentForm';
 
 const t = drawn.fig18;
 
@@ -40,11 +42,7 @@ export function AddGarmentScreen() {
 
   return (
     <FormFrame>
-      <View style={formStyles.topbar}>
-        <Text accessibilityRole="header" style={formStyles.title}>
-          {t.newGarment}
-        </Text>
-      </View>
+      <TopBar title={t.newGarment} onBack={() => navigation.goBack()} />
       <ScrollView contentContainerStyle={formStyles.body} keyboardShouldPersistTaps="handled">
         <Text style={formStyles.note}>{capture.byHand}</Text>
         <GarmentForm values={values} onChange={setValues} />
@@ -55,8 +53,8 @@ export function AddGarmentScreen() {
         )}
       </ScrollView>
       <View style={formStyles.foot}>
-        <FormButton label={t.cancel} onPress={() => navigation.goBack()} />
-        <FormButton label={t.saveToCloset} primary disabled={!garment || saving} onPress={save} />
+        <Button size="small" kind="outline" label={t.cancel} onPress={() => navigation.goBack()} />
+        <Button size="small" label={t.saveToCloset} icon={Check} wide disabled={!garment || saving} onPress={save} />
       </View>
     </FormFrame>
   );

@@ -1,6 +1,7 @@
-import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { Chip, Field, Label } from '../../kit';
 import type { Garment } from '../../lib/store';
 import { categories, vibes, warmths, type Category, type Vibe, type Warmth } from '../../lib/words';
 import { drawn } from '../../strings/drawn';
@@ -44,28 +45,30 @@ export function GarmentForm({ values, onChange }: Props) {
   const set = (patch: Partial<FormValues>) => onChange({ ...values, ...patch });
   return (
     <View>
-      <Field label={t.name}>
-        <TextInput
-          accessibilityLabel={t.name}
-          value={values.name}
-          onChangeText={(name) => set({ name })}
-          style={styles.input}
-        />
-      </Field>
-      <Field label={t.category}>
+      <Field label={t.name} value={values.name} onChangeText={(name) => set({ name })} />
+      <View style={styles.field}>
+        <Label>{t.category}</Label>
         <Chips options={categories} chosen={values.category} label={t.category} onChoose={(category) => set({ category })} />
-      </Field>
-      <Field label={t.warmth}>
-        <Chips options={warmths} chosen={values.warmth} label={t.warmth} onChoose={(warmth) => set({ warmth: warmth === values.warmth ? undefined : warmth })} />
-      </Field>
-      <Field label={t.style}>
+      </View>
+      <View style={styles.field}>
+        <Label>{t.warmth}</Label>
+        <Chips
+          kind="preset"
+          options={warmths}
+          chosen={values.warmth}
+          label={t.warmth}
+          onChoose={(warmth) => set({ warmth: warmth === values.warmth ? undefined : warmth })}
+        />
+      </View>
+      <View style={styles.field}>
+        <Label>{t.style}</Label>
         <Chips
           options={vibes}
           chosen={values.style}
           label={t.style}
           onChoose={(style) => set({ style: style === values.style ? undefined : style })}
         />
-      </Field>
+      </View>
     </View>
   );
 }
@@ -75,19 +78,11 @@ export function FormSkeleton() {
   return (
     <View>
       {[t.name, t.category, t.warmth, t.style].map((label) => (
-        <Field key={label} label={label}>
+        <View key={label} style={styles.field}>
+          <Label>{label}</Label>
           <View style={styles.empty} />
-        </Field>
+        </View>
       ))}
-    </View>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <View style={styles.field}>
-      <Text style={styles.label}>{label}</Text>
-      {children}
     </View>
   );
 }
@@ -97,28 +92,26 @@ function Chips<T extends string>({
   chosen,
   label,
   onChoose,
+  kind = 'option',
 }: {
   options: readonly T[];
   chosen: T | undefined;
   label: string;
   onChoose: (option: T) => void;
+  kind?: 'option' | 'preset';
 }) {
   return (
     <View accessibilityRole="radiogroup" accessibilityLabel={label} style={styles.row}>
-      {options.map((option) => {
-        const on = option === chosen;
-        return (
-          <Pressable
-            key={option}
-            accessibilityRole="radio"
-            accessibilityState={{ checked: on }}
-            onPress={() => onChoose(option)}
-            style={[styles.chip, on && styles.chipOn]}
-          >
-            <Text style={[styles.chipText, on && styles.chipTextOn]}>{option}</Text>
-          </Pressable>
-        );
-      })}
+      {options.map((option) => (
+        <Chip
+          key={option}
+          kind={kind}
+          role="radio"
+          label={option}
+          on={option === chosen}
+          onPress={() => onChoose(option)}
+        />
+      ))}
     </View>
   );
 }
@@ -135,35 +128,8 @@ export function FormFrame({ children }: { children: React.ReactNode }) {
   );
 }
 
-/* Fig 18's footer buttons. */
-export function FormButton({
-  label,
-  onPress,
-  primary = false,
-  disabled = false,
-}: {
-  label: string;
-  onPress: () => void;
-  primary?: boolean;
-  disabled?: boolean;
-}) {
-  return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityState={{ disabled }}
-      disabled={disabled}
-      onPress={onPress}
-      style={[styles.button, primary && !disabled && styles.buttonPrimary]}
-    >
-      <Text style={[styles.buttonText, primary && !disabled && styles.buttonTextPrimary, disabled && styles.buttonTextDisabled]}>{label}</Text>
-    </Pressable>
-  );
-}
-
 export const formStyles = StyleSheet.create({
   page: { flex: 1, backgroundColor: light.paper },
-  topbar: { paddingHorizontal: 24, paddingTop: 8, paddingBottom: 12, borderBottomWidth: 1, borderBottomColor: light.hairline },
-  title: { fontSize: 15, fontWeight: '600', color: light.ink },
   body: { padding: 24, paddingTop: 20 },
   note: { fontSize: 13, color: light.muted, marginBottom: 16 },
   problem: { fontSize: 13, color: light.grave, marginTop: 4 },
@@ -172,17 +138,6 @@ export const formStyles = StyleSheet.create({
 
 const styles = StyleSheet.create({
   field: { marginBottom: 16 },
-  label: { marginBottom: 8, fontSize: 11, fontWeight: '600', letterSpacing: 1.65, textTransform: 'uppercase', color: light.muted },
-  input: { height: 44, borderWidth: 1, borderColor: light.edge, backgroundColor: light.field, paddingHorizontal: 12, fontSize: 15, color: light.ink },
   empty: { height: 44, borderWidth: 1, borderColor: light.hairline, backgroundColor: light.field },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { height: 38, justifyContent: 'center', paddingHorizontal: 16, borderWidth: 1, borderColor: light.edge, backgroundColor: light.field },
-  chipOn: { backgroundColor: light.ink, borderColor: light.ink },
-  chipText: { fontSize: 13, fontWeight: '500', color: light.muted },
-  chipTextOn: { color: light.paper },
-  button: { height: 44, justifyContent: 'center', paddingHorizontal: 20, borderWidth: 1, borderColor: light.edge },
-  buttonPrimary: { backgroundColor: light.ink, borderColor: light.ink, paddingHorizontal: 24 },
-  buttonText: { fontSize: 13, fontWeight: '500', color: light.ink },
-  buttonTextPrimary: { color: light.paper },
-  buttonTextDisabled: { color: light.disabled },
 });
