@@ -5,10 +5,13 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Button, ScreenHeader } from '../../kit';
 import type { RootStackParamList } from '../../nav/routes';
 import { loadCloset, updateCloset, type Garment, type LoadFailure } from '../../lib/store';
-import { capture } from '../../strings/capture';
+import { loadWears, wornOf, type Worn } from '../../lib/wears';
+import { capture, wornLine } from '../../strings/capture';
 import { drawn } from '../../strings/drawn';
 import { screens } from '../../strings/screens';
-import { Check } from '../../theme/icons';
+import { font } from '../../theme/font';
+import { Check, Refresh } from '../../theme/icons';
+import { light } from '../../theme/tokens';
 import {
   FormFrame,
   FormSkeleton,
@@ -28,7 +31,8 @@ type Loaded =
   | { state: 'ready'; garment: Garment | undefined };
 
 /* Fig 19, page one's fields. The cut-out and the photograph (Fig 19b) wait
-   for the garment to carry a picture.
+   for the garment to carry a picture. "Worn n times · last on …" comes from
+   the wear log on the phone (ADR 0023).
 
    CLOSE DISCARDS AN UNSAVED EDIT, AND NOTHING ASKS (docs/States.md). Save is
    the only way to keep a change. Every other way out, Close, the back gesture
@@ -39,6 +43,7 @@ export function ItemEditorScreen() {
   const { id } = useRoute<RouteProp<RootStackParamList, 'ItemEditor'>>().params;
   const [loaded, setLoaded] = useState<Loaded>({ state: 'loading' });
   const [values, setValues] = useState<FormValues | undefined>();
+  const [worn, setWorn] = useState<Worn | undefined>();
   const [failed, setFailed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [original, setOriginal] = useState<FormValues | undefined>();
@@ -59,10 +64,13 @@ export function ItemEditorScreen() {
   useEffect(() => {
     let live = true;
     loadCloset().then((result) => live && apply(result));
+    loadWears().then((result) => {
+      if (live && result.ok) setWorn(wornOf(result.log, id));
+    });
     return () => {
       live = false;
     };
-  }, [apply]);
+  }, [apply, id]);
 
   const retry = () => {
     setLoaded({ state: 'loading' });
@@ -72,6 +80,7 @@ export function ItemEditorScreen() {
   const garment = loaded.state === 'ready' ? loaded.garment : undefined;
   const dirty = !!values && !!original && !sameValues(values, original);
   const edited = values && garmentOf(id, values);
+  const wornText = worn && worn.times > 0 && worn.lastDay ? wornLine(worn.times, worn.lastDay) : undefined;
 
   async function save() {
     if (!edited || pressed.current) return;
@@ -105,6 +114,7 @@ export function ItemEditorScreen() {
         )}
         {loaded.state === 'ready' && !garment && <Text style={formStyles.note}>{capture.notInCloset}</Text>}
         {garment && values && <GarmentForm values={values} onChange={setValues} />}
+        {garment && wornText ? <WornLine text={wornText} times={worn!.times} /> : null}
         {failed && (
           <Text accessibilityRole="alert" style={formStyles.problem}>
             {capture.saveFailed}
@@ -119,6 +129,28 @@ export function ItemEditorScreen() {
   );
 }
 
+/* Fig 19's wear line: the Refresh icon, then "Worn n times · last on …" with
+   the count in ink as the plate bolds it. */
+function WornLine({ text, times }: { text: string; times: number }) {
+  const count = String(times);
+  const at = text.indexOf(count);
+  const before = text.slice(0, at);
+  const after = text.slice(at + count.length);
+  return (
+    <View style={styles.worn}>
+      <Refresh color={light.muted} size={14} />
+      <Text style={styles.wornText}>
+        {before}
+        <Text style={styles.wornCount}>{count}</Text>
+        {after}
+      </Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   head: { paddingHorizontal: 24, paddingTop: 8 },
+  worn: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4, marginBottom: 16, marginHorizontal: 4 },
+  wornText: { flexShrink: 1, fontFamily: font.regular, fontSize: 12, lineHeight: 12, color: light.muted },
+  wornCount: { fontFamily: font.medium, color: light.ink, fontVariant: ['tabular-nums'] },
 });

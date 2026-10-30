@@ -4,8 +4,9 @@ import { Alert } from 'react-native';
 
 import { sampleCloset } from '../../lib/sample';
 import { loadCloset, resetCloset } from '../../lib/store';
+import { resetWears } from '../../lib/wears';
 import { navigationRef, RootNavigator } from '../../nav/RootNavigator';
-import { capture } from '../../strings/capture';
+import { capture, wornLine } from '../../strings/capture';
 import { drawn } from '../../strings/drawn';
 import { screens } from '../../strings/screens';
 
@@ -40,6 +41,23 @@ it('opens the garment with its own words in the fields', async () => {
   expect(screen.getByRole('radio', { name: 'Outerwear' })).toBeChecked();
   expect(screen.getByRole('radio', { name: 'Warmest' })).toBeChecked();
   expect(saveButton()).toBeDisabled();
+});
+
+it('says how often the garment was worn, from the wear log', async () => {
+  await resetCloset(sampleCloset);
+  await resetWears({ '2026-01-03': ['g1'], '2026-01-10': ['g1'], '2026-01-17': ['g2', 'g1'] });
+  await openEditor();
+
+  expect(await screen.findByText(wornLine(3, '2026-01-17'))).toBeOnTheScreen();
+});
+
+it('draws no wear line when the garment has never been worn', async () => {
+  await resetCloset(sampleCloset);
+  await resetWears({ '2026-01-03': ['g2'] });
+  await openEditor();
+  await screen.findByRole('header', { name: 'Navy overcoat' });
+
+  expect(screen.queryByText(new RegExp(`^${capture.worn} `))).not.toBeOnTheScreen();
 });
 
 it('saves a change to that garment and no other', async () => {
