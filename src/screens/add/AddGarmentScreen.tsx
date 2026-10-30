@@ -41,7 +41,7 @@ export function AddGarmentScreen() {
   }
 
   return (
-    <FormFrame>
+    <FormFrame fullScreen>
       <TopBar title={t.newGarment} onBack={() => navigation.goBack()} />
       <ScrollView contentContainerStyle={formStyles.body} keyboardShouldPersistTaps="handled">
         <Text style={formStyles.note}>{capture.byHand}</Text>

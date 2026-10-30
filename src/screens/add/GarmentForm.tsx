@@ -1,5 +1,5 @@
 import { KeyboardAvoidingView, Platform, StyleSheet, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Chip, Field, Label } from '../../kit';
 import type { Garment } from '../../lib/store';
@@ -117,15 +117,35 @@ function Chips<T extends string>({
 }
 
 /* The page both screens sit on. The footer is lifted with the keyboard, so
-   Save is not covered once the name has been typed. */
-export function FormFrame({ children }: { children: React.ReactNode }) {
-  return (
-    <SafeAreaView style={formStyles.page}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={formStyles.page}>
-        {children}
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+   Save is not covered once the name has been typed.
+
+   A screen that covers the whole phone says `fullScreen`. It makes room for
+   the status bar from the insets in exactly one place, the way First run does:
+   a View, not SafeAreaView. A full-screen modal's SafeAreaView left the top
+   unpadded on iOS and pads it on Android, where the modal opens as an ordinary
+   screen, so SafeAreaView plus a spacer would pad Android twice. The editor
+   opens as a sheet that already starts below the status bar, so it keeps the
+   SafeAreaView. */
+export function FormFrame({ children, fullScreen = false }: { children: React.ReactNode; fullScreen?: boolean }) {
+  const insets = useSafeAreaInsets();
+  const body = (
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={formStyles.page}>
+      {children}
+    </KeyboardAvoidingView>
   );
+  if (fullScreen) {
+    return (
+      <View
+        style={[
+          formStyles.page,
+          { paddingTop: insets.top, paddingBottom: insets.bottom, paddingLeft: insets.left, paddingRight: insets.right },
+        ]}
+      >
+        {body}
+      </View>
+    );
+  }
+  return <SafeAreaView style={formStyles.page}>{body}</SafeAreaView>;
 }
 
 export const formStyles = StyleSheet.create({
