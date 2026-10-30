@@ -113,3 +113,7 @@ premise changes there is something to re-read.**
   yes or no per garment and `pick()` never sends it, nor anything else but
   README.md's fields. The closet's order is the order garments were added, so
   Recently added needs no date; Colour and Custom wait.
+- **0028 A garment carries its photograph, and tagging answers from a service.**
+  Capture and Fig 19b open: `photo` stays on the phone, `POST /tag` returns
+  Fig 18's words, and with no address the fixture answers. ADR 0022's warmth
+  and Close rules stand; its "capture waits" line does not.

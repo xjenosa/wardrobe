@@ -100,6 +100,35 @@ the sample closet they were made for, and drive every screen whenever no service
 address is set, so the UI can be built, tested and demonstrated before the
 service exists (ADR 0021).
 
+## How a photograph becomes a garment
+
+**Tagging is not computed in this repository** (ADR 0028). Add garment sends the
+photograph to a tagging service and gets back the words Fig 18 already draws.
+With no address set, `fixtures/tag.json` answers so Capture and Reading can be
+built before a service exists.
+
+```
+POST /tag
+multipart/form-data: photo=<file>
+
+200
+
+{
+  "name":     "Camel topcoat",
+  "category": "Outerwear",
+  "warmth":   "Warm",
+  "style":    "Smart"
+}
+```
+
+`category` and `warmth` are the same lists as `/pick`. `style` is optional and
+uses Fig 08's vibe words. An accessory may omit `warmth`. The photograph stays
+on the phone as `Garment.photo` and is never sent on `/pick`.
+
+When there is a tagging service, set `EXPO_PUBLIC_TAG_URL` to its address; the
+app posts to `/tag` there. Like the pick address, it is built into the app and
+must be public.
+
 ## Architecture
 
 ```
@@ -138,9 +167,11 @@ the same network.
 
 **No API key is needed to run against the fixture.** The fixture answers only
 the sample closet: open You and tap **Use the sample closet** to put it on the
-phone, and **Answer: nothing fits** to see Fig 09. When there is a service, set
-`EXPO_PUBLIC_PICK_URL` to its address and the app posts to `/pick` there. Expo
-builds that value into the app, so it has to be an address that may be public.
+phone, and **Answer: nothing fits** to see Fig 09. When there is a pick
+service, set `EXPO_PUBLIC_PICK_URL` to its address and the app posts to `/pick`
+there. When there is a tagging service, set `EXPO_PUBLIC_TAG_URL` the same way
+for `/tag`. Expo builds those values into the app, so they have to be addresses
+that may be public.
 
 | command | checks |
 |---|---|
