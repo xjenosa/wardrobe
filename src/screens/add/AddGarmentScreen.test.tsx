@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { act, render, screen, userEvent } from '@testing-library/react-native';
+import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { loadCloset, resetCloset } from '../../lib/store';
 import { navigationRef, RootNavigator } from '../../nav/RootNavigator';
@@ -143,4 +145,30 @@ it('lets an accessory take its warmth back', async () => {
 
   const closet = await loadCloset();
   expect(closet.ok && closet.garments[0]).not.toHaveProperty('warmth');
+});
+
+/* Same check as First run: the full-screen modal pads the status bar from the
+   insets in exactly one place, and never through a SafeAreaView (which would
+   double the top on Android). */
+type Drawn = { type: string; props: Record<string, unknown>; children: (Drawn | string)[] };
+const everything = (el: Drawn): Drawn[] => [el, ...el.children.flatMap((c) => (typeof c === 'string' ? [] : everything(c)))];
+const GAPS = ['paddingTop', 'paddingVertical', 'padding', 'marginTop', 'marginVertical', 'margin', 'top', 'height'] as const;
+
+it('makes room for the status bar exactly once', async () => {
+  const top = 62;
+  jest.mocked(useSafeAreaInsets).mockReturnValue({ top, bottom: 34, left: 0, right: 0 });
+  await openAdd();
+  let page = screen.getByRole('header', { name: t.newGarment }) as unknown as Drawn & { parent: Drawn | null };
+  while (page.parent && !/^RNS.*Screen$/.test(page.type)) page = page.parent as typeof page;
+  const elements = everything(page);
+  const gaps = elements.flatMap((el) =>
+    Object.keys(el.props)
+      .filter((prop) => prop === 'style' || prop.endsWith('Style'))
+      .flatMap((prop) => {
+        const style = (StyleSheet.flatten(el.props[prop] as StyleProp<ViewStyle>) ?? {}) as Record<string, unknown>;
+        return GAPS.filter((k) => style[k] === top).map((k) => el.type + ' ' + prop + ' ' + k);
+      }),
+  );
+  expect(gaps).toHaveLength(1);
+  expect(elements.some((el) => el.type === 'RNCSafeAreaView')).toBe(false);
 });
