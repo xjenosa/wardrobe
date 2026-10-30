@@ -1,6 +1,15 @@
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  Image,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import { Button, Notice, ScreenHeader } from '../../kit';
 import type { RootStackParamList } from '../../nav/routes';
@@ -10,7 +19,7 @@ import { capture, wornLine } from '../../strings/capture';
 import { drawn } from '../../strings/drawn';
 import { screens } from '../../strings/screens';
 import { font } from '../../theme/font';
-import { Check, Refresh } from '../../theme/icons';
+import { Camera, Check, Refresh } from '../../theme/icons';
 import { light } from '../../theme/tokens';
 import {
   FormFrame,
@@ -30,9 +39,9 @@ type Loaded =
   | { state: 'failed'; failure: LoadFailure }
   | { state: 'ready'; garment: Garment | undefined };
 
-/* Fig 19, page one's fields. The cut-out and the photograph (Fig 19b) wait
-   for the garment to carry a picture. "Worn n times · last on …" comes from
-   the wear log on the phone (ADR 0023).
+/* Fig 19 and Fig 19b: two swiped pages for the cut-out and the photograph
+   when the garment carries one (ADR 0028), then the fields. "Worn n times ·
+   last on …" comes from the wear log (ADR 0023).
 
    CLOSE DISCARDS AN UNSAVED EDIT, AND NOTHING ASKS (docs/States.md). Save is
    the only way to keep a change. Every other way out, Close, the back gesture
@@ -48,6 +57,9 @@ export function ItemEditorScreen() {
   const [failed, setFailed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [original, setOriginal] = useState<FormValues | undefined>();
+  const [page, setPage] = useState(0);
+  const [trackW, setTrackW] = useState(0);
+  const track = useRef<React.ElementRef<typeof ScrollView>>(null);
   const pressed = useRef(false);
 
   const apply = useCallback(
@@ -100,14 +112,25 @@ export function ItemEditorScreen() {
   const garment = loaded.state === 'ready' ? loaded.garment : undefined;
   const dirty = !!values && !!original && !sameValues(values, original);
   const edited = values && garmentOf(id, values);
+  /* garmentOf rebuilds the four form fields only. The photograph and the
+     favourite stay on the garment that was loaded, so a save cannot drop them
+     (ADR 0028, ADR 0027). */
+  const toSave =
+    edited && garment
+      ? {
+          ...edited,
+          ...(garment.photo ? { photo: garment.photo } : {}),
+          ...(garment.favourite ? { favourite: garment.favourite } : {}),
+        }
+      : null;
   const wornText = worn && worn.times > 0 && worn.lastDay ? wornLine(worn.times, worn.lastDay) : undefined;
 
   async function save() {
-    if (!edited || pressed.current) return;
+    if (!toSave || pressed.current) return;
     pressed.current = true;
     setSaving(true);
     setFailed(false);
-    const result = await updateCloset((garments) => garments.map((g) => (g.id === id ? edited : g)));
+    const result = await updateCloset((garments) => garments.map((g) => (g.id === id ? toSave : g)));
     if (result.ok) {
       navigation.goBack();
     } else {
@@ -117,6 +140,17 @@ export function ItemEditorScreen() {
     }
   }
 
+  function onPagesScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
+    if (!trackW) return;
+    const next = Math.round(event.nativeEvent.contentOffset.x / trackW);
+    if (next !== page) setPage(next);
+  }
+
+  function goPage(next: number) {
+    if (trackW) track.current?.scrollTo({ x: next * trackW, animated: true });
+    setPage(next);
+  }
+
   return (
     <FormFrame>
       <View style={styles.head}>
@@ -124,10 +158,79 @@ export function ItemEditorScreen() {
       </View>
       <ScrollView contentContainerStyle={formStyles.body} keyboardShouldPersistTaps="handled">
         {loaded.state === 'loading' && <FormSkeleton />}
-        {loaded.state === 'failed' && (
-          <Notice text={capture.closetUnreadable} action={capture.tryAgain} onPress={retry} />
-        )}
+        {loaded.state === 'failed' && <Notice text={capture.closetUnreadable} action={capture.tryAgain} onPress={retry} />}
         {loaded.state === 'ready' && !garment && <Text style={formStyles.note}>{capture.notInCloset}</Text>}
+        {garment ? (
+          <View style={styles.pics}>
+            <ScrollView
+              ref={track}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              onLayout={(e) => setTrackW(e.nativeEvent.layout.width)}
+              onMomentumScrollEnd={onPagesScroll}
+              style={styles.track}
+              accessibilityLabel={t.photo}
+            >
+              <View
+                style={[styles.page, trackW ? { width: trackW } : null]}
+                accessibilityElementsHidden={page !== 0}
+                importantForAccessibility={page === 0 ? 'yes' : 'no-hide-descendants'}
+              >
+                {garment.photo ? (
+                  <Image
+                    source={{ uri: garment.photo }}
+                    style={styles.pic}
+                    accessibilityLabel={t.theCutOut}
+                    accessibilityIgnoresInvertColors
+                  />
+                ) : (
+                  <View style={styles.picEmpty} accessibilityLabel={t.theCutOut} />
+                )}
+              </View>
+              <View
+                style={[styles.page, styles.pagePhoto, trackW ? { width: trackW } : null]}
+                accessibilityElementsHidden={page !== 1}
+                importantForAccessibility={page === 1 ? 'yes' : 'no-hide-descendants'}
+              >
+                {garment.photo ? (
+                  <Image
+                    source={{ uri: garment.photo }}
+                    style={styles.pic}
+                    accessibilityLabel={t.yourPhotograph}
+                    accessibilityIgnoresInvertColors
+                  />
+                ) : (
+                  <View style={styles.picEmpty} accessibilityLabel={t.yourPhotograph} />
+                )}
+                <View style={styles.mark} accessibilityElementsHidden>
+                  <Camera color={light.muted} />
+                  <Text style={styles.markText}>{t.photo}</Text>
+                </View>
+              </View>
+            </ScrollView>
+            <View style={styles.dots} accessibilityRole="tablist" accessibilityLabel={t.photo}>
+              <Pressable
+                accessibilityRole="tab"
+                accessibilityState={{ selected: page === 0 }}
+                accessibilityLabel={t.theCutOut}
+                onPress={() => goPage(0)}
+                style={styles.dotHit}
+              >
+                <View style={[styles.dot, page === 0 && styles.dotOn]} />
+              </Pressable>
+              <Pressable
+                accessibilityRole="tab"
+                accessibilityState={{ selected: page === 1 }}
+                accessibilityLabel={t.yourPhotograph}
+                onPress={() => goPage(1)}
+                style={styles.dotHit}
+              >
+                <View style={[styles.dot, page === 1 && styles.dotOn]} />
+              </Pressable>
+            </View>
+          </View>
+        ) : null}
         {garment && values && <GarmentForm values={values} onChange={setValues} />}
         {garment && wearsFailed ? (
           <Notice text={capture.wearsUnreadable} action={capture.tryAgain} onPress={applyWears} style={styles.wearNotice} />
@@ -147,8 +250,6 @@ export function ItemEditorScreen() {
   );
 }
 
-/* Fig 19's wear line: the Refresh icon, then "Worn n times · last on …" with
-   the count in ink as the plate bolds it. */
 function WornLine({ text, times }: { text: string; times: number }) {
   const count = String(times);
   const at = text.indexOf(count);
@@ -168,6 +269,46 @@ function WornLine({ text, times }: { text: string; times: number }) {
 
 const styles = StyleSheet.create({
   head: { paddingHorizontal: 24, paddingTop: 8 },
+  pics: { marginHorizontal: -24, marginTop: -20, marginBottom: 20, backgroundColor: light.renderA },
+  track: { height: 220 },
+  page: {
+    height: 220,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    backgroundColor: light.renderA,
+  },
+  pagePhoto: {
+    experimental_backgroundImage: `linear-gradient(155deg, ${light.photoGround} 0%, ${light.photoShade} 100%)`,
+  },
+  pic: { width: '72%', height: '100%', resizeMode: 'contain' },
+  picEmpty: { width: '72%', height: '100%', backgroundColor: light.field },
+  mark: {
+    position: 'absolute',
+    bottom: 16,
+    left: 16,
+    height: 24,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: light.hairline,
+    backgroundColor: light.surface,
+  },
+  markText: { fontFamily: font.semibold, fontSize: 11, letterSpacing: 0.66, color: light.muted },
+  dots: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 8,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 0,
+  },
+  dotHit: { width: 16, height: 24, alignItems: 'center', justifyContent: 'center' },
+  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: light.ink, opacity: 0.2 },
+  dotOn: { opacity: 0.7 },
   worn: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4, marginBottom: 16, marginHorizontal: 4 },
   wornText: { flexShrink: 1, fontFamily: font.regular, fontSize: 12, lineHeight: 12, color: light.muted },
   wornCount: { fontFamily: font.medium, color: light.ink, fontVariant: ['tabular-nums'] },
