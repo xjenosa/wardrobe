@@ -33,10 +33,15 @@ export function WeatherScreen() {
           accessibilityRole="button"
           accessibilityLabel={words.back}
         >
-          <Text style={styles.back}>‹</Text>
+          <Text style={styles.back}>
+            {words.back}
+          </Text>
         </Pressable>
 
-        <Text style={styles.headerTitle}>
+        <Text
+          style={styles.headerTitle}
+          accessibilityRole="header"
+        >
           {words.weather}
         </Text>
       </View>
@@ -50,6 +55,7 @@ export function WeatherScreen() {
         <Pressable
           onPress={() => {}}
           accessibilityRole="button"
+          accessibilityLabel={words.tryAgain}
         >
           <Text style={styles.retry}>
             {words.tryAgain.toUpperCase()}
