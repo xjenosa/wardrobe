@@ -33,10 +33,12 @@ table says in words what to build, and that row is the specification.
 
 | state | when | what it shows | plate |
 |---|---|---|---|
-| **Capture** | the camera is open | the viewfinder. **The shutter is the whole wait**: tagging starts the moment it fires | **Fig 17** |
-| **Reading the garment** | after the shutter | the photograph itself is the progress. This is the only wait in the flow | **Fig 17b** |
-| **Confirm** | reading finished | what the app thinks it is, editable, and a save | **Fig 18** |
+| **Capture** | the camera is open | the viewfinder. **The shutter is the whole wait**: tagging starts the moment it fires when an address is set; with none, confirm opens by hand with the photo kept | **Fig 17** |
+| **Reading the garment** | after the shutter, with a tagging address | the photograph itself is the progress. This is the only wait in the flow | **Fig 17b** |
+| **Confirm** | reading finished, or by hand with no address | what the app decided or an empty form, editable, and a save | **Fig 18** |
 | **Reading failed** | the service did not answer | no plate. Keep the photograph, say the tagging failed, offer to retry or to fill it in by hand. **Never discard the photograph** |
+| **Camera refused** | Capture, with the camera not allowed for the app | no plate. Keep the viewfinder, say so and offer Open Settings. Upload still works |
+| **Photo not kept** | the photograph could not be copied into the app's documents (the phone may be out of space) | no plate. Say so without repeating the button, offer Try again for the same source (camera or library), and Fill it in by hand beside it, since the closet takes garments entered by hand (ADR 0022) |
 
 ## Today
 

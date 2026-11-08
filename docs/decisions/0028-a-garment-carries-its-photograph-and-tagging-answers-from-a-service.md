@@ -28,9 +28,14 @@ temperature range crosses that wire. A fixture standing in for a real answer
 about the person's own garment is ruled out the same way ADR 0021 rules it out
 for pick.
 
+**Fig 17's viewfinder is a live `CameraView` from `expo-camera`.** Flash and
+the shutter drive it; Upload still opens the photo library. The package is in
+Expo Go.
+
 **Fig 18 remains the confirm form and the screen Reading failed ends on.**
 Warmth stays five words and no slider (ADR 0022). Close still discards an
-unsaved edit.
+unsaved edit. An unsaved photograph is removed from the documents folder on
+every way out but Save.
 
 **PREMISE:** tagging returns words, not ranges. The photograph leaves the phone
 once, for the tagging service to read it, and otherwise stays here. If the
@@ -42,6 +47,7 @@ or stay uploaded, this is re-read.
 - Capture (Fig 17) and Reading (Fig 17b) can be built; shutter starts the tag
   only when an address is set.
 - Fig 19b can draw the photograph beside the cut-out.
+
 - ADR 0022's "capture waits" line is superseded; its warmth and Close rules
   stand.
 - No closet version bump: an older closet has no `photo` and still reads.
