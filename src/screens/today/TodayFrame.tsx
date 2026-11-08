@@ -8,8 +8,8 @@ import { today } from '../../strings/today';
 import { light } from '../../theme/tokens';
 
 /* THE PARTS EVERY TODAY PLATE SHARES (Figs 08 to 12): the head, the hero, the
-   vibe, the actions and "Why this", in that order and in the same places, so a
-   state changes what is in the boxes and never where the boxes are. */
+   vibe and the actions, in that order and in the same places, so a state
+   changes what is in the boxes and never where the boxes are. */
 
 const t = drawn.fig08;
 
@@ -111,29 +111,6 @@ export function Actions({ disabled }: { disabled: boolean }) {
   );
 }
 
-export function WhyRow({ disabled }: { disabled: boolean }) {
-  return (
-    <View style={styles.why}>
-      <Pressable accessibilityRole="button" accessibilityState={{ disabled }} disabled={disabled} style={styles.whyTrigger}>
-        <Text style={[styles.label, styles.whyText, disabled && styles.off]}>{t.whyThis}</Text>
-      </Pressable>
-      <View style={styles.adjust}>
-        {[t.tooWarm, t.tooCold].map((label) => (
-          <Pressable
-            key={label}
-            accessibilityRole="button"
-            accessibilityState={{ disabled, selected: false }}
-            disabled={disabled}
-            style={styles.chip}
-          >
-            <Text style={[styles.chipText, disabled && styles.off]}>{label}</Text>
-          </Pressable>
-        ))}
-      </View>
-    </View>
-  );
-}
-
 const caps = { textTransform: 'uppercase', fontSize: 11, lineHeight: 11 } as const;
 
 const styles = StyleSheet.create({
@@ -189,10 +166,4 @@ const styles = StyleSheet.create({
   primaryText: { fontSize: 15, lineHeight: 15, fontWeight: '500', letterSpacing: 0.15, color: light.paper },
   quiet: { height: 48, paddingHorizontal: 16, justifyContent: 'center' },
   quietText: { fontSize: 13, lineHeight: 13, fontWeight: '500', letterSpacing: 0.13, color: light.muted },
-  why: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
-  whyTrigger: { flex: 1, paddingVertical: 12, paddingHorizontal: 4 },
-  whyText: { letterSpacing: 1.65, marginBottom: 0 },
-  adjust: { flexDirection: 'row', gap: 8, paddingRight: 4 },
-  chip: { height: parseFloat(light.pillM), justifyContent: 'center', paddingHorizontal: 12, borderWidth: 1, borderColor: light.edge },
-  chipText: { fontSize: 11, lineHeight: 11, fontWeight: '500', letterSpacing: 0.11, color: light.muted },
 });

@@ -1,9 +1,9 @@
-import fixture from '../../fixtures/tag.json';
 import { hasGarmentWords, isOneOf, vibes, type Category, type Vibe, type Warmth } from './words';
 
-/* THE TAGGING CONTRACT IN README.md (ADR 0028). The app sends the photograph;
-   the service answers with Fig 18's words. Nothing here decides warmth as a
-   number: the words are the whole answer (AGENTS.md, rule 1). */
+/* THE TAGGING CONTRACT IN README.md (ADR 0028). The app sends the photograph
+   once so the service can read it; otherwise the bytes stay on the phone.
+   Nothing here decides warmth as a number: the words are the whole answer
+   (AGENTS.md, rule 1). fixtures/tag.json is for tests only. */
 export type TagResponse = {
   name: string;
   category: Category;
@@ -27,8 +27,16 @@ export function isTagResponse(v: unknown): v is TagResponse {
 }
 
 /* EXPO_PUBLIC_TAG_URL is the tagging service's base address. Public by
-   construction, like EXPO_PUBLIC_PICK_URL. */
+   construction, like EXPO_PUBLIC_PICK_URL. With none set, Add goes to Fig 18
+   by hand; fixtures/tag.json is for tests only (ADR 0028). */
 export const hasTagService = () => Boolean(process.env.EXPO_PUBLIC_TAG_URL);
+
+function photoPart(photoUri: string): { uri: string; name: string; type: string } {
+  const name = photoUri.split('/').pop() || 'garment.jpg';
+  const ext = name.match(/[.]([a-z0-9]+)$/i)?.[1]?.toLowerCase();
+  const type = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg';
+  return { uri: photoUri, name, type };
+}
 
 export async function tag(
   photoUri: string,
@@ -38,7 +46,7 @@ export async function tag(
   }: { url?: string; timeoutMs?: number } = {},
 ): Promise<TagResult> {
   if (!url) {
-    return isTagResponse(fixture) ? { ok: true, response: fixture } : { ok: false, failure: 'noService' };
+    return { ok: false, failure: 'noService' };
   }
   return ask(photoUri, url, timeoutMs);
 }
@@ -49,7 +57,7 @@ async function ask(photoUri: string, url: string, timeoutMs: number): Promise<Ta
   const cut = (): TagResult => ({ ok: false, failure: controller.signal.aborted ? 'timeout' : 'network' });
   try {
     const body = new FormData();
-    body.append('photo', { uri: photoUri, name: 'garment.jpg', type: 'image/jpeg' } as unknown as Blob);
+    body.append('photo', photoPart(photoUri) as unknown as Blob);
     let response: Response;
     try {
       response = await fetch(url.replace(/\/+$/, '') + '/tag', {

@@ -1,6 +1,6 @@
 # 0021. The fixture answers when there is no service, never when it fails
 
-Status: Accepted, 2026-10-20.
+Status: Accepted, 2026-10-20. Amended 2026-11-08, below.
 
 ## Context
 
@@ -46,9 +46,17 @@ decision, not the fixture.
   `pick()` fails as `noService`, so Today can tell a build with no service from
   a broken answer.
 - No plate draws a kept answer, so how Today says it is showing one is the
-  app's to decide. docs/States.md has the row.
+  app's to decide. docs/States.md has the row. Amended below.
 
 ## What would show this was wrong
 
 **A demo that needs the fixture with a service set**, which would mean the kept
 answer is not doing its job.
+
+## A plate draws the kept answer, 2026-11-08
+
+**The redrawn mockup draws one**, Fig 08g, offline with this morning's pick
+and forecast. There is no line on the page saying so; its one notice waits
+behind the circled i beside the profile picture. So a kept answer is drawn
+that way, its notice behind the circled i, and docs/States.md's row says so.
+What the notice says is still Today's to choose. The premise above stands.

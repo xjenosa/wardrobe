@@ -33,22 +33,25 @@ table says in words what to build, and that row is the specification.
 
 | state | when | what it shows | plate |
 |---|---|---|---|
-| **Capture** | the camera is open | the viewfinder. **The shutter is the whole wait**: tagging starts the moment it fires | **Fig 17** |
-| **Reading the garment** | after the shutter | the photograph itself is the progress. This is the only wait in the flow | **Fig 17b** |
-| **Confirm** | reading finished | what the app thinks it is, editable, and a save | **Fig 18** |
+| **Capture** | the camera is open | the viewfinder. **The shutter is the whole wait**: tagging starts the moment it fires when an address is set; with none, confirm opens by hand with the photo kept | **Fig 17** |
+| **Reading the garment** | after the shutter, with a tagging address | the photograph itself is the progress. This is the only wait in the flow | **Fig 17b** |
+| **Confirm** | reading finished, or by hand with no address | what the app decided or an empty form, editable, and a save | **Fig 18** |
 | **Reading failed** | the service did not answer | no plate. Keep the photograph, say the tagging failed, offer to retry or to fill it in by hand. **Never discard the photograph** |
+| **Camera refused** | Capture, with the camera not allowed for the app | no plate. Keep the viewfinder, say so and offer Open Settings. Upload still works |
+| **Photo not kept** | the photograph could not be copied into the app's documents (the phone may be out of space) | no plate. Say so without repeating the button, offer Try again for the same source (camera or library), and Fill it in by hand beside it, since the closet takes garments entered by hand (ADR 0022) |
 
 ## Today
 
 | state | when | what it shows | plate |
 |---|---|---|---|
-| **Normal** | a forecast and a closet | the weather, the outfit, and why | **Fig 08** |
+| **Normal** | a forecast and a closet | the weather and the outfit | **Fig 08** |
 | **Render pending** | the pick is made, the picture is not | the pieces, listed, while the render comes | **Fig 08d** |
+| **Offline, this morning's pick** | offline, with this morning's forecast and pick kept | this morning's pick from this morning's forecast, its one notice behind the circled i beside the profile picture | **Fig 08g** |
 | **Loading** | before anything has arrived | the final boxes, empty, in their final positions | **Fig 12** |
 | **Nothing fits, too cold** | the closet cannot cover the day | says so plainly, and offers to wear it anyway | **Fig 09** |
 | **Nothing in the closet** | the forecast is fine, the closet is empty | points at the closet, not at the weather | **Fig 10b** |
 | **The forecast failed** | no weather to pick from | **Fig 11**, and ADR 0003 says this is built first |
-| **The pick failed, today's answer kept** | the ask failed, and `pick()` hands back an answer made today for the closet and the units as they are now | no plate. That answer as it was, and one line saying it is from earlier today. The line's words are Today's to choose (ADR 0021) |
+| **The pick failed, today's answer kept** | the ask failed, and `pick()` hands back an answer made today for the closet and the units as they are now | that answer as it was, with a notice saying it is from earlier today behind the circled i beside the profile picture, as Fig 08g draws it, and no line on the page. The notice's words are Today's to choose (ADR 0021) | **Fig 08g** |
 | **The pick failed** | the ask failed and nothing from today is kept | no plate. Keep the weather, say the outfit could not be picked, and offer to try again. **Never the fixture** (ADR 0021) |
 | **No service yet** | no service address is set and the closet is not the sample one, so `pick()` fails as `noService` | no plate. Say there is no recommendation service yet. A state of the build, never of a release |
 
