@@ -32,12 +32,13 @@ it("uses Fig 08's Vibe for a garment's Style on Fig 18", () => {
   expect([f.everyday, f.smart, f.active, f.occasion]).toEqual([...vibes]);
 });
 
-/* The example in README.md is the sample closet and the fixture, word for word. */
+/* The example in README.md is the sample closet as it crosses the wire, with no
+   names (ADR 0019), and the fixture, word for word. */
 it("README.md's example is the sample closet asked about and the fixture answered", () => {
   const block = readme.match(/```\nPOST \/pick\n\n([^]*?)\n\n200\n\n([^]*?)\n```/);
   if (!block) throw new Error('README.md has no POST /pick example');
   const [sent, answered] = [JSON.parse(block[1]), JSON.parse(block[2])];
-  expect(sent.garments).toEqual(sampleCloset);
+  expect(sent.garments).toEqual(sampleCloset.map(({ id, category, warmth }) => ({ id, category, warmth })));
   expect(answered).toEqual(fixture);
   expect(vibes).toContain(sent.vibe);
   expect(units).toContain(sent.units);

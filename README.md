@@ -1,6 +1,6 @@
 # wardrobe
 
-**Photograph your clothes. Each morning it tells you what to wear, and why.**
+**Photograph your clothes. Each morning it tells you what to wear.**
 
 A React Native app that reads the day's forecast, looks at what is actually in
 your closet, and picks an outfit for it. Not a style feed and not a shopping
@@ -31,7 +31,7 @@ app: it only ever recommends things you already own.
 a demo. The failure state is built early and kept working, because a forecast
 that fails is a Tuesday and not an edge case.
 
-**All of them are drawn**, seventeen states across the eight, at full size in a
+**All of them are drawn**, eighteen states across the eight, at full size in a
 phone frame: [`docs/design/mobile.html`](docs/design/mobile.html). Open it in a
 browser. It is generated and nobody edits it here; ADR 0006 says why.
 
@@ -47,11 +47,11 @@ POST /pick
 {
   "weather":  { "lowC": -4, "highC": 2, "feelsLowC": -9, "feelsHighC": -1,
                 "code": 71, "windKph": 12, "humidity": 78 },
-  "garments": [ { "id": "g1", "name": "Navy overcoat", "category": "Outerwear", "warmth": "Warmest" },
-                { "id": "g2", "name": "Oatmeal crewneck", "category": "Sweaters", "warmth": "Warm" },
-                { "id": "g3", "name": "Charcoal trousers", "category": "Bottoms", "warmth": "Mid-season" },
-                { "id": "g4", "name": "Espresso leather boot", "category": "Shoes", "warmth": "Warm" },
-                { "id": "g5", "name": "Charcoal beanie", "category": "Accessories" } ],
+  "garments": [ { "id": "g1", "category": "Outerwear", "warmth": "Warmest" },
+                { "id": "g2", "category": "Sweaters", "warmth": "Warm" },
+                { "id": "g3", "category": "Bottoms", "warmth": "Mid-season" },
+                { "id": "g4", "category": "Shoes", "warmth": "Warm" },
+                { "id": "g5", "category": "Accessories" } ],
   "vibe":     "Everyday",
   "units":    "C"
 }
@@ -61,7 +61,6 @@ POST /pick
 {
   "wear":     ["g1", "g2", "g3", "g4"],
   "suitsC":   { "lowC": -9, "highC": 1 },
-  "because":  "Light snow and −7°. The navy overcoat over the oatmeal crewneck, with the espresso leather boot for fresh snow.",
   "dayLine":  "Cold, with snow on the wind.",
   "takeLine": "Take a beanie and gloves.",
   "fits":     true
@@ -90,10 +89,14 @@ sky are the app's, from WMO's published table; the service never reads one.
 **The answer is sentences, not codes** (ADR 0019). `dayLine` and `takeLine` are
 drawn as they come, and left out when they are empty. `fits` is false on a day
 nothing owned suits (Fig 09): `wear` is then the closest the closet comes,
-`because` says how far it falls short, and the button says "Wear it anyway".
-An empty closet is still sent, and its answer has an empty `wear` and `because`,
-a `suitsC` of `null` and `fits` false; the app draws Fig 10b from its own empty
-closet, never from the answer.
+`dayLine` is the headline that says so, and the button says "Wear it anyway".
+An empty closet is still sent, and its answer has an empty `wear`, a `suitsC`
+of `null` and `fits` false; the app draws Fig 10b from its own empty closet,
+never from the answer.
+
+**The answer gives no reason, and the request names no garment** (ADR 0019).
+Today does not show why it picked an outfit, so a garment goes out as its id and
+its words, and what the person calls it stays on the phone.
 
 **The app runs without the service.** Saved answers live in `fixtures/`, with
 the sample closet they were made for, and drive every screen whenever no service
@@ -103,9 +106,11 @@ service exists (ADR 0021).
 ## How a photograph becomes a garment
 
 **Tagging is not computed in this repository** (ADR 0028). Add garment sends the
-photograph to a tagging service and gets back the words Fig 18 already draws.
-With no address set, `fixtures/tag.json` answers so Capture and Reading can be
-built before a service exists.
+photograph to a tagging service once, to be read, and gets back the words Fig
+18 already draws. Otherwise the photograph stays on the phone. With no address
+set, Add goes to Fig 18 by hand with the photo kept; `fixtures/tag.json` is for
+tests only, never a stand-in for a real answer about the person's own garment
+(the same rule ADR 0021 holds for pick).
 
 ```
 POST /tag
@@ -122,8 +127,9 @@ multipart/form-data: photo=<file>
 ```
 
 `category` and `warmth` are the same lists as `/pick`. `style` is optional and
-uses Fig 08's vibe words. An accessory may omit `warmth`. The photograph stays
-on the phone as `Garment.photo` and is never sent on `/pick`.
+uses Fig 08's vibe words. An accessory may omit `warmth`. The photograph's file
+name is kept on the phone as `Garment.photo`, found again by garment id in the
+app's documents, and is never sent on `/pick`.
 
 When there is a tagging service, set `EXPO_PUBLIC_TAG_URL` to its address; the
 app posts to `/tag` there. Like the pick address, it is built into the app and

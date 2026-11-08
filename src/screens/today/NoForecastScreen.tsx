@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 import { vibes, type Vibe } from '../../lib/words';
 import { drawn } from '../../strings/drawn';
-import { Actions, Hero, HeroSay, Notice, TodayHead, TodayPage, VibeRow, WhyRow } from './TodayFrame';
+import { Actions, Hero, HeroSay, Notice, TodayHead, TodayPage, VibeRow } from './TodayFrame';
 
 const t = drawn.fig11;
 
@@ -32,7 +32,6 @@ export function NoForecastScreen({
       </Hero>
       <VibeRow vibe={vibe} disabled />
       <Actions disabled />
-      <WhyRow disabled />
     </TodayPage>
   );
 }

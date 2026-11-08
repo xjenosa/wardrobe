@@ -2,12 +2,10 @@ import { render, screen, userEvent } from '@testing-library/react-native';
 import { StyleSheet, View } from 'react-native';
 
 import { drawn } from '../strings/drawn';
-import { Sun } from '../theme/icons';
 import { light } from '../theme/tokens';
 import { Chip } from './Chip';
 import { TOUCH } from './reach';
 
-const t = drawn.fig08;
 const f = drawn.fig18;
 
 /* How tall a finger finds it: its drawn height and the slop above and below. */
@@ -17,10 +15,10 @@ const reachOf = (el: ReturnType<typeof screen.getByRole>) => {
 };
 
 it('is a button that says whether it is on', async () => {
-  await render(<Chip label={t.tooWarm} kind="feedback" icon={Sun} onPress={() => {}} />);
-  expect(screen.getByRole('button', { name: t.tooWarm })).not.toBeSelected();
-  await render(<Chip label={t.tooWarm} kind="feedback" icon={Sun} onPress={() => {}} on />);
-  expect(screen.getByRole('button', { name: t.tooWarm })).toBeSelected();
+  await render(<Chip label={f.winter} onPress={() => {}} />);
+  expect(screen.getByRole('button', { name: f.winter })).not.toBeSelected();
+  await render(<Chip label={f.winter} onPress={() => {}} on />);
+  expect(screen.getByRole('button', { name: f.winter })).toBeSelected();
 });
 
 it('is a radio when only one of its set can be on', async () => {
@@ -51,17 +49,16 @@ it('fills with ink when on', async () => {
 it('when disabled says so, greys its words and does nothing', async () => {
   const user = userEvent.setup();
   const onPress = jest.fn();
-  await render(<Chip label={t.tooCold} kind="feedback" onPress={onPress} disabled />);
-  const chip = screen.getByRole('button', { name: t.tooCold });
+  await render(<Chip label={f.summer} onPress={onPress} disabled />);
+  const chip = screen.getByRole('button', { name: f.summer });
   expect(chip).toBeDisabled();
   await user.press(chip);
   expect(onPress).not.toHaveBeenCalled();
-  expect(screen.getByText(t.tooCold)).toHaveStyle({ color: light.disabled });
+  expect(screen.getByText(f.summer)).toHaveStyle({ color: light.disabled });
 });
 
 it.each([
   ['option', light.pillL],
-  ['feedback', light.pillM],
   ['filter', light.pillM],
   ['preset', light.pillM],
 ] as const)('draws a %s chip at the height its plate does, %s', async (kind, height) => {
@@ -69,7 +66,7 @@ it.each([
   expect(screen.getByRole('button', { name: f.warm })).toHaveStyle({ height: parseFloat(height) });
 });
 
-it.each(['option', 'feedback', 'filter', 'preset'] as const)('the %s chip reaches 44 to the touch, however tall it is drawn', async (kind) => {
+it.each(['option', 'filter', 'preset'] as const)('the %s chip reaches 44 to the touch, however tall it is drawn', async (kind) => {
   await render(<Chip label={f.warm} kind={kind} onPress={() => {}} />);
   expect(reachOf(screen.getByRole('button', { name: f.warm }))).toBeGreaterThanOrEqual(TOUCH);
 });
