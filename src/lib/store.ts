@@ -4,15 +4,16 @@ import type { PickGarment } from './pick';
 import { hasGarmentWords, isOneOf, vibes, type Vibe } from './words';
 
 /* A garment as the closet keeps it: what crosses the wire (README.md), in the
-   words Fig 18 draws (ADR 0020), and what stays on the phone, its style, whether
-   it is a favourite (ADR 0027), and the URI of its photograph (ADR 0028). A
-   track that needs another field adds it here by pull request to Max, so there
-   is one shape that every screen saves and reads.
+   words Fig 18 draws (ADR 0020), and what stays on the phone, its name
+   (ADR 0019), its style, whether it is a favourite (ADR 0027), and the
+   photograph's file name (ADR 0028). A track that needs another field adds it
+   here by pull request to Max, so there is one shape that every screen saves
+   and reads.
 
    THE CLOSET'S ORDER IS THE ORDER ITS GARMENTS WERE ADDED, newest last: Add
    garment appends and the editor changes a garment where it stands, so Fig
    15's Recently added reads it from the end. */
-export type Garment = PickGarment & { style?: Vibe; favourite?: boolean; photo?: string };
+export type Garment = PickGarment & { name: string; style?: Vibe; favourite?: boolean; photo?: string };
 
 const KEY = 'wardrobe.closet';
 

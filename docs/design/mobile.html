@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#EDEAE3">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 
 :root{
@@ -81,6 +81,8 @@
 
 *,*::before,*::after{box-sizing:border-box;}
 
+b,strong{font-weight:700;}
+
 figure,figcaption,blockquote,dl,dd,fieldset{margin:0;}
 html,body{max-width:100%;overflow-x:hidden;}
 body{transition:background var(--dur) var(--ease);}
@@ -134,8 +136,6 @@ button{padding:0;}
 .body{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;padding:12px 24px 24px;scrollbar-width:none;display:flex;flex-direction:column;min-height:0;container-type:inline-size;}
 .body::-webkit-scrollbar{display:none;}
 
-.body:has(> .hero){padding-bottom:0;}
-
 .body > .field:last-child,.body > .actions:last-child{margin-bottom:0;}
 
 .eyebrow{font:500 11px/1.4 var(--sans);letter-spacing:.15em;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
@@ -149,6 +149,10 @@ button{padding:0;}
 .avatar:hover{transform:translateY(-1px);}
 
 .avatar svg{display:block;width:100%;height:100%;}
+
+.title-row:has(> .today-mark) > :first-child{margin-right:auto;}
+.today-mark{flex:none;width:44px;height:44px;margin:-8px 4px -16px -28px;padding:12px 0 12px 24px;border:none;border-radius:0;background:none;color:var(--ink);cursor:pointer;display:grid;place-items:center;}
+.today-mark svg{display:block;}
 
 .today-head{flex:none;}
 
@@ -182,19 +186,20 @@ button{padding:0;}
 
 .stat-sep{opacity:.5;margin:0 4px;}
 
-.today-head .whisper,.today-head .loading-word{min-height:60px;}
+.today-head .whisper,.today-head .loading-word{min-height:76px;}
 .whisper .t{font-variant-numeric:tabular-nums;}
 
-.hero{flex:0 0 auto;aspect-ratio:1/1;width:auto;max-width:100%;height:max(190px,min(calc(100cqw / .8),calc(100% - 407px)));margin:8px auto 0;border-radius:0;overflow:hidden;background:linear-gradient(178deg,var(--render-a),var(--render-b));display:grid;grid-template-rows:minmax(0,1fr) auto;place-items:center;padding:12px;position:relative;}
+.hero{flex:0 0 auto;aspect-ratio:1/1;width:auto;max-width:100%;height:max(298px,min(calc(100cqw / .8),calc(100% - 391px)));margin:8px auto 0;border-radius:0;overflow:hidden;background:linear-gradient(178deg,var(--render-a),var(--render-b));display:grid;grid-template-rows:minmax(0,1fr) minmax(var(--hero-line),auto);row-gap:12px;place-items:center;padding:12px;position:relative;container:hero / size;--hero-line:45px;--hero-line-gap:12px;}
 
 .hero-pieces{display:grid;grid-template-columns:repeat(2,auto);grid-template-rows:repeat(2,minmax(0,200px));justify-content:center;align-content:center;align-items:center;gap:12px;padding:0 12px;width:100%;height:100%;min-height:0;box-sizing:border-box;}
+.hero .hero-pieces,.of-render .hero-pieces{grid-template-rows:repeat(2,max(102.5px,calc((100cqw - var(--hero-line) - var(--hero-line-gap) - 12px) / 2)));align-content:start;align-items:start;align-self:start;height:auto;}
 
 .hp{height:100%;width:auto;aspect-ratio:.8;border-radius:0;background:var(--field);border:1px solid var(--hairline);display:grid;place-items:center;padding:8px;}
 .hp .gm{width:100%;height:100%;}
 
 .hero-say{margin:0;text-align:center;}
 
-.hero-wait,.hero-fallback{grid-row:2;align-self:end;margin:12px 0 0;max-width:none;}
+.hero-wait{grid-row:2;align-self:end;margin:0;max-width:none;}
 
 .hero-offer{position:relative;}
 .hero-offer > .link-btn{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:24px;white-space:nowrap;}
@@ -206,25 +211,12 @@ button{padding:0;}
 .vibe{display:flex;width:100%;margin-top:8px;background:var(--field);border:1px solid var(--edge);border-radius:0;padding:4px;gap:4px;}
 .vibe .seg-btn{flex:1;border-radius:0;padding:8px 0;text-align:center;}
 
-.why{flex:none;margin:0 0 4px;}
-
 .actions{flex:none;margin:4px 0;display:flex;gap:12px;align-items:center;}
 .btn-primary{flex:1;height:48px;border:none;border-radius:0;background:var(--ink);color:var(--paper);font:500 15px/1 var(--sans);letter-spacing:.01em;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity var(--dur) var(--ease),transform .12s var(--ease);}
 .btn-primary:hover{opacity:.9;}
 .btn-primary:active{transform:translateY(1px);}
 .btn-quiet{height:48px;padding:0 16px;border:none;background:none;color:var(--muted);font:500 13px/1 var(--sans);letter-spacing:.01em;cursor:pointer;display:flex;align-items:center;gap:8px;transition:color var(--dur) var(--ease);}
 .btn-quiet:hover{color:var(--ink);}
-
-.why.has-adjust{display:flex;align-items:center;gap:8px;}
-
-.why.has-adjust .why-trigger{width:auto;flex:1 1 auto;padding:0 4px;}
-.why-adjust{flex:none;display:flex;gap:8px;padding-right:4px;}
-.fb-chip{height:var(--pill-m);display:inline-flex;align-items:center;gap:8px;padding:0 12px;border:1px solid var(--edge);border-radius:0;background:transparent;color:var(--muted);font:500 11px/1 var(--sans);letter-spacing:.01em;cursor:pointer;transition:color var(--dur) var(--ease),border-color var(--dur) var(--ease);}
-.fb-chip:hover{color:var(--ink);border-color:var(--muted);}
-
-.fb-chip.is-on{background:var(--ink);border-color:var(--ink);color:var(--paper);}
-.fb-chip.is-on:hover{color:var(--paper);border-color:var(--ink);}
-.fb-chip svg{display:block;}
 
 .sortwrap{display:inline-flex;align-items:center;gap:8px;color:var(--muted);}
 .sortwrap>svg{flex:none;}
@@ -249,27 +241,14 @@ button{padding:0;}
 .hero-save.is-on{color:var(--ink);}
 .hero-save.is-on svg{fill:currentColor;}
 
-.why{position:relative;flex:none;}
-
-.why-scrim{position:absolute;inset:0;background:var(--scrim);opacity:0;pointer-events:none;transition:opacity .22s var(--ease);z-index:5;}
-.screen.is-why .why-scrim{opacity:1;pointer-events:auto;}
-
-.why{--why-clear:0px;}
-
-.why-panel{position:absolute;left:0;right:0;bottom:calc(100% + var(--why-clear));margin-bottom:4px;z-index:6;background:var(--surface);border:1px solid var(--hairline);border-radius:0;padding:16px 16px;box-shadow:var(--lift-shadow);opacity:0;transform:translateY(10px);pointer-events:none;transition:opacity .22s var(--ease),transform .22s var(--ease);}
-.why.why-open .why-panel{opacity:1;transform:none;pointer-events:auto;}
-.why-panel .why-k{display:block;font:600 11px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
-
-.why-panel p{margin:0;max-width:52ch;font-family:var(--sans);font-weight:400;font-size:15px;line-height:1.4;color:var(--ink);}
-.why-panel p b{font-weight:500;}
-.why-trigger{flex:none;width:100%;margin:0;border:none;background:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:12px 4px;font:600 11px/1 var(--sans);letter-spacing:.15em;text-transform:uppercase;color:var(--muted);transition:color var(--dur) var(--ease);}
-.why-trigger:hover{color:var(--ink);}
-
-.why-trigger .chev{margin-left:auto;transition:transform .2s var(--ease);}
-.why-trigger.is-open .chev{transform:rotate(180deg);}
+.screen:not(.is-notices) > .nt-scrim{visibility:hidden;opacity:0;}
+.screen:not(.is-notices) > .nt-sheet{visibility:hidden;transform:translateY(100%);}
 .vibe-row{flex:none;margin-top:12px;}
 .vibe-lab{font:600 11px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
 .vibe-row .vibe{margin-top:0;}
+
+.vibe-row + .actions{margin-top:12px;}
+.body:has(> .vibe-row){padding-bottom:16px;}
 
 .toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;min-height:var(--pill-l);}
 
@@ -314,11 +293,13 @@ button.is-undo:hover{border-color:var(--muted);}
 .outfit.is-photos .o-pieces .gm{
   background:linear-gradient(155deg,var(--photo-ground) 0%,var(--photo-shade) 100%);}
 .hero-pieces.is-photos .hp,.outfit.is-photos .o-pieces .gm{border-color:var(--photo-shade);}
-.piece.is-uncut .frame-box{background:linear-gradient(155deg,var(--photo-ground) 0%,var(--photo-shade) 100%);border:1px solid var(--hairline);border-radius:0;overflow:hidden;padding:0;}
+.piece.is-uncut .frame-box{background:linear-gradient(155deg,var(--photo-ground) 0%,var(--photo-shade) 100%);border:0;border-radius:0;overflow:hidden;padding:0;}
 
-.avatar,.piece.is-uncut .frame-box{border-color:transparent;}
+.avatar{border-color:transparent;background-clip:padding-box;}
 .avatar{position:relative;}
-.avatar::after,.piece.is-uncut .frame-box::after{content:"";position:absolute;inset:0;border:1px solid var(--hairline);border-radius:0;pointer-events:none;z-index:1;}
+.avatar::after{content:"";position:absolute;inset:0;border:1px solid var(--hairline);border-radius:0;pointer-events:none;z-index:1;}
+
+.piece.is-uncut .frame-box::after{content:"";position:absolute;inset:0;border:2px solid var(--edge);border-radius:0;pointer-events:none;z-index:1;}
 
 .piece.is-uncut .gm{height:122%;margin-top:-11%;}
 
@@ -333,7 +314,7 @@ button.is-undo:hover{border-color:var(--muted);}
 .offer .ot b{color:var(--ink);font-weight:600;}
 .offer .oa{flex:none;}
 
-.offer-in-hero{grid-row:2;align-self:end;justify-self:stretch;width:100%;margin-top:12px;background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(10px);z-index:2;}
+.offer-in-hero{grid-row:2;align-self:end;justify-self:stretch;width:100%;margin-top:0;background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(10px);z-index:2;}
 
 .offer-in-hero{flex-wrap:wrap;row-gap:8px;}
 .offer-in-hero .ot{flex:1 1 140px;}
@@ -413,10 +394,11 @@ button.is-undo:hover{border-color:var(--muted);}
 .of-name{font-family:var(--sans);font-weight:600;font-size:17px;line-height:1.2;letter-spacing:-.015em;color:var(--ink);}
 .of-meta{font:600 11px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
 
-.of-render{position:relative;margin-top:16px;aspect-ratio:1/1;width:299px;max-width:100%;margin-inline:auto;border-radius:0;overflow:hidden;background:linear-gradient(178deg,var(--render-a),var(--render-b));display:grid;place-items:center;}
+.of-render{position:relative;margin-top:16px;aspect-ratio:1/1;width:299px;max-width:100%;margin-inline:auto;border-radius:0;overflow:hidden;background:linear-gradient(178deg,var(--render-a),var(--render-b));display:grid;place-items:center;container:render / size;--hero-line:24px;--hero-line-gap:0px;}
 
 .of-render .pic-page{display:grid;place-items:center;}
-.of-render .pic-page .hero-pieces{padding-bottom:24px;}
+
+.of-render .pic-page:has(.hero-pieces){place-items:stretch;align-content:start;}
 
 .of-render>svg,.of-render .pic-page>svg{height:275px;width:auto;display:block;}
 .render-btn svg{width:18px;height:18px;display:block;}
@@ -471,6 +453,9 @@ button.is-undo:hover{border-color:var(--muted);}
 
 .drawer{position:absolute;top:0;right:0;bottom:0;width:min(88%,452px);z-index:9;background:var(--paper);box-shadow:var(--drawer-shadow);display:flex;flex-direction:column;overflow:hidden;}
 
+.drawer{transition:transform var(--dur) var(--ease),visibility var(--dur),display var(--dur) allow-discrete;}
+@starting-style{.drawer{transform:translateX(100%);}}
+
 .render{position:relative;flex:none;width:100%;aspect-ratio:.8;background:linear-gradient(178deg,var(--render-a),var(--render-b));}
 .render svg.figure{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);height:78%;width:auto;}
 .chip-name{position:absolute;left:16px;top:16px;background:var(--surface);color:var(--ink);padding:8px 12px;border-radius:0;font:500 13px/1 var(--sans);letter-spacing:-.005em;box-shadow:var(--card-shadow);}
@@ -488,8 +473,7 @@ button.is-undo:hover{border-color:var(--muted);}
 
 .hero .pic-page{display:grid;place-items:center;padding:12px;box-sizing:border-box;}
 
-.hero .pic-page:has(.hero-pieces){place-items:stretch;}
-.hero .pic-page .hero-pieces{padding-bottom:24px;}
+.hero .pic-page:has(.hero-pieces){place-items:stretch;align-content:start;}
 
 .pic-page{position:relative;flex:0 0 100%;height:100%;scroll-snap-align:start;}
 .pic-page.is-photo{background:linear-gradient(155deg,var(--photo-ground) 0%,var(--photo-shade) 100%);}
@@ -512,8 +496,18 @@ button.is-undo:hover{border-color:var(--muted);}
 .sheet-up.is-short{top:auto;}
 
 .sheet-up.is-short .drawer-body{padding-bottom:20px;}
+
+.sheet-up{transition:transform var(--dur) var(--ease),visibility var(--dur);}
+@starting-style{.sheet-up{transform:translateY(100%);}}
+.scrim{transition:opacity var(--dur) var(--ease),visibility var(--dur),display var(--dur) allow-discrete;}
+@starting-style{.scrim{opacity:0;}}
 .chooser-head{flex:none;padding:20px 24px 16px;border-bottom:1px solid var(--hairline);}
 .chooser-title{margin:4px 0 0;font:500 20px/1.2 var(--sans);color:var(--ink);}
+
+.chooser-head:has(> .chooser-x){display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;align-items:center;}
+.chooser-head > .chooser-x{grid-column:2;grid-row:1 / span 2;}
+.chooser-x{width:44px;height:44px;margin:-8px -12px -8px 0;padding:0;border:none;background:none;color:var(--ink);cursor:pointer;border-radius:0;display:grid;place-items:center;transition:background var(--dur) var(--ease);}
+.chooser-x:hover{background:color-mix(in srgb,var(--ink) 6%,transparent);}
 
 .drawer-body.chooser-body{padding:0 24px 24px;}
 
@@ -722,6 +716,9 @@ button.set-row{cursor:pointer;}
 .city-list{margin-top:8px;}
 .city-row{display:flex;align-items:center;gap:12px;width:100%;padding:16px 0;border:none;border-bottom:1px solid var(--hairline);background:none;color:inherit;font:inherit;text-align:left;cursor:pointer;}
 .city-row:last-child{border-bottom:none;}
+
+.of-none .of-sub{margin:0;max-width:34ch;}
+.city-none{margin:0;padding:16px 0;font:400 13px/1.4 var(--sans);color:var(--muted);}
 .city-row .here-glyph{flex:none;color:var(--ink);}
 .set-legend{margin:24px 4px 8px;font:600 11px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--muted);}
 .set-legend:first-of-type{margin-top:16px;}
@@ -767,8 +764,6 @@ button.set-row{cursor:pointer;}
 .license b{color:var(--ink);font-weight:600;}
 
 .doc-list{list-style:none;margin:4px 0 0;padding:0;display:flex;flex-direction:column;gap:16px;}
-
-.ph{display:inline-block;padding:1px 8px;border:1px dashed var(--muted);border-radius:0;font:600 11px/1.5 var(--sans);letter-spacing:.06em;color:var(--muted);background:var(--field);}
 .doc-list li{position:relative;padding-left:20px;font:400 13px/1.5 var(--sans);color:var(--ink);}
 .doc-list li::before{content:"";position:absolute;left:0;top:8px;width:6px;height:6px;border-radius:0;background:var(--muted);}
 .doc-list b{font-weight:600;}
@@ -787,6 +782,11 @@ button.set-row{cursor:pointer;}
 .es-act{height:48px;padding:0 24px;border:1px solid var(--edge);border-radius:0;background:transparent;color:var(--ink);font:500 13px/1 var(--sans);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:border-color var(--dur) var(--ease);}
 .es-act:hover{border-color:var(--muted);}
 .empty-state .es-act{margin-top:24px;}
+
+.contact-sent{display:flex;flex-direction:column;align-items:flex-start;}
+.contact-sent .doc-lede{margin:0;font:400 22px/1.2 var(--sans);letter-spacing:-.01em;}
+.contact-sent .es-body{margin:8px 0 0;max-width:36ch;text-align:left;overflow-wrap:anywhere;}
+.contact-sent .es-act{margin-top:24px;}
 .es-act.is-block{display:flex;width:100%;}
 
 .es-act.is-grave{border-color:var(--grave);color:var(--grave);}
@@ -797,6 +797,8 @@ button.set-row{cursor:pointer;}
 .cf-s{margin:8px 0 0;font:400 13px/1.4 var(--sans);color:var(--muted);}
 
 .cf-field{margin-top:16px;text-align:left;}
+
+.cf-switch{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;font:400 13px/1.4 var(--sans);color:var(--ink);}
 .cf-acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px;}
 
 .cf-acts .es-act{flex:1 1 0;min-width:max-content;white-space:nowrap;padding:0;font-size:13px;}
@@ -807,7 +809,7 @@ button.set-row{cursor:pointer;}
 .notice .nt{flex:1 1 140px;font:400 13px/1.4 var(--sans);color:var(--ink);}
 .notice .na{flex:none;display:inline-flex;align-items:center;min-height:44px;border:none;background:none;color:var(--ink);cursor:pointer;font:600 11px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;padding:0 8px;margin:-12px -4px -12px auto;}
 
-.notices{flex:none;display:flex;flex-direction:column;gap:8px;margin:12px 4px 24px;}
+.notices{flex:none;display:flex;flex-direction:column;gap:8px;}
 
 button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
 .btn-primary[aria-disabled="true"],.btn-save[aria-disabled="true"],.seg-btn.is-on[aria-disabled="true"]{background:transparent;color:var(--disabled);box-shadow:var(--edge-ring);}
@@ -829,10 +831,10 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
 .wx-place{font:600 11px/1 var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--muted);}
 .wx-day{font:500 15px/1 var(--sans);color:var(--ink);}
 
-.wx-hero{font:200 72px/1 var(--sans);letter-spacing:-.04em;color:var(--ink);font-variant-numeric:tabular-nums;}
+.wx-hero{font:400 72px/1 var(--sans);letter-spacing:-.04em;color:var(--ink);font-variant-numeric:tabular-nums;}
 
 .wx-hero .sign{font-size:.4em;letter-spacing:-.16em;vertical-align:.6em;}
-.wx-hero sup{font-size:.34em;font-weight:200;letter-spacing:0;vertical-align:top;position:relative;top:.06em;}
+.wx-hero sup{font-size:.34em;font-weight:400;letter-spacing:0;vertical-align:top;position:relative;top:.06em;}
 
 .wx-feels{font:400 13px/1 var(--sans);color:var(--muted);font-variant-numeric:tabular-nums;}
 .wx-ends{font:400 13px/1 var(--sans);color:var(--muted);font-variant-numeric:tabular-nums;}
@@ -1016,7 +1018,7 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
 .lock-top{flex:none;text-align:center;padding-top:28px;}
 .lock-lockicon{color:var(--ink);opacity:.7;}
 .lock-date{margin-top:16px;font:500 15px/1 var(--sans);letter-spacing:.01em;color:var(--ink);opacity:.82;}
-.lock-clock{margin-top:4px;font:300 78px/1 var(--sans);letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums;}
+.lock-clock{margin-top:4px;font:400 78px/1 var(--sans);letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums;}
 .lock-mid{flex:1 1 auto;display:flex;flex-direction:column;justify-content:flex-start;padding-top:36px;min-height:0;}
 .notif{display:flex;gap:12px;padding:16px;background:color-mix(in srgb,var(--surface) 78%,transparent);border:1px solid color-mix(in srgb,var(--ink) 8%,transparent);border-radius:0;box-shadow:var(--card-shadow);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);}
 .notif-mark{flex:none;width:42px;height:42px;border-radius:0;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-family:var(--sans);font-weight:400;font-size:20px;letter-spacing:-.03em;line-height:1;padding-right:.04em;}
@@ -1032,7 +1034,7 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
 .screen.lock .home-indicator{margin:12px auto 8px;}
 
 .body{--col-max:560px;}
-.today-head,.vibe-row,.actions,.why,.od-pieces,.of-feature-head,.of-pieces,
+.today-head,.vibe-row,.actions,.od-pieces,.of-feature-head,.of-pieces,
 .empty-state,.btn-primary,.entry-actions,.form-field{
   width:100%;max-width:var(--col-max);margin-left:auto;margin-right:auto;}
 .of-stat,.ai-note{width:100%;max-width:var(--col-max);margin-left:auto;margin-right:auto;padding-left:4px;padding-right:4px;}
@@ -1043,10 +1045,12 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
 .doc-p,.doc-foot,.disclose,.capture-hint,.doc-list li,.gets li{max-width:66ch;}
 .entry-fine,.ai-note,.form-hint{max-width:72ch;}
 
-@container phone (orientation: landscape) and (max-height: 540px) {
+@container phone (orientation: landscape) and (max-height: 540px) and (min-width: 600px) {
   .body:has(> .today-head){display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:24px;align-content:start;container-type:size;}
   .body:has(> .today-head) > *{grid-column:1;}
-  .body:has(> .today-head) > .hero{grid-column:2;grid-row:1 / span 8;align-self:start;height:max(190px,100cqh);margin:0;position:sticky;top:0;}
+  .body:has(> .today-head) > .hero{grid-column:2;grid-row:1 / span 8;align-self:start;height:max(298px,100cqh);margin:0;position:sticky;top:0;}
+}
+@container phone (orientation: landscape) and (max-height: 540px) {
   .capture-stage{flex-direction:row;gap:12px;padding:12px 0 12px 24px;}
   .cap-controls{flex-direction:column-reverse;min-height:0;width:104px;padding:8px 0;}
   .cap-side{width:auto;}
@@ -1070,6 +1074,8 @@ button[aria-disabled="true"]{color:var(--disabled);pointer-events:none;}
 .grid.is-ordering .piece:active{cursor:grabbing;}
 
 .grip{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);width:56px;height:26px;display:grid;place-items:center;z-index:2;cursor:grab;border:0;background:none;padding:0;}
+
+.outfit .grip{left:4px;top:4px;bottom:auto;transform:none;}
 .grip svg{display:block;fill:var(--muted);opacity:.6;}
 .grip:active{cursor:grabbing;}
 
@@ -1341,7 +1347,8 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
     <g id="fig-bust">
       <rect width="60" height="72" fill="none"/>
       <path d="M6 72 C6 50 22 42 30 42 C38 42 54 50 54 72 Z" fill="var(--figure)"/>
-      <ellipse cx="30" cy="26" rx="14" ry="16" fill="var(--figure)"/>
+
+      <circle cx="30" cy="27" r="14" fill="var(--figure)"/>
 
     </g>
 
@@ -1379,7 +1386,7 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
     <nav class="mast-toc" aria-label="Contents">
 
       <div class="toc-row"><span class="toc-k">FIRST RUN</span><span class="toc-v">05 06</span></div>
-      <div class="toc-row"><span class="toc-k">EVERY DAY</span><span class="toc-v">08 08d 09 10b 11 12 14 14d</span></div>
+      <div class="toc-row"><span class="toc-k">EVERY DAY</span><span class="toc-v">08 08d 08g 09 10b 11 12 14 14d</span></div>
       <div class="toc-row"><span class="toc-k">THE WARDROBE</span><span class="toc-v">15 17 17b 18 19 19b</span></div>
 
       <div class="toc-row"><span class="toc-k">YOU</span><span class="toc-v">23</span></div>
@@ -1445,7 +1452,7 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
                 <div class="eyebrow">Your wardrobe</div>
                 <h2 class="display">Closet</h2>
               </div>
-
+              <button class="avatar" aria-label="You"><svg viewBox="0 0 60 72" aria-hidden="true"><use href="#fig-bust"/></svg></button>
             </div>
             <div class="head-rule"></div>
             <div class="empty-state">
@@ -1473,7 +1480,6 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
 <figure class="plate">
       <div class="device">
         <div class="screen">
-          <div class="why-scrim"></div>
           <div class="statusbar">
             <span class="clock">9:41</span>
             <span class="sysicons" aria-hidden="true">
@@ -1490,7 +1496,9 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
                   <span class="eyebrow">Toronto, CA &middot; Thu 8 Jan</span>
                   <h2 class="display">Thursday</h2>
                 </div>
-
+                <button class="avatar" aria-label="You" data-open="you">
+                  <svg viewBox="0 0 60 72" aria-hidden="true"><use href="#fig-bust"/></svg>
+                </button>
               </div>
 
               <div class="head-rule"></div>
@@ -1563,17 +1571,6 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
                 Shuffle
               </button>
             </div>
-
-            <div class="why has-adjust">
-              <div class="why-panel">
-              <span class="why-k">Why this</span>
-              <p>Light snow and <span class="t">&minus;7&deg;</span>. The <b>navy overcoat</b> over the <b>oatmeal crewneck</b>, with the <b>espresso leather boot</b> for fresh snow.</p>
-              </div>
-              <button class="why-trigger" data-why aria-expanded="false">Why this
-              <svg class="chev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5 6 4l3.5 3.5"/></svg>
-            </button>
-              <span class="why-adjust"><button class="fb-chip" aria-label="Too warm" aria-pressed="false"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12h2.6M18.9 12h2.6M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg>Too warm</button><button class="fb-chip" aria-label="Too cold" aria-pressed="false"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M4.2 7.5 19.8 16.5M4.2 16.5 19.8 7.5M9.4 6.1 12 3 14.6 6.1M15.8 6.8 19.8 7.5 18.4 11.3M18.4 12.7 19.8 16.5 15.8 17.2M14.6 17.9 12 21 9.4 17.9M8.2 17.2 4.2 16.5 5.6 12.7M5.6 11.3 4.2 7.5 8.2 6.8"/></svg>Too cold</button></span>
-            </div>
           </div>
 
           <nav class="tabbar" aria-label="Primary">
@@ -1592,7 +1589,6 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
 <figure class="plate">
       <div class="device">
         <div class="screen">
-          <div class="why-scrim"></div>
           <div class="statusbar">
             <span class="clock">9:41</span>
             <span class="sysicons" aria-hidden="true">
@@ -1609,7 +1605,9 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
                   <span class="eyebrow">Toronto, CA &middot; Thu 8 Jan</span>
                   <h2 class="display">Thursday</h2>
                 </div>
-
+                <button class="avatar" aria-label="You" data-open="you">
+                  <svg viewBox="0 0 60 72" aria-hidden="true"><use href="#fig-bust"/></svg>
+                </button>
               </div>
 
               <div class="head-rule"></div>
@@ -1678,17 +1676,6 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
                 Shuffle
               </button>
             </div>
-
-            <div class="why has-adjust">
-              <div class="why-panel">
-              <span class="why-k">Why this</span>
-              <p>Light snow and <span class="t">&minus;7&deg;</span>. The <b>navy overcoat</b> over the <b>oatmeal crewneck</b>, with the <b>espresso leather boot</b> for fresh snow.</p>
-              </div>
-              <button class="why-trigger" data-why aria-expanded="false">Why this
-              <svg class="chev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5 6 4l3.5 3.5"/></svg>
-            </button>
-              <span class="why-adjust"><button class="fb-chip" aria-label="Too warm" aria-pressed="false"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12h2.6M18.9 12h2.6M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg>Too warm</button><button class="fb-chip" aria-label="Too cold" aria-pressed="false"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M4.2 7.5 19.8 16.5M4.2 16.5 19.8 7.5M9.4 6.1 12 3 14.6 6.1M15.8 6.8 19.8 7.5 18.4 11.3M18.4 12.7 19.8 16.5 15.8 17.2M14.6 17.9 12 21 9.4 17.9M8.2 17.2 4.2 16.5 5.6 12.7M5.6 11.3 4.2 7.5 8.2 6.8"/></svg>Too cold</button></span>
-            </div>
           </div>
 
           <nav class="tabbar" aria-label="Primary">
@@ -1707,7 +1694,129 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
 <figure class="plate">
       <div class="device">
         <div class="screen">
-          <div class="why-scrim"></div>
+          <div class="scrim nt-scrim"></div>
+          <div class="statusbar">
+            <span class="clock">9:41</span>
+            <span class="sysicons" aria-hidden="true">
+              <svg width="13" height="13" viewBox="0 0 12 12" fill="currentColor"><g transform="rotate(90 6 6)"><rect x="5.4" y=".6" width="1.2" height="10.6" rx=".6"/><path d="M6 4.1 11.4 7.1v1.1L6 6.8.6 8.2V7.1Z"/><path d="M6 9.3l2.4 1.4v.7L6 10.9l-2.4.5v-.7Z"/></g></svg>
+              <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x=".6" y=".6" width="21" height="10.8" rx="2.6" stroke="currentColor" stroke-opacity=".45" stroke-width="1"/><rect x="2.2" y="2.2" width="14.6" height="7.6" rx="1.4" fill="currentColor"/><path d="M23.4 4.2v3.6a1.9 1.9 0 0 0 0-3.6Z" fill="currentColor" fill-opacity=".45"/></svg>
+            </span>
+          </div>
+
+          <div class="body">
+            <div class="today-head">
+              <div class="title-row">
+                <div>
+                  <span class="eyebrow">Toronto, CA &middot; Thu 8 Jan</span>
+                  <h2 class="display">Thursday</h2>
+                </div>
+                <button class="today-mark" data-notices data-ring="child" aria-haspopup="dialog" aria-controls="nt-08g" aria-expanded="false" aria-label="Notices"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.2"/><path d="M12 7.8h.01M12 11.2v5"/></svg></button>
+                <button class="avatar" aria-label="You" data-open="you">
+                  <svg viewBox="0 0 60 72" aria-hidden="true"><use href="#fig-bust"/></svg>
+                </button>
+              </div>
+
+              <div class="head-rule"></div>
+              <div class="wx">
+                <div class="gauge">
+                  <svg viewBox="0 0 150 92" aria-hidden="true">
+                    <path class="g-track" d="M13 76 A62 62 0 0 1 137 76" fill="none" stroke-width="4" stroke-linecap="round"/>
+                    <path class="g-fill" d="M13 76 A62 62 0 0 1 65.3 14.8" fill="none" stroke-width="4" stroke-linecap="round"/>
+                    <g class="g-tick" stroke-width="1.2" stroke-linecap="round">
+                      <line x1="13" y1="76" x2="6" y2="76"/>
+                      <line x1="17.7" y1="52.3" x2="11.2" y2="49.6"/>
+                      <line x1="31.2" y1="32.2" x2="26.2" y2="27.2"/>
+                      <line x1="51.3" y1="18.7" x2="48.6" y2="12.2"/>
+                      <line x1="98.7" y1="18.7" x2="101.4" y2="12.2"/>
+                      <line x1="118.8" y1="32.2" x2="123.8" y2="27.2"/>
+                      <line x1="132.3" y1="52.3" x2="138.8" y2="49.6"/>
+                      <line x1="137" y1="76" x2="144" y2="76"/>
+                    </g>
+                    <line class="g-tick zero" x1="75" y1="14" x2="75" y2="6" stroke-width="1.4" stroke-linecap="round"/>
+                    <path class="g-needle" d="M77.9 75.5 L66.6 22.9 L72.1 76.4 Z"/>
+                    <circle class="g-hub" cx="75" cy="76" r="4.4"/>
+                    <circle class="g-hub-dot" cx="75" cy="76" r="1.5"/>
+                    <text class="g-lab" x="7" y="90" text-anchor="start">&#8722;40</text>
+                    <text class="g-unit" x="75" y="90" text-anchor="middle">&deg;C</text>
+                    <text class="g-lab" x="143" y="90" text-anchor="end">+40</text>
+                  </svg>
+                </div>
+                <div class="wx-read">
+                  <div class="wx-cond">
+                    <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 14.5A3.8 3.8 0 0 1 8 7a4.8 4.8 0 0 1 9.1.8A3.3 3.3 0 0 1 17 14.5"/><path d="M8 17.6h.01M12 19h.01M16 17.6h.01M10 20.6h.01M14 20.6h.01"/></svg>
+                    <span class="c"><span class="t">&minus;4&deg;</span>, light snow</span>
+                  </div>
+                  <div class="wx-stats">
+                    <span class="wx-stat"><b>&minus;7&deg;</b><small>Feels</small></span>
+                    <span class="wx-stat"><b>12 km/h</b><small>Wind</small></span>
+                    <span class="wx-stat"><b>78%</b><small>Humidity</small></span>
+                  </div>
+                </div>
+              </div>
+              <p class="whisper"><span class="wf">Cold, with snow on the wind.</span><span class="wf">Take a beanie and gloves.</span></p>
+            </div>
+
+            <div class="hero" aria-live="polite">
+
+              <div class="pic-track">
+                <div class="pic-page" role="tabpanel" id="picpanel-12a" aria-labelledby="pictab-12a"><svg class="hero-figure" viewBox="0 0 240 540" role="img" aria-label="Today&rsquo;s outfit, worn. The navy overcoat over the oatmeal crewneck, the charcoal trousers and the espresso leather boot.">
+                <use href="#fig-body"/>
+              </svg></div>
+                <div class="pic-page" role="tabpanel" id="picpanel-12b" aria-labelledby="pictab-12b"><div class="hero-pieces is-cut"><span class="hp"><svg class="gm c-navy" role="img" aria-label="Navy overcoat" viewBox="0 0 120 128"><use href="#g-jacket"/></svg></span><span class="hp"><svg class="gm c-oatmeal" role="img" aria-label="Oatmeal crewneck" viewBox="0 0 120 128"><use href="#g-crew"/></svg></span><span class="hp"><svg class="gm c-charcoal" role="img" aria-label="Charcoal trousers" viewBox="0 0 120 128"><use href="#g-trou"/></svg></span><span class="hp"><svg class="gm c-espresso" role="img" aria-label="Espresso leather boot" viewBox="0 0 120 128"><use href="#g-boot"/></svg></span></div></div>
+              </div>
+              <span class="pic-dots" role="tablist" aria-label="Picture, 2 pages"><button class="pd" role="tab" id="pictab-12a" aria-controls="picpanel-12a" aria-selected="true" aria-label="Worn"><i class="on"></i></button><button class="pd" role="tab" id="pictab-12b" aria-controls="picpanel-12b" aria-selected="false" tabindex="-1" aria-label="The pieces"><i></i></button></span>
+            </div>
+
+            <div class="vibe-row">
+              <div class="vibe-lab">Vibe</div>
+              <div class="vibe" role="radiogroup" aria-label="Vibe">
+                <button class="seg-btn is-on" role="radio" aria-checked="true">Everyday</button>
+                <button class="seg-btn" role="radio" aria-checked="false" tabindex="-1">Smart</button>
+                <button class="seg-btn" role="radio" aria-checked="false" tabindex="-1">Active</button>
+                <button class="seg-btn" role="radio" aria-checked="false" tabindex="-1">Occasion</button>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button class="btn-primary">Wear this
+                <svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5l3.2 3.2L13 5"/></svg>
+              </button>
+              <button class="btn-quiet">
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4.5h3.5L9 10.5h4M2 10.5h3.5L9 4.5h4"/><path d="M11.5 3l1.8 1.5-1.8 1.5M11.5 9l1.8 1.5-1.8 1.5"/></svg>
+                Shuffle
+              </button>
+            </div>
+          </div>
+
+          <aside class="sheet-up is-short nt-sheet" id="nt-08g" role="dialog" aria-modal="true" aria-labelledby="ntk-08g" tabindex="-1">
+            <div class="chooser-head">
+              <div class="eyebrow"><b>1</b> for today</div>
+              <h3 class="chooser-title" id="ntk-08g">Notices</h3>
+              <button class="chooser-x" aria-label="Close"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13"/></svg></button>
+            </div>
+            <div class="drawer-body">
+            <div class="notices">
+              <div class="notice"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.2"/><path d="M12 7.6v5.2M12 16.2h.01"/></svg><span class="nt">Offline. Showing this morning&rsquo;s forecast.</span></div>
+            </div>
+            </div>
+            <div class="home-bar"><div class="home-indicator"></div></div>
+          </aside>
+          <nav class="tabbar" aria-label="Primary">
+            <div class="tabs">
+              <button class="tab is-active" aria-current="page"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17h16"/><path d="M8.2 17a3.8 3.8 0 0 1 7.6 0"/><path d="M12 6.4v2M6.5 9.5l1.1 1.1M17.5 9.5l-1.1 1.1M3 13h1.6M19.4 13H21"/></svg><span>Today</span></button>
+              <button class="tab"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9.2 4 15.2c-.7.5-.3 1.6.6 1.6h14.8c.9 0 1.3-1.1.6-1.6L12 9.2Z"/><path d="M12 9.2V8c0-1.1.9-2 2-2"/></svg><span>Closet</span></button>
+
+            </div>
+            <div class="home-indicator"></div>
+          </nav>
+        </div>
+      </div>
+      <figcaption class="plate-cap"><span class="fig">Fig 08g</span><span class="sep">&middot;</span>Today &middot; offline <span class="sep">&middot;</span> this morning&rsquo;s pick from this morning&rsquo;s forecast, its notice behind the mark</figcaption>
+    </figure>
+
+<figure class="plate">
+      <div class="device">
+        <div class="screen">
           <div class="statusbar">
             <span class="clock">9:41</span>
             <span class="sysicons" aria-hidden="true">
@@ -1724,7 +1833,9 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
                   <span class="eyebrow">Toronto, CA &middot; Sat 17 Jan</span>
                   <h2 class="display">Saturday</h2>
                 </div>
-
+                <button class="avatar" aria-label="You" data-open="you">
+                  <svg viewBox="0 0 60 72" aria-hidden="true"><use href="#fig-bust"/></svg>
+                </button>
               </div>
 
               <div class="head-rule"></div>
@@ -1797,19 +1908,6 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
                 Shuffle
               </button>
             </div>
-
-            <div class="why has-adjust">
-              <div class="why-panel">
-              <span class="why-k">Why this</span>
-              <p>Your warmest is the <b>navy overcoat</b>, good to about <span class="t">0&deg;</span>.
-              Today feels like <span class="t">&minus;21&deg;</span>, so it may not be enough on its own.
-              Layering the oatmeal crewneck under it is the warmest you own.</p>
-              </div>
-              <button class="why-trigger" data-why aria-expanded="false">Why this
-              <svg class="chev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5 6 4l3.5 3.5"/></svg>
-            </button>
-              <span class="why-adjust"><button class="fb-chip" aria-label="Too warm" aria-pressed="false"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12h2.6M18.9 12h2.6M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg>Too warm</button><button class="fb-chip" aria-label="Too cold" aria-pressed="false"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M4.2 7.5 19.8 16.5M4.2 16.5 19.8 7.5M9.4 6.1 12 3 14.6 6.1M15.8 6.8 19.8 7.5 18.4 11.3M18.4 12.7 19.8 16.5 15.8 17.2M14.6 17.9 12 21 9.4 17.9M8.2 17.2 4.2 16.5 5.6 12.7M5.6 11.3 4.2 7.5 8.2 6.8"/></svg>Too cold</button></span>
-            </div>
           </div>
 
           <nav class="tabbar" aria-label="Primary">
@@ -1828,7 +1926,6 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
 <figure class="plate">
       <div class="device">
         <div class="screen">
-          <div class="why-scrim"></div>
           <div class="statusbar">
             <span class="clock">9:41</span>
             <span class="sysicons" aria-hidden="true">
@@ -1845,7 +1942,9 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
                   <span class="eyebrow">Toronto, CA &middot; Thu 8 Jan</span>
                   <h2 class="display">Thursday</h2>
                 </div>
-
+                <button class="avatar" aria-label="You" data-open="you">
+                  <svg viewBox="0 0 60 72" aria-hidden="true"><use href="#fig-bust"/></svg>
+                </button>
               </div>
 
               <div class="head-rule"></div>
@@ -1909,13 +2008,6 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
                 Shuffle
               </button>
             </div>
-
-            <div class="why has-adjust">
-              <button class="why-trigger" aria-disabled="true">Why this
-              <svg class="chev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5 6 8l3.5-3.5"/></svg>
-            </button>
-              <span class="why-adjust"><button class="fb-chip" aria-disabled="true" aria-label="Too warm" aria-pressed="false"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12h2.6M18.9 12h2.6M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg>Too warm</button><button class="fb-chip" aria-disabled="true" aria-label="Too cold" aria-pressed="false"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M4.2 7.5 19.8 16.5M4.2 16.5 19.8 7.5M9.4 6.1 12 3 14.6 6.1M15.8 6.8 19.8 7.5 18.4 11.3M18.4 12.7 19.8 16.5 15.8 17.2M14.6 17.9 12 21 9.4 17.9M8.2 17.2 4.2 16.5 5.6 12.7M5.6 11.3 4.2 7.5 8.2 6.8"/></svg>Too cold</button></span>
-            </div>
           </div>
 
           <nav class="tabbar" aria-label="Primary">
@@ -1934,7 +2026,6 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
 <figure class="plate">
       <div class="device">
         <div class="screen">
-          <div class="why-scrim"></div>
           <div class="statusbar">
             <span class="clock">9:41</span>
             <span class="sysicons" aria-hidden="true">
@@ -1951,7 +2042,7 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
                   <span class="eyebrow">Toronto, CA &middot; Thu 8 Jan</span>
                   <h2 class="display">Thursday</h2>
                 </div>
-
+                <button class="avatar" aria-label="You"><svg viewBox="0 0 60 72" aria-hidden="true"><use href="#fig-bust"/></svg></button>
               </div>
 
               <div class="head-rule"></div>
@@ -1981,13 +2072,6 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
                 Shuffle
               </button>
             </div>
-
-            <div class="why has-adjust">
-              <button class="why-trigger" aria-disabled="true">Why this
-              <svg class="chev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5 6 8l3.5-3.5"/></svg>
-            </button>
-              <span class="why-adjust"><button class="fb-chip" aria-disabled="true" aria-label="Too warm" aria-pressed="false"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12h2.6M18.9 12h2.6M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg>Too warm</button><button class="fb-chip" aria-disabled="true" aria-label="Too cold" aria-pressed="false"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M4.2 7.5 19.8 16.5M4.2 16.5 19.8 7.5M9.4 6.1 12 3 14.6 6.1M15.8 6.8 19.8 7.5 18.4 11.3M18.4 12.7 19.8 16.5 15.8 17.2M14.6 17.9 12 21 9.4 17.9M8.2 17.2 4.2 16.5 5.6 12.7M5.6 11.3 4.2 7.5 8.2 6.8"/></svg>Too cold</button></span>
-            </div>
           </div>
           <nav class="tabbar" aria-label="Primary">
             <div class="tabs">
@@ -2005,7 +2089,6 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
 <figure class="plate">
       <div class="device">
         <div class="screen">
-          <div class="why-scrim"></div>
           <div class="statusbar">
             <span class="clock">9:41</span>
             <span class="sysicons" aria-hidden="true">
@@ -2022,7 +2105,7 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
                   <span class="eyebrow">Toronto, CA &middot; Thu 8 Jan</span>
                   <h2 class="display">Thursday</h2>
                 </div>
-
+                <button class="avatar" aria-label="You"><svg viewBox="0 0 60 72" aria-hidden="true"><use href="#fig-bust"/></svg></button>
               </div>
               <div class="head-rule"></div>
               <div class="wx">
@@ -2054,13 +2137,6 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
                 Shuffle
               </button>
             </div>
-
-            <div class="why has-adjust">
-              <button class="why-trigger" aria-disabled="true">Why this
-              <svg class="chev" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5 6 8l3.5-3.5"/></svg>
-            </button>
-              <span class="why-adjust"><button class="fb-chip" aria-disabled="true" aria-label="Too warm" aria-pressed="false"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12h2.6M18.9 12h2.6M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg>Too warm</button><button class="fb-chip" aria-disabled="true" aria-label="Too cold" aria-pressed="false"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M4.2 7.5 19.8 16.5M4.2 16.5 19.8 7.5M9.4 6.1 12 3 14.6 6.1M15.8 6.8 19.8 7.5 18.4 11.3M18.4 12.7 19.8 16.5 15.8 17.2M14.6 17.9 12 21 9.4 17.9M8.2 17.2 4.2 16.5 5.6 12.7M5.6 11.3 4.2 7.5 8.2 6.8"/></svg>Too cold</button></span>
-            </div>
           </div>
           <nav class="tabbar" aria-label="Primary">
             <div class="tabs">
@@ -2078,7 +2154,6 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
 <figure class="plate">
       <div class="device">
         <div class="screen">
-          <div class="why-scrim"></div>
           <div class="statusbar">
             <span class="clock">9:41</span>
             <span class="sysicons" aria-hidden="true">
@@ -2156,7 +2231,6 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
 <figure class="plate">
       <div class="device">
         <div class="screen">
-          <div class="why-scrim"></div>
           <div class="statusbar">
             <span class="clock">9:41</span>
             <span class="sysicons" aria-hidden="true">
@@ -2220,7 +2294,9 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
                 <div class="eyebrow">Your wardrobe</div>
                 <h2 class="display">Closet</h2>
               </div>
-
+              <button class="avatar" aria-label="You" data-open="you">
+                <svg viewBox="0 0 60 72" aria-hidden="true"><use href="#fig-bust"/></svg>
+              </button>
             </div>
             <div class="head-rule"></div>
 
@@ -3007,31 +3083,33 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
     });
   });
 
-  function closeWhy(scope){
+  function closeSheets(scope){
     if(!scope) return;
-    scope.classList.remove('is-why');
-    var w = scope.querySelector('.why.why-open'); if(!w) return;
-    w.classList.remove('why-open');
-    var t = w.querySelector('.why-trigger');
-    if(t){ t.classList.remove('is-open'); t.setAttribute('aria-expanded','false'); }
+    var back = scope.querySelector('[data-notices]');
+    scope.classList.remove('is-notices');
+    [].forEach.call(scope.querySelectorAll('[data-notices]'), function(t){ t.setAttribute('aria-expanded','false'); });
+    if(back && document.activeElement && scope.contains(document.activeElement)) back.focus({preventScroll:true});
   }
-  document.querySelectorAll('[data-why]').forEach(function(t){
-    t.addEventListener('click', function(){
-      var why = t.closest('.why'); if(!why) return;
-      var scope = why.closest('.screen');
-      if(why.classList.contains('why-open')){ closeWhy(scope); return; }
-      why.classList.add('why-open');
-      t.classList.add('is-open');
-      t.setAttribute('aria-expanded','true');
-      if(scope) scope.classList.add('is-why');
+  function opener(sel, cls){
+    document.querySelectorAll(sel).forEach(function(t){
+      t.addEventListener('click', function(){
+        var scope = t.closest('.screen'); if(!scope) return;
+        if(scope.classList.contains(cls)){ closeSheets(scope); return; }
+        closeSheets(scope);
+        scope.classList.add(cls);
+        t.setAttribute('aria-expanded','true');
+        var s = scope.querySelector('#' + t.getAttribute('aria-controls'));
+        if(s) s.focus({preventScroll:true});
+      });
     });
-  });
-  document.querySelectorAll('.why-scrim').forEach(function(sc){
-    sc.addEventListener('click', function(){ closeWhy(sc.closest('.screen')); });
+  }
+  opener('[data-notices]', 'is-notices');
+  document.querySelectorAll('.nt-scrim, .chooser-x').forEach(function(c){
+    c.addEventListener('click', function(){ closeSheets(c.closest('.screen')); });
   });
   document.addEventListener('keydown', function(e){
     if(e.key !== 'Escape') return;
-    document.querySelectorAll('.why.why-open').forEach(function(w){ closeWhy(w.closest('.screen')); });
+    document.querySelectorAll('.screen.is-notices').forEach(closeSheets);
   });
 })();
 </script>
@@ -3062,7 +3140,6 @@ html[data-part="screen"] .plate.is-shown .screen{border-radius:0;}
 (function(){
   var px = +(new URLSearchParams(location.search).get('scroll') || 0);
   function end(){
-    [].forEach.call(document.querySelectorAll('[data-scrolled="end"]'), function(b){ b.scrollTop = b.scrollHeight; });
     if (px && document.documentElement.getAttribute('data-frame') === 'screen')
       [].forEach.call(document.querySelectorAll('.plate.is-shown .screen > .body'), function(b){ b.scrollTop = px; });
   }

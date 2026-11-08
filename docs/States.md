@@ -42,13 +42,14 @@ table says in words what to build, and that row is the specification.
 
 | state | when | what it shows | plate |
 |---|---|---|---|
-| **Normal** | a forecast and a closet | the weather, the outfit, and why | **Fig 08** |
+| **Normal** | a forecast and a closet | the weather and the outfit | **Fig 08** |
 | **Render pending** | the pick is made, the picture is not | the pieces, listed, while the render comes | **Fig 08d** |
+| **Offline, this morning's pick** | offline, with this morning's forecast and pick kept | this morning's pick from this morning's forecast, its one notice behind the circled i beside the profile picture | **Fig 08g** |
 | **Loading** | before anything has arrived | the final boxes, empty, in their final positions | **Fig 12** |
 | **Nothing fits, too cold** | the closet cannot cover the day | says so plainly, and offers to wear it anyway | **Fig 09** |
 | **Nothing in the closet** | the forecast is fine, the closet is empty | points at the closet, not at the weather | **Fig 10b** |
 | **The forecast failed** | no weather to pick from | **Fig 11**, and ADR 0003 says this is built first |
-| **The pick failed, today's answer kept** | the ask failed, and `pick()` hands back an answer made today for the closet and the units as they are now | no plate. That answer as it was, and one line saying it is from earlier today. The line's words are Today's to choose (ADR 0021) |
+| **The pick failed, today's answer kept** | the ask failed, and `pick()` hands back an answer made today for the closet and the units as they are now | that answer as it was, with a notice saying it is from earlier today behind the circled i beside the profile picture, as Fig 08g draws it, and no line on the page. The notice's words are Today's to choose (ADR 0021) | **Fig 08g** |
 | **The pick failed** | the ask failed and nothing from today is kept | no plate. Keep the weather, say the outfit could not be picked, and offer to try again. **Never the fixture** (ADR 0021) |
 | **No service yet** | no service address is set and the closet is not the sample one, so `pick()` fails as `noService` | no plate. Say there is no recommendation service yet. A state of the build, never of a release |
 
@@ -66,6 +67,8 @@ table says in words what to build, and that row is the specification.
 |---|---|---|---|
 | **Page one** | opened from a garment | the cut-out | **Fig 19** |
 | **Page two** | swiped | your photograph | **Fig 19b** |
+| **Never worn** | the wear log has no day for this garment | no plate. The wear line is absent; the fields are unchanged |
+| **Wear log unreadable** | the wear log cannot be read | no plate. Say so with Try again, under the fields, and draw no wear line until it reads |
 | **Unsaved on leaving** | edited, then dismissed | no plate. Close discards the edit and nothing asks, and so does every other way out but Save, the back gesture and the back button included. The garment opens next time as it was saved |
 
 ## You

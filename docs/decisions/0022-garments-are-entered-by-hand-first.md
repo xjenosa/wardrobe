@@ -14,8 +14,8 @@ be saved. Fig 18 and Fig 19 also draw a warmth slider.
 
 **Fig 18 is built as the by-hand form, and Fig 19 reuses it.** It is the screen
 "Reading failed" ends on (docs/States.md), so it is needed whatever the tagging
-turns out to be. The capture and reading screens wait for a tagging contract and
-the camera packages.
+turns out to be. The line that held capture and reading for a tagging contract
+and the camera packages is superseded by ADR 0028.
 
 **Warmth is the five words under "Not sure?" and no slider.** A slider drags a
 temperature range, and the range behind a word is the service's (ADR 0001).

@@ -82,17 +82,20 @@ premise changes there is something to re-read.**
 - **0019 The answer carries the day's lines and whether anything fits.**
   `dayLine`, `takeLine` and `fits` join the answer as sentences and a yes or no,
   `units` and each garment's `name` join the request, and an empty closet is
-  still sent (Figs 08, 09 and 10b).
+  still sent (Figs 08, 09 and 10b). Revised 2026-11-08, when Today stopped
+  showing the reason: `because` leaves the answer and `name` the request, so
+  what a person calls their clothes stays on the phone.
 - **0020 The request's words are the words the mockup draws.** Category,
   warmth, vibe and style are Fig 18's and Fig 08's own lists, the sky is a WMO
   code, and a test holds the mockup, `src/lib` and README.md to one list.
 - **0021 The fixture answers when there is no service, never when it fails.**
   After a failure Today shows the last real answer or the failure state, since
-  the fixture would draw garments the person does not own.
+  the fixture would draw garments the person does not own. Amended 2026-11-08,
+  when Fig 08g drew a kept answer with its notice behind the circled i.
 - **0022 A garment is entered by hand first, and warmth is five words.** Fig 18
   is built as the by-hand form and Fig 19 reuses it, with no slider, since the
-  range behind a word is the service's. Capture waits for a tagging contract and
-  the camera packages.
+  range behind a word is the service's. Its "capture waits" line is superseded
+  by ADR 0028; warmth and Close still stand.
 - **0023 What was worn is kept on the phone, one outfit a day.** Today records
   the outfit when "Wear this" is pressed, and the editor and the closet read how
   often and how lately each garment was worn. It is never sent.
@@ -101,7 +104,8 @@ premise changes there is something to re-read.**
   and what two screens draw alike is built once in `src/kit/`, track A's. Each
   track swaps its own hand-built pieces in its own pull request. Revised the
   same day, when the tab bar gained its icons and the label, the field and the
-  garment tile joined the kit.
+  garment tile joined the kit. Revised 2026-11-08, when the feedback chip left
+  with Today's Too warm and Too cold and the profile picture joined.
 - **0025 The reference photo is one file kept on the phone.** First run takes
   it with the camera or chooses it from the library and keeps one copy in the
   app's documents. Skipping blocks nothing, and First run is reached from You
@@ -114,6 +118,11 @@ premise changes there is something to re-read.**
   README.md's fields. The closet's order is the order garments were added, so
   Recently added needs no date; Colour and Custom wait.
 - **0028 A garment carries its photograph, and tagging answers from a service.**
-  Capture and Fig 19b open: `photo` stays on the phone, `POST /tag` returns
-  Fig 18's words, and with no address the fixture answers. ADR 0022's warmth
-  and Close rules stand; its "capture waits" line does not.
+  Capture and Fig 19b open: `photo` is kept by garment id on the phone,
+  `POST /tag` returns Fig 18's words, and with no address Add goes to Fig 18 by
+  hand. `fixtures/tag.json` is for tests only. ADR 0022's warmth and Close
+  rules stand; its "capture waits" line does not.
+- **0030 The forecast comes from Open-Meteo, and the last good one is kept.**
+  No account and no key, so nothing secret is built into the app. A failed
+  refresh hands back the kept forecast as stale, with its place and the time it
+  was fetched; air quality failing leaves only its row empty.

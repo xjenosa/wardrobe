@@ -7,6 +7,7 @@ export { Field } from './Field';
 export { GarmentTile } from './GarmentTile';
 export { Label } from './Label';
 export { Notice } from './Notice';
+export { ProfilePicture } from './ProfilePicture';
 export { ScreenHeader } from './ScreenHeader';
 export { Segmented } from './Segmented';
 export { TopBar } from './TopBar';

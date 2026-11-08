@@ -14,6 +14,10 @@ const request: PickRequest = {
 };
 const URL = 'https://pick.example';
 
+/* README.md's garment: the closet as saved, less its name and everything else
+   that stays on the phone (ADR 0019, ADR 0027). */
+const wire = sampleCloset.map(({ id, category, warmth }) => ({ id, category, warmth }));
+
 const answer = (body: string, status = 200) =>
   ({ ok: status >= 200 && status < 300, status, text: () => Promise.resolve(body) }) as unknown as Response;
 
@@ -50,8 +54,9 @@ describe('pick() with no service', () => {
     ['the day', fixture],
     ['the day nothing fits', nothingFits],
     ['the empty closet', empty],
-  ])('holds the fixture for %s to the same check as a real answer', (_day, body) => {
+  ])('holds the fixture for %s to the same check as a real answer, with no reason in it', (_day, body) => {
     expect(isPickResponse(body)).toBe(true);
+    expect(body).not.toHaveProperty('because');
   });
 
   it('fails as noService for any other closet, not as a broken answer', async () => {
@@ -68,14 +73,29 @@ describe('pick() with a service', () => {
     expect(calledUrl).toBe(URL + '/pick');
     expect(init.method).toBe('POST');
     expect(init.headers).toEqual({ 'Content-Type': 'application/json' });
-    expect(JSON.parse(init.body)).toEqual(request);
+    expect(JSON.parse(init.body)).toEqual({ ...request, garments: wire });
   });
 
   it('sends each garment as README.md names it, and nothing the phone keeps for itself', async () => {
     fetchMock.mockResolvedValue(answer(JSON.stringify(fixture)));
-    const saved = sampleCloset.map((g) => ({ ...g, style: 'Everyday', favourite: true }));
+    const saved = sampleCloset.map((g) => ({
+      ...g,
+      style: 'Everyday' as const,
+      favourite: true,
+      photo: 'g1-000000000000001.jpg',
+    }));
     await pick({ ...request, garments: saved }, { url: URL });
-    expect(JSON.parse(fetchMock.mock.calls[0][1].body).garments).toEqual(sampleCloset);
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body).garments).toEqual(wire);
+  });
+
+  /* The person's own words for their clothes stay on the phone: with no reason
+     in the answer, nothing the service says could name a garment (ADR 0019). */
+  it("never sends a garment's name", async () => {
+    fetchMock.mockResolvedValue(answer(JSON.stringify(fixture)));
+    await pick(request, { url: URL });
+    const sent: object[] = JSON.parse(fetchMock.mock.calls[0][1].body).garments;
+    expect(sent).toHaveLength(sampleCloset.length);
+    for (const garment of sent) expect(garment).not.toHaveProperty('name');
   });
 
   it('takes its address from EXPO_PUBLIC_PICK_URL', async () => {
@@ -114,7 +134,6 @@ describe('pick() with a service', () => {
     ['a range whose low end is above its high end', { ...fixture, suitsC: { lowC: 5, highC: -3 } }],
     ['a wear that is not a list', { ...fixture, wear: 'g1' }],
     ['a wear naming a garment it was not sent', { ...fixture, wear: ['g1', 'x9'] }],
-    ['a because that is not words', { ...fixture, because: 3 }],
     ['no day line', { ...fixture, dayLine: undefined }],
     ['a take-along line that is not words', { ...fixture, takeLine: null }],
     ['no fits', { ...fixture, fits: undefined }],
@@ -126,6 +145,14 @@ describe('pick() with a service', () => {
 
   it('refuses a wear holding something other than an id', () => {
     expect(isPickResponse({ ...fixture, wear: ['g1', 2] })).toBe(false);
+  });
+
+  /* No plate draws a reason (ADR 0019), so an answer is whole without one. */
+  it('takes an answer that gives no reason', async () => {
+    const { wear, suitsC, dayLine, takeLine, fits } = fixture;
+    const whole = { wear, suitsC, dayLine, takeLine, fits };
+    fetchMock.mockResolvedValue(answer(JSON.stringify(whole)));
+    await expect(pick(request, { url: URL })).resolves.toEqual({ ok: true, response: whole });
   });
 
   it('fails as timeout when the service does not answer in time', async () => {
@@ -175,12 +202,19 @@ describe('pick() after a failed ask', () => {
     ['a garment is gone', sampleCloset.filter((g) => g.id !== 'g4')],
     ['a garment is added', [...sampleCloset, { id: 'g6', name: 'Camel topcoat', category: 'Outerwear', warmth: 'Warm' }]],
     ['a garment is rated warmer', sampleCloset.map((g) => (g.id === 'g3' ? { ...g, warmth: 'Warm' } : g))],
-    ['a garment is renamed', sampleCloset.map((g) => (g.id === 'g1' ? { ...g, name: 'Navy coat' } : g))],
   ])('never hands it back once %s', async (_change, garments) => {
     await askedOnce();
     fetchMock.mockRejectedValueOnce(new TypeError('Network request failed'));
     const changed = { ...request, garments: garments as PickRequest['garments'] };
     await expect(pick(changed, { url: URL, now: later })).resolves.toEqual({ ok: false, failure: 'network', kept: null });
+  });
+
+  /* The answer was never sent the name, so it cannot be about it. */
+  it('hands it back once a garment is renamed', async () => {
+    await askedOnce();
+    const renamed = { ...request, garments: sampleCloset.map((g) => (g.id === 'g1' ? { ...g, name: 'Navy coat' } : g)) };
+    fetchMock.mockRejectedValueOnce(new TypeError('Network request failed'));
+    await expect(pick(renamed, { url: URL, now: later })).resolves.toEqual({ ok: false, failure: 'network', kept: fixture });
   });
 
   it('never hands it back in other units, since its sentences print degrees', async () => {
