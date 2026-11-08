@@ -67,8 +67,8 @@ table says in words what to build, and that row is the specification.
 
 | state | when | what it shows | plate |
 |---|---|---|---|
-| **Page one** | opened from a garment | the cut-out | **Fig 19** |
-| **Page two** | swiped | your photograph | **Fig 19b** |
+| **One picture** | opened from a garment with a photograph and no cut-out, or with neither | the photograph alone with its Photo mark, or the empty frame alone; no dots and no swipe. Never labelled the cut-out when it is the photograph | **Fig 19b** (caption: one picture, and page two of Fig 19) |
+| **Two pages** | a cut-out exists beside the photograph | page one the cut-out, page two the photograph, with dots | **Fig 19**, **Fig 19b** |
 | **Never worn** | the wear log has no day for this garment | no plate. The wear line is absent; the fields are unchanged |
 | **Wear log unreadable** | the wear log cannot be read | no plate. Say so with Try again, under the fields, and draw no wear line until it reads |
 | **Unsaved on leaving** | edited, then dismissed | no plate. Close discards the edit and nothing asks, and so does every other way out but Save, the back gesture and the back button included. The garment opens next time as it was saved |

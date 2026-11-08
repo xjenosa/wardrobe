@@ -1,7 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { act, render, screen, userEvent } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, userEvent } from '@testing-library/react-native';
 import { Alert } from 'react-native';
 
+import * as garmentPhoto from '../../lib/garmentPhoto';
 import { sampleCloset } from '../../lib/sample';
 import { loadCloset, resetCloset } from '../../lib/store';
 import * as wears from '../../lib/wears';
@@ -12,6 +13,9 @@ import { drawn } from '../../strings/drawn';
 import { screens } from '../../strings/screens';
 
 const t = drawn.fig19;
+const PHOTO_NAME = 'g1.jpg';
+const PHOTO_URI = 'file:///documents/garments/g1.jpg';
+const CUT_OUT = 'file:///documents/garments/g1-cut.png';
 
 /* The Closet stub opens the first garment of the sample closet, g1. */
 async function openEditor() {
@@ -31,6 +35,7 @@ const onTop = () => {
 beforeEach(async () => {
   jest.restoreAllMocks();
   await AsyncStorage.clear();
+  jest.spyOn(garmentPhoto, 'loadGarmentPhoto').mockReturnValue({ ok: true, uri: PHOTO_URI });
 });
 
 it('opens the garment with its own words in the fields', async () => {
@@ -42,6 +47,79 @@ it('opens the garment with its own words in the fields', async () => {
   expect(screen.getByRole('radio', { name: 'Outerwear' })).toBeChecked();
   expect(screen.getByRole('radio', { name: 'Warmest' })).toBeChecked();
   expect(saveButton()).toBeDisabled();
+});
+
+it('shows the photograph alone when there is no cut-out', async () => {
+  await resetCloset([{ ...sampleCloset[0], photo: PHOTO_NAME }]);
+  await openEditor();
+  await screen.findByRole('header', { name: 'Navy overcoat' });
+
+  expect(screen.getByLabelText(t.yourPhotograph)).toBeOnTheScreen();
+  expect(screen.queryByLabelText(t.theCutOut)).not.toBeOnTheScreen();
+  expect(screen.queryByRole('tab', { name: t.theCutOut })).not.toBeOnTheScreen();
+  expect(screen.queryByRole('tab', { name: t.yourPhotograph })).not.toBeOnTheScreen();
+  expect(screen.getByLabelText(t.yourPhotograph).props.source).toEqual({ uri: PHOTO_URI });
+});
+
+it('opens on the cut-out and can swipe to the photograph', async () => {
+  await resetCloset([{ ...sampleCloset[0], photo: PHOTO_NAME, cutOut: CUT_OUT }]);
+  await openEditor();
+  await screen.findByRole('header', { name: 'Navy overcoat' });
+
+  const track = screen.getByTestId('editor-pics');
+  await act(async () => {
+    fireEvent(track, 'layout', { nativeEvent: { layout: { width: 320, height: 220 } } });
+  });
+  expect(screen.getByRole('tab', { name: t.theCutOut })).toBeSelected();
+  expect(screen.getAllByLabelText(t.theCutOut).some((el) => el.props.source?.uri === CUT_OUT)).toBe(true);
+
+  await act(async () => {
+    fireEvent(track, 'momentumScrollEnd', { nativeEvent: { contentOffset: { x: 320, y: 0 } } });
+  });
+  expect(screen.getByRole('tab', { name: t.yourPhotograph })).toBeSelected();
+  expect(screen.getByRole('tab', { name: t.theCutOut })).not.toBeSelected();
+  expect(screen.getAllByLabelText(t.yourPhotograph).some((el) => el.props.source?.uri === PHOTO_URI)).toBe(true);
+});
+
+it('shows the empty frame alone when the garment has no photograph', async () => {
+  jest.spyOn(garmentPhoto, 'loadGarmentPhoto').mockReturnValue({ ok: true, uri: null });
+  await resetCloset(sampleCloset);
+  await openEditor();
+  await screen.findByRole('header', { name: 'Navy overcoat' });
+
+  expect(screen.getByTestId('editor-pic-empty')).toBeOnTheScreen();
+  expect(screen.queryByRole('tab', { name: t.theCutOut })).not.toBeOnTheScreen();
+  expect(screen.queryByRole('tab', { name: t.yourPhotograph })).not.toBeOnTheScreen();
+  expect(screen.queryByLabelText(t.yourPhotograph)).not.toBeOnTheScreen();
+});
+
+it('keeps the photograph and favourite when a field is saved', async () => {
+  const withPhoto = { ...sampleCloset[0], photo: PHOTO_NAME, favourite: true };
+  await resetCloset([withPhoto, ...sampleCloset.slice(1)]);
+  const user = await openEditor();
+  await screen.findByRole('header', { name: 'Navy overcoat' });
+  await user.press(screen.getByRole('radio', { name: 'Warm' }));
+  await user.press(saveButton());
+
+  const closet = await loadCloset();
+  expect(closet).toEqual({
+    ok: true,
+    garments: sampleCloset.map((g) =>
+      g.id === 'g1' ? { ...g, warmth: 'Warm', photo: withPhoto.photo, favourite: true } : g,
+    ),
+  });
+});
+
+it('clears a style from the saved garment on save', async () => {
+  await resetCloset([{ ...sampleCloset[0], style: 'Smart', favourite: true, photo: PHOTO_NAME }]);
+  const user = await openEditor();
+  await screen.findByRole('header', { name: 'Navy overcoat' });
+  await user.press(screen.getByRole('radio', { name: 'Smart' }));
+  await user.press(saveButton());
+
+  const closet = await loadCloset();
+  expect(closet.ok && closet.garments[0]).toMatchObject({ favourite: true, photo: PHOTO_NAME });
+  expect(closet.ok && closet.garments[0]).not.toHaveProperty('style');
 });
 
 it('says how often the garment was worn, from the wear log', async () => {

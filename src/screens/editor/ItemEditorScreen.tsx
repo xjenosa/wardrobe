@@ -1,8 +1,19 @@
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  Image,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
-import { Button, Notice, ScreenHeader } from '../../kit';
+import { Button, Notice, PhotoMark, ScreenHeader } from '../../kit';
+import { reach } from '../../kit/reach';
+import { loadGarmentPhoto } from '../../lib/garmentPhoto';
 import type { RootStackParamList } from '../../nav/routes';
 import { loadCloset, updateCloset, type Garment, type LoadFailure } from '../../lib/store';
 import { loadWears, wornOf, type Worn } from '../../lib/wears';
@@ -30,9 +41,10 @@ type Loaded =
   | { state: 'failed'; failure: LoadFailure }
   | { state: 'ready'; garment: Garment | undefined };
 
-/* Fig 19, page one's fields. The cut-out and the photograph (Fig 19b) wait
-   for the garment to carry a picture. "Worn n times · last on …" comes from
-   the wear log on the phone (ADR 0023).
+/* Fig 19 and Fig 19b. Two swiped pages only when a cut-out exists; a garment
+   with a photograph and no cut-out shows the photograph alone (never labelled
+   the cut-out), and with neither an empty frame like GarmentTile. "Worn n
+   times · last on …" comes from the wear log (ADR 0023).
 
    CLOSE DISCARDS AN UNSAVED EDIT, AND NOTHING ASKS (docs/States.md). Save is
    the only way to keep a change. Every other way out, Close, the back gesture
@@ -48,6 +60,9 @@ export function ItemEditorScreen() {
   const [failed, setFailed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [original, setOriginal] = useState<FormValues | undefined>();
+  const [page, setPage] = useState(0);
+  const [trackW, setTrackW] = useState(0);
+  const track = useRef<React.ElementRef<typeof ScrollView>>(null);
   const pressed = useRef(false);
 
   const apply = useCallback(
@@ -101,13 +116,42 @@ export function ItemEditorScreen() {
   const dirty = !!values && !!original && !sameValues(values, original);
   const edited = values && garmentOf(id, values);
   const wornText = worn && worn.times > 0 && worn.lastDay ? wornLine(worn.times, worn.lastDay) : undefined;
+  const photoUri = garment ? (() => {
+    const found = loadGarmentPhoto(id);
+    return found.ok ? found.uri : null;
+  })() : null;
+  /* Two pages only when a cut-out exists. A photograph alone is never labelled
+     the cut-out; with neither, one empty frame. */
+  const hasCutOut = Boolean(garment?.cutOut);
+  const hasPhoto = Boolean(garment?.photo && photoUri);
+  const pages: ('cutOut' | 'photo' | 'empty')[] = hasCutOut
+    ? hasPhoto
+      ? ['cutOut', 'photo']
+      : ['cutOut']
+    : hasPhoto
+      ? ['photo']
+      : ['empty'];
+  const multi = pages.length > 1;
 
   async function save() {
     if (!edited || pressed.current) return;
     pressed.current = true;
     setSaving(true);
     setFailed(false);
-    const result = await updateCloset((garments) => garments.map((g) => (g.id === id ? edited : g)));
+    /* Start from the saved garment inside updateCloset so phone-only fields
+       stay, and a cleared style or warmth still clears (store.ts). */
+    const result = await updateCloset((garments) =>
+      garments.map((g) => {
+        if (g.id !== id) return g;
+        /* Form fields from the edit; phone-only fields from what was saved. */
+        return {
+          ...edited,
+          ...(g.photo !== undefined ? { photo: g.photo } : {}),
+          ...(g.favourite !== undefined ? { favourite: g.favourite } : {}),
+          ...(g.cutOut !== undefined ? { cutOut: g.cutOut } : {}),
+        };
+      }),
+    );
     if (result.ok) {
       navigation.goBack();
     } else {
@@ -117,6 +161,17 @@ export function ItemEditorScreen() {
     }
   }
 
+  function onPagesScroll(event: NativeSyntheticEvent<NativeScrollEvent>) {
+    if (!trackW) return;
+    const next = Math.round(event.nativeEvent.contentOffset.x / trackW);
+    if (next !== page) setPage(next);
+  }
+
+  function goPage(next: number) {
+    if (trackW) track.current?.scrollTo({ x: next * trackW, animated: true });
+    setPage(next);
+  }
+
   return (
     <FormFrame>
       <View style={styles.head}>
@@ -124,10 +179,75 @@ export function ItemEditorScreen() {
       </View>
       <ScrollView contentContainerStyle={formStyles.body} keyboardShouldPersistTaps="handled">
         {loaded.state === 'loading' && <FormSkeleton />}
-        {loaded.state === 'failed' && (
-          <Notice text={capture.closetUnreadable} action={capture.tryAgain} onPress={retry} />
-        )}
+        {loaded.state === 'failed' && <Notice text={capture.closetUnreadable} action={capture.tryAgain} onPress={retry} />}
         {loaded.state === 'ready' && !garment && <Text style={formStyles.note}>{capture.notInCloset}</Text>}
+        {garment ? (
+          <View style={styles.pics}>
+            <ScrollView
+              ref={track}
+              horizontal={multi}
+              pagingEnabled={multi}
+              scrollEnabled={multi}
+              showsHorizontalScrollIndicator={false}
+              onLayout={(e) => setTrackW(e.nativeEvent.layout.width)}
+              onMomentumScrollEnd={onPagesScroll}
+              style={styles.track}
+              testID="editor-pics"
+              accessibilityLabel={multi ? t.photo : undefined}
+            >
+              {pages.map((kind, index) => (
+                <View
+                  key={kind}
+                  style={[
+                    styles.page,
+                    kind === 'photo' && styles.pagePhoto,
+                    trackW ? { width: trackW } : null,
+                  ]}
+                  accessibilityElementsHidden={multi && page !== index}
+                  importantForAccessibility={!multi || page === index ? 'yes' : 'no-hide-descendants'}
+                >
+                  {kind === 'cutOut' && garment.cutOut ? (
+                    <Image
+                      source={{ uri: garment.cutOut }}
+                      style={styles.pic}
+                      accessibilityLabel={t.theCutOut}
+                      accessibilityIgnoresInvertColors
+                    />
+                  ) : null}
+                  {kind === 'photo' && photoUri ? (
+                    <>
+                      <Image
+                        source={{ uri: photoUri }}
+                        style={styles.pic}
+                        accessibilityLabel={t.yourPhotograph}
+                        accessibilityIgnoresInvertColors
+                      />
+                      <PhotoMark style={styles.markPad} />
+                    </>
+                  ) : null}
+                  {kind === 'empty' ? <View style={styles.picEmpty} testID="editor-pic-empty" /> : null}
+                </View>
+              ))}
+            </ScrollView>
+            {multi ? (
+              <View style={styles.dots} accessibilityRole="tablist" accessibilityLabel={t.photo}>
+                {pages.map((kind, index) => (
+                  <Pressable
+                    key={kind}
+                    accessibilityRole="tab"
+                    accessibilityState={{ selected: page === index }}
+                    accessibilityLabel={kind === 'cutOut' ? t.theCutOut : t.yourPhotograph}
+                    onPress={() => goPage(index)}
+                    hitSlop={reach(24)}
+                    style={styles.dotHit}
+                  >
+                    <View style={[styles.dot, page === index && styles.dotOn]} />
+                  </Pressable>
+                ))}
+              </View>
+            ) : null}
+          </View>
+        ) : null}
         {garment && values && <GarmentForm values={values} onChange={setValues} />}
         {garment && wearsFailed ? (
           <Notice text={capture.wearsUnreadable} action={capture.tryAgain} onPress={applyWears} style={styles.wearNotice} />
@@ -147,8 +267,6 @@ export function ItemEditorScreen() {
   );
 }
 
-/* Fig 19's wear line: the Refresh icon, then "Worn n times · last on …" with
-   the count in ink as the plate bolds it. */
 function WornLine({ text, times }: { text: string; times: number }) {
   const count = String(times);
   const at = text.indexOf(count);
@@ -168,6 +286,33 @@ function WornLine({ text, times }: { text: string; times: number }) {
 
 const styles = StyleSheet.create({
   head: { paddingHorizontal: 24, paddingTop: 8 },
+  pics: { marginHorizontal: -24, marginTop: -20, marginBottom: 20, backgroundColor: light.renderA },
+  track: { height: 220 },
+  page: {
+    height: 220,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    backgroundColor: light.renderA,
+  },
+  pagePhoto: {
+    experimental_backgroundImage: `linear-gradient(155deg, ${light.photoGround} 0%, ${light.photoShade} 100%)`,
+  },
+  pic: { width: '72%', height: '100%', resizeMode: 'contain' },
+  picEmpty: { width: '72%', height: '100%', backgroundColor: light.field },
+  markPad: { bottom: 16, left: 16 },
+  dots: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 8,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 0,
+  },
+  dotHit: { width: 16, height: 24, alignItems: 'center', justifyContent: 'center' },
+  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: light.ink, opacity: 0.2 },
+  dotOn: { opacity: 0.7 },
   worn: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4, marginBottom: 16, marginHorizontal: 4 },
   wornText: { flexShrink: 1, fontFamily: font.regular, fontSize: 12, lineHeight: 12, color: light.muted },
   wornCount: { fontFamily: font.medium, color: light.ink, fontVariant: ['tabular-nums'] },

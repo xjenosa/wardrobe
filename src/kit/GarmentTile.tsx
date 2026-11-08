@@ -3,8 +3,9 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { drawn } from '../strings/drawn';
 import { font } from '../theme/font';
-import { Camera, Heart } from '../theme/icons';
+import { Heart } from '../theme/icons';
 import { light } from '../theme/tokens';
+import { PhotoMark } from './PhotoMark';
 import { reach } from './reach';
 
 const f = drawn.fig15;
@@ -55,10 +56,7 @@ export function GarmentTile({
               {photo ? (
                 <>
                   <View pointerEvents="none" style={styles.rule} />
-                  <View style={styles.mark}>
-                    <Camera color={light.muted} />
-                    <Text style={styles.markText}>{f.photo}</Text>
-                  </View>
+                  <PhotoMark />
                 </>
               ) : null}
             </View>
@@ -99,20 +97,6 @@ const styles = StyleSheet.create({
   picture: { flex: 1 },
   lifted: { transform: [{ translateY: -3 }] },
   rule: { ...StyleSheet.absoluteFill, borderWidth: 1, borderColor: light.hairline },
-  mark: {
-    position: 'absolute',
-    bottom: 6,
-    left: 6,
-    height: 24,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: light.hairline,
-    backgroundColor: light.surface,
-  },
-  markText: { fontFamily: font.semibold, fontSize: 11, letterSpacing: 0.66, color: light.muted },
   caption: { marginTop: 8, paddingHorizontal: 4, alignItems: 'center' },
   name: { fontFamily: font.medium, fontSize: 12, lineHeight: 14.4, letterSpacing: 0.06, textAlign: 'center', color: light.ink },
   category: {
