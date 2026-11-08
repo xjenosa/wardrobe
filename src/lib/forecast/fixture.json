@@ -1,0 +1,35 @@
+{
+  "place": "Toronto, CA",
+  "forecast": {
+    "fetchedAt": "2026-01-08T09:12:00-05:00",
+    "timezone": "America/Toronto",
+    "now": { "tempC": -5, "feelsC": -8, "code": 71, "windKph": 12, "humidity": 78, "airQuality": 18 },
+    "day": { "date": "2026-01-08", "lowC": -8, "highC": 2, "feelsLowC": -11, "feelsHighC": -1, "code": 71, "uvIndexMax": 1.2 },
+    "hours": [
+      { "at": "2026-01-08T09:00", "tempC": -5, "feelsC": -8, "code": 71, "precipChance": 60, "precipMm": 0.2 },
+      { "at": "2026-01-08T10:00", "tempC": -4, "feelsC": -7, "code": 71, "precipChance": 70, "precipMm": 0.4 },
+      { "at": "2026-01-08T11:00", "tempC": -3, "feelsC": -6, "code": 71, "precipChance": 80, "precipMm": 0.8 },
+      { "at": "2026-01-08T12:00", "tempC": -1, "feelsC": -4, "code": 73, "precipChance": 90, "precipMm": 1.6 },
+      { "at": "2026-01-08T13:00", "tempC": 1, "feelsC": -2, "code": 73, "precipChance": 90, "precipMm": 2.4 },
+      { "at": "2026-01-08T14:00", "tempC": 2, "feelsC": -1, "code": 73, "precipChance": 80, "precipMm": 1.8 },
+      { "at": "2026-01-08T15:00", "tempC": 2, "feelsC": -1, "code": 71, "precipChance": 60, "precipMm": 1 },
+      { "at": "2026-01-08T16:00", "tempC": 1, "feelsC": -2, "code": 71, "precipChance": 40, "precipMm": 0.4 },
+      { "at": "2026-01-08T17:00", "tempC": -1, "feelsC": -4, "code": 71, "precipChance": 20, "precipMm": 0.1 },
+      { "at": "2026-01-08T18:00", "tempC": -2, "feelsC": -5, "code": 3, "precipChance": 10, "precipMm": 0 },
+      { "at": "2026-01-08T19:00", "tempC": -3, "feelsC": -6, "code": 3, "precipChance": 5, "precipMm": 0 },
+      { "at": "2026-01-08T20:00", "tempC": -4, "feelsC": -7, "code": 3, "precipChance": 5, "precipMm": 0 },
+      { "at": "2026-01-08T21:00", "tempC": -5, "feelsC": -8, "code": 2, "precipChance": 5, "precipMm": 0 },
+      { "at": "2026-01-08T22:00", "tempC": -5, "feelsC": -8, "code": 2, "precipChance": 5, "precipMm": 0 },
+      { "at": "2026-01-08T23:00", "tempC": -6, "feelsC": -9, "code": 1, "precipChance": 0, "precipMm": 0 },
+      { "at": "2026-01-09T00:00", "tempC": -6, "feelsC": -9, "code": 1, "precipChance": 0, "precipMm": 0 },
+      { "at": "2026-01-09T01:00", "tempC": -7, "feelsC": -10, "code": 0, "precipChance": 0, "precipMm": 0 },
+      { "at": "2026-01-09T02:00", "tempC": -7, "feelsC": -10, "code": 0, "precipChance": 0, "precipMm": 0 },
+      { "at": "2026-01-09T03:00", "tempC": -7, "feelsC": -10, "code": 0, "precipChance": 0, "precipMm": 0 },
+      { "at": "2026-01-09T04:00", "tempC": -8, "feelsC": -11, "code": 0, "precipChance": 0, "precipMm": 0 },
+      { "at": "2026-01-09T05:00", "tempC": -8, "feelsC": -11, "code": 0, "precipChance": 0, "precipMm": 0 },
+      { "at": "2026-01-09T06:00", "tempC": -8, "feelsC": -11, "code": 1, "precipChance": 0, "precipMm": 0 },
+      { "at": "2026-01-09T07:00", "tempC": -7, "feelsC": -10, "code": 2, "precipChance": 5, "precipMm": 0 },
+      { "at": "2026-01-09T08:00", "tempC": -6, "feelsC": -9, "code": 3, "precipChance": 10, "precipMm": 0 }
+    ]
+  }
+}

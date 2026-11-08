@@ -236,9 +236,7 @@ const ICONS = {
   Back: '1dbaf542',
   Camera: 'baa1fb5d',
   Check: '7df86f85',
-  ChevronDown: '864b104c',
   ChevronRight: 'b1f66a79',
-  ChevronUp: '95aed1d5',
   Close: 'a37a5f11',
   /* a second cross, a hair larger in its box than Close, drawn only on the
      editor's picture; the two are kept apart because the drawing keeps them
@@ -249,6 +247,9 @@ const ICONS = {
   Flash: 'c767c5f7',
   Hanger: '1b7c15b1',
   Heart: 'b370cd74',
+  /* the circled i that Today's notices wait behind (Fig 08g); Alert is the
+     same circle with a mark that stands the other way up */
+  Info: '8cd208a8',
   Moon: 'aec4544c',
   PartlyCloudy: 'cdc9846b',
   Picture: '10fc771c',
@@ -259,19 +260,19 @@ const ICONS = {
   Share: '6826a0cf',
   Shuffle: '2d32ebde',
   Snow: '176cbb40',
-  Snowflake: 'f0f1107c',
   Sort: '2a557b6f',
   Sparkle: '0e251df1',
-  Sun: '9d44bcbf',
   Sunrise: '91f1e6fc',
   Sunset: 'a6db5baf',
   Trash: '7652c4b3',
 };
-/* The phone's own status bar, which the phone draws and the app never does. */
+/* The phone's own status bar, which the phone draws and the app never does.
+   The airplane is the offline plate's (Fig 08g). */
 const NOT_ICONS = {
   statusSignal: '4fbbd896',
   statusWifi: '0d766371',
   statusBattery: '2a3f0a9a',
+  statusAirplane: '55be8676',
 };
 
 /* A drawn icon in the mockup, as a tree of {name, attrs, kids}. */

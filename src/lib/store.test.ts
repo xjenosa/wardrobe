@@ -76,11 +76,11 @@ describe('loadCloset()', () => {
     await expect(loadCloset()).resolves.toEqual({ ok: false, failure: 'corrupt' });
   });
 
-  it('reads back a photograph URI', async () => {
-    await saveRaw({ version: 1, garments: [{ ...coat, photo: 'file:///documents/garments/g1-1.jpg' }] });
+  it('reads back a photograph file name', async () => {
+    await saveRaw({ version: 1, garments: [{ ...coat, photo: 'g1-000000000000001.jpg' }] });
     await expect(loadCloset()).resolves.toEqual({
       ok: true,
-      garments: [{ ...coat, photo: 'file:///documents/garments/g1-1.jpg' }],
+      garments: [{ ...coat, photo: 'g1-000000000000001.jpg' }],
     });
   });
 

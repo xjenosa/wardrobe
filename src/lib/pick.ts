@@ -22,21 +22,24 @@ export type Weather = {
   humidity: number;
 };
 
+/* A garment as it crosses the wire: what it is, in words, and never what the
+   person calls it. No plate draws a reason that could name it, so its name
+   stays on the phone (ADR 0019). */
 export type PickGarment =
-  | { id: string; name: string; category: Exclude<Category, 'Accessories'>; warmth: Warmth }
-  | { id: string; name: string; category: 'Accessories'; warmth?: Warmth };
+  | { id: string; category: Exclude<Category, 'Accessories'>; warmth: Warmth }
+  | { id: string; category: 'Accessories'; warmth?: Warmth };
 
 /* An empty closet is still sent: the day's lines are drawn over it (Fig 10b). */
 export type PickRequest = { weather: Weather; garments: PickGarment[]; vibe: Vibe; units: Units };
 
 /* SENTENCES, NOT CODES. Each line is drawn as it comes and left out when it is
    empty. On a day nothing owned suits, `fits` is false, `wear` is the closest
-   the closet comes and `because` says how far it falls short (Fig 09). An
-   answer for an empty closet wears nothing and suits no range. */
+   the closet comes and `dayLine` says so (Fig 09). An answer for an empty
+   closet wears nothing and suits no range. No answer gives a reason, since no
+   plate draws one (ADR 0019). */
 export type PickResponse = {
   wear: string[];
   suitsC: { lowC: number; highC: number } | null;
-  because: string;
   dayLine: string;
   takeLine: string;
   fits: boolean;
@@ -74,7 +77,6 @@ export function isPickResponse(v: unknown): v is PickResponse {
   const range = r.wear.length === 0 ? r.suitsC === null : isRange(r.suitsC);
   return (
     range &&
-    typeof r.because === 'string' &&
     typeof r.dayLine === 'string' &&
     typeof r.takeLine === 'string' &&
     typeof r.fits === 'boolean'
@@ -110,10 +112,12 @@ export function chooseFixture(next: FixtureDay) {
    degrees. A fixture is never kept, so one can never stand in for a failure. */
 const KEPT = 'wardrobe.lastAnswer';
 
-/* a closet as one string, whatever order its garments come in */
+/* a closet as one string, whatever order its garments come in, read as it was
+   sent: a garment's name is left out, since the answer never heard it and a
+   renamed garment gets the same answer */
 const closetOf = (garments: unknown): string | null =>
   Array.isArray(garments)
-    ? garments.map((g: Partial<PickGarment>) => JSON.stringify([g.id, g.name, g.category, g.warmth ?? null])).sort().join('\n')
+    ? garments.map((g: Partial<PickGarment>) => JSON.stringify([g.id, g.category, g.warmth ?? null])).sort().join('\n')
     : null;
 
 async function keep(request: PickRequest, response: PickResponse, now: Date) {
@@ -164,8 +168,9 @@ export async function pick(
 
 /* ONLY WHAT README.md NAMES CROSSES THE WIRE. A screen may hand pick() the
    closet as it is saved, which also carries what stays on the phone: a
-   garment's style, and whether it is a favourite (ADR 0027). */
-const onTheWire = ({ id, name, category, warmth }: PickGarment) => ({ id, name, category, warmth });
+   garment's name (ADR 0019), its style, whether it is a favourite
+   (ADR 0027), and its photograph (ADR 0028). */
+const onTheWire = ({ id, category, warmth }: PickGarment) => ({ id, category, warmth });
 
 async function ask(request: PickRequest, url: string, timeoutMs: number): Promise<Asked> {
   const controller = new AbortController();

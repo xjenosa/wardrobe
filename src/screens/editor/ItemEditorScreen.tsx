@@ -11,7 +11,9 @@ import {
   View,
 } from 'react-native';
 
-import { Button, Notice, ScreenHeader } from '../../kit';
+import { Button, Notice, PhotoMark, ScreenHeader } from '../../kit';
+import { reach } from '../../kit/reach';
+import { loadGarmentPhoto } from '../../lib/garmentPhoto';
 import type { RootStackParamList } from '../../nav/routes';
 import { loadCloset, updateCloset, type Garment, type LoadFailure } from '../../lib/store';
 import { loadWears, wornOf, type Worn } from '../../lib/wears';
@@ -19,7 +21,7 @@ import { capture, wornLine } from '../../strings/capture';
 import { drawn } from '../../strings/drawn';
 import { screens } from '../../strings/screens';
 import { font } from '../../theme/font';
-import { Camera, Check, Refresh } from '../../theme/icons';
+import { Check, Refresh } from '../../theme/icons';
 import { light } from '../../theme/tokens';
 import {
   FormFrame,
@@ -39,9 +41,10 @@ type Loaded =
   | { state: 'failed'; failure: LoadFailure }
   | { state: 'ready'; garment: Garment | undefined };
 
-/* Fig 19 and Fig 19b: two swiped pages for the cut-out and the photograph
-   when the garment carries one (ADR 0028), then the fields. "Worn n times ·
-   last on …" comes from the wear log (ADR 0023).
+/* Fig 19 and Fig 19b. Two swiped pages only when a cut-out exists; a garment
+   with a photograph and no cut-out shows the photograph alone (never labelled
+   the cut-out), and with neither an empty frame like GarmentTile. "Worn n
+   times · last on …" comes from the wear log (ADR 0023).
 
    CLOSE DISCARDS AN UNSAVED EDIT, AND NOTHING ASKS (docs/States.md). Save is
    the only way to keep a change. Every other way out, Close, the back gesture
@@ -112,25 +115,43 @@ export function ItemEditorScreen() {
   const garment = loaded.state === 'ready' ? loaded.garment : undefined;
   const dirty = !!values && !!original && !sameValues(values, original);
   const edited = values && garmentOf(id, values);
-  /* garmentOf rebuilds the four form fields only. The photograph and the
-     favourite stay on the garment that was loaded, so a save cannot drop them
-     (ADR 0028, ADR 0027). */
-  const toSave =
-    edited && garment
-      ? {
-          ...edited,
-          ...(garment.photo ? { photo: garment.photo } : {}),
-          ...(garment.favourite ? { favourite: garment.favourite } : {}),
-        }
-      : null;
   const wornText = worn && worn.times > 0 && worn.lastDay ? wornLine(worn.times, worn.lastDay) : undefined;
+  const photoUri = garment ? (() => {
+    const found = loadGarmentPhoto(id);
+    return found.ok ? found.uri : null;
+  })() : null;
+  /* Two pages only when a cut-out exists. A photograph alone is never labelled
+     the cut-out; with neither, one empty frame. */
+  const hasCutOut = Boolean(garment?.cutOut);
+  const hasPhoto = Boolean(garment?.photo && photoUri);
+  const pages: ('cutOut' | 'photo' | 'empty')[] = hasCutOut
+    ? hasPhoto
+      ? ['cutOut', 'photo']
+      : ['cutOut']
+    : hasPhoto
+      ? ['photo']
+      : ['empty'];
+  const multi = pages.length > 1;
 
   async function save() {
-    if (!toSave || pressed.current) return;
+    if (!edited || pressed.current) return;
     pressed.current = true;
     setSaving(true);
     setFailed(false);
-    const result = await updateCloset((garments) => garments.map((g) => (g.id === id ? toSave : g)));
+    /* Start from the saved garment inside updateCloset so phone-only fields
+       stay, and a cleared style or warmth still clears (store.ts). */
+    const result = await updateCloset((garments) =>
+      garments.map((g) => {
+        if (g.id !== id) return g;
+        /* Form fields from the edit; phone-only fields from what was saved. */
+        return {
+          ...edited,
+          ...(g.photo !== undefined ? { photo: g.photo } : {}),
+          ...(g.favourite !== undefined ? { favourite: g.favourite } : {}),
+          ...(g.cutOut !== undefined ? { cutOut: g.cutOut } : {}),
+        };
+      }),
+    );
     if (result.ok) {
       navigation.goBack();
     } else {
@@ -156,85 +177,79 @@ export function ItemEditorScreen() {
       <View style={styles.head}>
         <ScreenHeader eyebrow={t.yourWardrobe} title={garment ? garment.name : screens.itemEditor} />
       </View>
-      <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
-        {loaded.state === 'loading' && <FormSkeleton />}
-        {loaded.state === 'failed' && <Notice text={capture.closetUnreadable} action={capture.tryAgain} onPress={retry} />}
-        {loaded.state === 'ready' && !garment && <Text style={formStyles.note}>{capture.notInCloset}</Text>}
-        {garment ? (
-          <View
-            style={styles.pics}
-            onLayout={(e) => setTrackW(e.nativeEvent.layout.width)}
-          >
-            {trackW > 0 ? (
-              <ScrollView
-                ref={track}
-                horizontal
-                pagingEnabled
-                showsHorizontalScrollIndicator={false}
-                onMomentumScrollEnd={onPagesScroll}
-                style={styles.track}
-                accessibilityLabel={t.photo}
-              >
+      {/* Fig 19 .drawer > .render: picture stays at the top, outside the scroll, and can shrink to 96. */}
+      {garment ? (
+        <View style={styles.pics} testID="editor-pics" onLayout={(e) => setTrackW(e.nativeEvent.layout.width)}>
+          {trackW > 0 ? (
+            <ScrollView
+              ref={track}
+              horizontal={multi}
+              pagingEnabled={multi}
+              scrollEnabled={multi}
+              showsHorizontalScrollIndicator={false}
+              onMomentumScrollEnd={onPagesScroll}
+              style={styles.track}
+              testID="editor-pics-track"
+              accessibilityLabel={multi ? t.photo : undefined}
+            >
+              {pages.map((kind, index) => (
                 <View
-                  style={[styles.page, { width: trackW, height: trackW / 0.8 }]}
-                  accessibilityElementsHidden={page !== 0}
-                  importantForAccessibility={page === 0 ? 'yes' : 'no-hide-descendants'}
+                  key={kind}
+                  style={[
+                    styles.page,
+                    kind === 'photo' && styles.pagePhoto,
+                    { width: trackW, height: Math.max(96, trackW / 0.8) },
+                  ]}
+                  accessibilityElementsHidden={multi && page !== index}
+                  importantForAccessibility={!multi || page === index ? 'yes' : 'no-hide-descendants'}
                 >
-                  {garment.photo ? (
+                  {kind === 'cutOut' && garment.cutOut ? (
                     <Image
-                      source={{ uri: garment.photo }}
+                      source={{ uri: garment.cutOut }}
                       style={styles.pic}
                       accessibilityLabel={t.theCutOut}
                       accessibilityIgnoresInvertColors
                     />
-                  ) : (
-                    <View style={styles.picEmpty} accessibilityLabel={t.theCutOut} />
-                  )}
+                  ) : null}
+                  {kind === 'photo' && photoUri ? (
+                    <>
+                      <Image
+                        source={{ uri: photoUri }}
+                        style={styles.pic}
+                        accessibilityLabel={t.yourPhotograph}
+                        accessibilityIgnoresInvertColors
+                      />
+                      <PhotoMark style={styles.markPad} />
+                    </>
+                  ) : null}
+                  {kind === 'empty' ? <View style={styles.picEmpty} testID="editor-pic-empty" /> : null}
                 </View>
-                <View
-                  style={[styles.page, styles.pagePhoto, { width: trackW, height: trackW / 0.8 }]}
-                  accessibilityElementsHidden={page !== 1}
-                  importantForAccessibility={page === 1 ? 'yes' : 'no-hide-descendants'}
-                >
-                  {garment.photo ? (
-                    <Image
-                      source={{ uri: garment.photo }}
-                      style={styles.pic}
-                      accessibilityLabel={t.yourPhotograph}
-                      accessibilityIgnoresInvertColors
-                    />
-                  ) : (
-                    <View style={styles.picEmpty} accessibilityLabel={t.yourPhotograph} />
-                  )}
-                  <View style={styles.mark} accessibilityElementsHidden>
-                    <Camera color={light.muted} />
-                    <Text style={styles.markText}>{t.photo}</Text>
-                  </View>
-                </View>
-              </ScrollView>
-            ) : null}
+              ))}
+            </ScrollView>
+          ) : null}
+          {multi ? (
             <View style={styles.dots} accessibilityRole="tablist" accessibilityLabel={t.photo}>
-              <Pressable
-                accessibilityRole="tab"
-                accessibilityState={{ selected: page === 0 }}
-                accessibilityLabel={t.theCutOut}
-                onPress={() => goPage(0)}
-                style={styles.dotHit}
-              >
-                <View style={[styles.dot, page === 0 && styles.dotOn]} />
-              </Pressable>
-              <Pressable
-                accessibilityRole="tab"
-                accessibilityState={{ selected: page === 1 }}
-                accessibilityLabel={t.yourPhotograph}
-                onPress={() => goPage(1)}
-                style={styles.dotHit}
-              >
-                <View style={[styles.dot, page === 1 && styles.dotOn]} />
-              </Pressable>
+              {pages.map((kind, index) => (
+                <Pressable
+                  key={kind}
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected: page === index }}
+                  accessibilityLabel={kind === 'cutOut' ? t.theCutOut : t.yourPhotograph}
+                  onPress={() => goPage(index)}
+                  hitSlop={reach(24)}
+                  style={styles.dotHit}
+                >
+                  <View style={[styles.dot, page === index && styles.dotOn]} />
+                </Pressable>
+              ))}
             </View>
-          </View>
-        ) : null}
+          ) : null}
+        </View>
+      ) : null}
+      <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
+        {loaded.state === 'loading' && <FormSkeleton />}
+        {loaded.state === 'failed' && <Notice text={capture.closetUnreadable} action={capture.tryAgain} onPress={retry} />}
+        {loaded.state === 'ready' && !garment && <Text style={formStyles.note}>{capture.notInCloset}</Text>}
         {garment && values && <GarmentForm values={values} onChange={setValues} />}
         {garment && wearsFailed ? (
           <Notice text={capture.wearsUnreadable} action={capture.tryAgain} onPress={applyWears} style={styles.wearNotice} />
@@ -275,12 +290,13 @@ const styles = StyleSheet.create({
   head: { paddingHorizontal: 24, paddingTop: 8 },
   /* Fig 19 .drawer-body: 20 sides and top, 8 bottom under the fields. */
   body: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 8 },
-  /* Fig 19 .render is aspect .8 over the drawer body; pics bleed past the form padding. */
+  /* Fig 19 .drawer > .render: full width, aspect .8, shrinks to 96 so fields stay in view. */
   pics: {
-    marginHorizontal: -20,
-    marginTop: -20,
-    marginBottom: 20,
+    width: '100%',
     aspectRatio: 0.8,
+    flexGrow: 0,
+    flexShrink: 1,
+    minHeight: 96,
     backgroundColor: light.renderA,
     overflow: 'hidden',
   },
@@ -296,20 +312,7 @@ const styles = StyleSheet.create({
   },
   pic: { width: '72%', height: '78%', resizeMode: 'contain' },
   picEmpty: { width: '72%', height: '78%', backgroundColor: light.field },
-  mark: {
-    position: 'absolute',
-    bottom: 16,
-    left: 16,
-    height: 24,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: light.hairline,
-    backgroundColor: light.surface,
-  },
-  markText: { fontFamily: font.semibold, fontSize: 11, letterSpacing: 0.66, color: light.muted },
+  markPad: { bottom: 16, left: 16 },
   dots: {
     position: 'absolute',
     left: 0,

@@ -1,6 +1,6 @@
 import * as FileSystem from 'expo-file-system';
 
-import { keepGarmentPhoto, removeGarmentPhoto } from './garmentPhoto';
+import { keepGarmentPhoto, loadGarmentPhoto, removeGarmentPhoto } from './garmentPhoto';
 
 jest.mock('expo-file-system', () => {
   const disk = { files: new Set<string>(), dirs: new Set<string>(), failCopy: false };
@@ -50,11 +50,21 @@ beforeEach(() => {
 it('keeps a photograph under the garment id in the app documents', async () => {
   disk.files.add('file:///cache/shot.jpg');
   const kept = await keepGarmentPhoto('g9', 'file:///cache/shot.jpg', 1);
-  expect(kept).toMatchObject({
-    ok: true,
-    uri: expect.stringMatching(/^file:[/][/][/]documents[/]garments[/]g9-.*[.]jpg$/),
-  });
+  expect(kept).toEqual({ ok: true, name: 'g9-000000000000001.jpg' });
   expect(disk.files.has('file:///cache/shot.jpg')).toBe(true);
+  expect(loadGarmentPhoto('g9')).toMatchObject({
+    ok: true,
+    uri: 'file:///documents/garments/g9-000000000000001.jpg',
+  });
+});
+
+it('finds a photograph by garment id after the app container path changes', async () => {
+  disk.dirs.add('file:///documents/garments');
+  disk.files.add('file:///documents/garments/g9-000000000000001.jpg');
+  expect(loadGarmentPhoto('g9')).toEqual({
+    ok: true,
+    uri: 'file:///documents/garments/g9-000000000000001.jpg',
+  });
 });
 
 it('replaces an older photograph for the same garment', async () => {
@@ -62,8 +72,18 @@ it('replaces an older photograph for the same garment', async () => {
   disk.files.add('file:///cache/two.jpg');
   await keepGarmentPhoto('g9', 'file:///cache/one.jpg', 1);
   const second = await keepGarmentPhoto('g9', 'file:///cache/two.jpg', 2);
-  expect(second.ok && second.uri).toMatch(/g9-.*000000000000002/);
+  expect(second).toEqual({ ok: true, name: 'g9-000000000000002.jpg' });
   expect([...disk.files].filter((f) => f.includes('/g9-'))).toHaveLength(1);
+});
+
+it('fails without losing the photo there was, when a new one cannot be copied', async () => {
+  disk.files.add('file:///cache/one.jpg');
+  await keepGarmentPhoto('g9', 'file:///cache/one.jpg', 1);
+  const before = loadGarmentPhoto('g9');
+  disk.failCopy = true;
+  disk.files.add('file:///cache/two.jpg');
+  await expect(keepGarmentPhoto('g9', 'file:///cache/two.jpg', 2)).resolves.toEqual({ ok: false });
+  expect(loadGarmentPhoto('g9')).toEqual(before);
 });
 
 it('removes every photograph for that garment', async () => {

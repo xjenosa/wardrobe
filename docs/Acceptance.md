@@ -44,7 +44,8 @@ the running app.
 ## Add garment, Figs 17, 17b and 18
 
 Phone-check in Expo Go with `docs/design/mobile.html` Figs 17, 17b and 18
-beside the app. No service address set uses the tagging fixture.
+beside the app. With no service address Add goes to the form by hand with the
+photo kept.
 
 - [ ] **Tagging starts when the shutter fires**, not when the confirm screen
       opens. Fig 17b is a wait that is already doing work.
@@ -53,13 +54,15 @@ beside the app. No service address set uses the tagging fixture.
 - [ ] Confirm shows what the app decided and lets every field be corrected
       before saving.
 
-## Today, Figs 08, 08d, 09, 10b, 11 and 12
+## Today, Figs 08, 08d, 08g, 09, 10b, 11 and 12
 
 - [ ] **The pick comes from `pick()` and is never computed locally.** ADR 0001.
       A clo table, a lookup or a formula in this repository fails this box.
-- [ ] Shows the weather, the outfit and the reason, in that order.
+- [ ] Shows the weather, then the outfit.
 - [ ] **Fig 08d**: when the pick has arrived and the picture has not, the pieces
       are listed rather than the screen being blank.
+- [ ] **Fig 08g**: offline, this morning's pick and forecast stay, and the
+      notice saying so waits behind the circled i beside the profile picture.
 - [ ] **Fig 09**: when nothing fits, it says so and still offers to wear it
       anyway.
 - [ ] **Fig 10b**: an empty closet points at the closet, not at the weather.

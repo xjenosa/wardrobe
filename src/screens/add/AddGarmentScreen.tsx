@@ -1,17 +1,18 @@
 import { useNavigation } from '@react-navigation/native';
-import { useEffect, useRef, useState } from 'react';
-import { Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as ImagePicker from 'expo-image-picker';
+import { useEffect, useRef, useState } from 'react';
+import { BackHandler, Image, Linking, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { Button, Notice, TopBar } from '../../kit';
 import { reach } from '../../kit/reach';
-import { keepGarmentPhoto } from '../../lib/garmentPhoto';
+import { keepGarmentPhoto, loadGarmentPhoto, removeGarmentPhoto } from '../../lib/garmentPhoto';
 import { updateCloset } from '../../lib/store';
-import { tag, type TagResponse } from '../../lib/tag';
+import { hasTagService, tag, type TagResponse } from '../../lib/tag';
 import { capture } from '../../strings/capture';
 import { drawn } from '../../strings/drawn';
 import { font } from '../../theme/font';
-import { Check, Flash, Picture, Sparkle } from '../../theme/icons';
+import { Check, Flash, Picture } from '../../theme/icons';
 import { light } from '../../theme/tokens';
 import { emptyValues, FormFrame, formStyles, garmentOf, GarmentForm, type FormValues } from './GarmentForm';
 
@@ -27,61 +28,116 @@ type Step =
   | { kind: 'failed'; photo: string }
   | { kind: 'confirm'; photo?: string; tagged?: boolean };
 
-/* FIGS 17, 17b AND 18. Capture opens first. The shutter (or Upload) keeps the
-   photograph and starts tagging in the same moment (Acceptance.md). Reading
-   shows that photograph until the tag answers; failure keeps it and offers
-   retry or by hand. Confirm is Fig 18, with or without a photo (ADR 0028). */
+/* FIGS 17, 17b AND 18. Capture opens first with a live CameraView (ADR 0028).
+   The shutter keeps the photograph; with a tagging address it starts the tag
+   in the same moment, otherwise confirm opens by hand with the photo kept.
+   Failure keeps the photograph. Confirm is Fig 18. Every way out but Save
+   removes an unsaved photograph from the documents folder. */
 export function AddGarmentScreen() {
   const navigation = useNavigation();
+  const cameraRef = useRef<CameraView>(null);
+  const [permission, requestPermission] = useCameraPermissions();
   const [id] = useState(newId);
   const [step, setStep] = useState<Step>({ kind: 'capture' });
   const [values, setValues] = useState<FormValues>(emptyValues);
   const [flash, setFlash] = useState(false);
   const [askProblem, setAskProblem] = useState<'refused' | 'failed' | null>(null);
+  const [lastAsk, setLastAsk] = useState<'camera' | 'library'>('camera');
   const [saveFailed, setSaveFailed] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
   const pressed = useRef(false);
   const tagGen = useRef(0);
   const garment = garmentOf(id, values);
   const photo = step.kind === 'capture' ? undefined : step.photo;
+  const loaded = photo ? loadGarmentPhoto(id) : null;
+  const photoUri = loaded && loaded.ok ? loaded.uri : null;
 
   useEffect(() => {
-    if (step.kind !== 'reading') return;
+    return () => {
+      if (!saved) removeGarmentPhoto(id);
+    };
+  }, [id, saved]);
+
+  useEffect(() => {
+    if (step.kind !== 'confirm') return;
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      leaveConfirm();
+      return true;
+    });
+    return () => sub.remove();
+  });
+
+  function discardPhoto() {
+    removeGarmentPhoto(id);
+  }
+
+  function leaveAdd() {
+    discardPhoto();
+    navigation.goBack();
+  }
+
+  function leaveConfirm() {
+    setValues(emptyValues);
+    setSaveFailed(false);
+    setStep({ kind: 'capture' });
+  }
+
+  function startTag(name: string) {
     const gen = ++tagGen.current;
-    let live = true;
-    tag(step.photo).then((result) => {
-      if (!live || gen !== tagGen.current) return;
+    const found = loadGarmentPhoto(id);
+    const uri = found.ok ? found.uri : null;
+    if (!uri) {
+      setStep({ kind: 'failed', photo: name });
+      return;
+    }
+    setStep({ kind: 'reading', photo: name });
+    tag(uri).then((result) => {
+      if (gen !== tagGen.current) return;
       if (result.ok) {
         setValues(valuesFromTag(result.response));
-        setStep({ kind: 'confirm', photo: step.photo, tagged: true });
+        setStep({ kind: 'confirm', photo: name, tagged: true });
       } else {
-        setStep({ kind: 'failed', photo: step.photo });
+        setStep({ kind: 'failed', photo: name });
       }
     });
-    return () => {
-      live = false;
-    };
-  }, [step]);
+  }
+
+  async function keepFrom(uri: string) {
+    const kept = await keepGarmentPhoto(id, uri);
+    if (!kept.ok) {
+      setAskProblem('failed');
+      return;
+    }
+    if (!hasTagService()) {
+      setValues(emptyValues);
+      setStep({ kind: 'confirm', photo: kept.name, tagged: false });
+      return;
+    }
+    startTag(kept.name);
+  }
 
   async function take(from: 'camera' | 'library') {
     setAskProblem(null);
+    setLastAsk(from);
     try {
-      if (from === 'camera' && !(await ImagePicker.requestCameraPermissionsAsync()).granted) {
-        setAskProblem('refused');
+      if (from === 'library') {
+        const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ['images'], quality: 0.8 });
+        const asset = result.canceled ? undefined : result.assets[0];
+        if (!asset) return;
+        await keepFrom(asset.uri);
         return;
       }
-      const options: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.8 };
-      const result =
-        from === 'camera' ? await ImagePicker.launchCameraAsync(options) : await ImagePicker.launchImageLibraryAsync(options);
-      const asset = result.canceled ? undefined : result.assets[0];
-      if (!asset) return;
-      const kept = await keepGarmentPhoto(id, asset.uri);
-      if (!kept.ok) {
-        setAskProblem('failed');
-        return;
+      if (!permission?.granted) {
+        const next = await requestPermission();
+        if (!next.granted) {
+          setAskProblem('refused');
+          return;
+        }
       }
-      /* Tagging starts when the shutter fires, not when confirm opens. */
-      setStep({ kind: 'reading', photo: kept.uri });
+      const shot = await cameraRef.current?.takePictureAsync({ quality: 0.8 });
+      if (!shot?.uri) return;
+      await keepFrom(shot.uri);
     } catch {
       setAskProblem('failed');
     }
@@ -100,6 +156,7 @@ export function AddGarmentScreen() {
     const withPhoto = photo ? { ...garment, photo } : garment;
     const result = await updateCloset((garments) => (garments.some((g) => g.id === withPhoto.id) ? garments : [...garments, withPhoto]));
     if (result.ok) {
+      setSaved(true);
       navigation.goBack();
     } else {
       pressed.current = false;
@@ -111,13 +168,19 @@ export function AddGarmentScreen() {
   if (step.kind === 'capture') {
     return (
       <FormFrame fullScreen>
-        <TopBar title={cam.newGarment} onBack={() => navigation.goBack()} way="close" />
+        <TopBar title={cam.newGarment} onBack={leaveAdd} way="close" />
         <View style={styles.stage}>
-          <View style={styles.viewfinder} accessibilityLabel={cam.capture}>
-            <View style={[styles.corner, styles.tl]} />
-            <View style={[styles.corner, styles.tr]} />
-            <View style={[styles.corner, styles.bl]} />
-            <View style={[styles.corner, styles.br]} />
+          <View style={styles.viewfinder} accessibilityLabel={capture.viewfinder}>
+            {permission?.granted ? (
+              <CameraView ref={cameraRef} style={StyleSheet.absoluteFill} facing="back" flash={flash ? 'on' : 'off'} />
+            ) : (
+              <>
+                <View style={[styles.corner, styles.tl]} />
+                <View style={[styles.corner, styles.tr]} />
+                <View style={[styles.corner, styles.bl]} />
+                <View style={[styles.corner, styles.br]} />
+              </>
+            )}
           </View>
           {askProblem === 'refused' ? (
             <Notice
@@ -127,11 +190,16 @@ export function AddGarmentScreen() {
               style={styles.notice}
             />
           ) : askProblem === 'failed' ? (
-            <Notice text={capture.photoFailed} action={capture.tryAgain} onPress={() => take('camera')} style={styles.notice} />
+            <>
+              <Notice text={capture.photoFailed} action={capture.tryAgain} onPress={() => take(lastAsk)} style={styles.notice} />
+              <Pressable accessibilityRole="button" onPress={() => fillByHand()} hitSlop={reach(44)} style={styles.byHand}>
+                <Text style={styles.byHandText}>{capture.fillByHand}</Text>
+              </Pressable>
+            </>
           ) : null}
           <View style={styles.controls}>
             <Pressable accessibilityRole="button" accessibilityLabel={cam.upload} onPress={() => take('library')} style={styles.side}>
-              <Picture color={light.muted} size={22} />
+              <Picture color={light.ink} size={22} />
               <Text style={styles.sideLabel}>{cam.upload}</Text>
             </Pressable>
             <Pressable
@@ -139,11 +207,9 @@ export function AddGarmentScreen() {
               accessibilityLabel={cam.capture}
               onPress={() => take('camera')}
               style={styles.shutter}
-              hitSlop={reach(66)}
+              hitSlop={reach(72)}
             >
-              <View style={styles.shutterRing}>
-                <View style={styles.shutterInner} />
-              </View>
+              <View style={styles.shutterInner} />
             </Pressable>
             <Pressable
               accessibilityRole="button"
@@ -153,7 +219,7 @@ export function AddGarmentScreen() {
               style={styles.side}
             >
               <Flash color={flash ? light.ink : light.muted} size={19} />
-              <Text style={[styles.sideLabel, flash && styles.sideOn]}>{cam.flash}</Text>
+              <Text style={[styles.sideLabel, flash ? null : styles.sideOff]}>{cam.flash}</Text>
             </Pressable>
           </View>
         </View>
@@ -164,10 +230,10 @@ export function AddGarmentScreen() {
   if (step.kind === 'reading') {
     return (
       <FormFrame fullScreen>
-        <TopBar title={reading.newGarment} onBack={() => navigation.goBack()} way="close" />
+        <TopBar title={reading.newGarment} onBack={leaveAdd} way="close" />
         <View style={styles.stage}>
           <View style={[styles.viewfinder, styles.shot]} accessibilityState={{ busy: true }}>
-            <Image source={{ uri: step.photo }} style={styles.photo} accessibilityLabel={reading.readingTheGarment} />
+            {photoUri ? <Image source={{ uri: photoUri }} style={styles.photo} accessibilityLabel={capture.photographReading} /> : null}
           </View>
           <Text style={styles.hint}>{reading.readingTheGarment}</Text>
         </View>
@@ -178,15 +244,15 @@ export function AddGarmentScreen() {
   if (step.kind === 'failed') {
     return (
       <FormFrame fullScreen>
-        <TopBar title={cam.newGarment} onBack={() => navigation.goBack()} way="close" />
+        <TopBar title={cam.newGarment} onBack={leaveAdd} way="close" />
         <View style={styles.stage}>
           <View style={[styles.viewfinder, styles.shot]}>
-            <Image source={{ uri: step.photo }} style={styles.photo} accessibilityLabel={capture.taggingFailed} />
+            {photoUri ? <Image source={{ uri: photoUri }} style={styles.photo} accessibilityLabel={capture.photographFailed} /> : null}
           </View>
           <Notice
             text={capture.taggingFailed}
             action={capture.tryAgain}
-            onPress={() => setStep({ kind: 'reading', photo: step.photo })}
+            onPress={() => startTag(step.photo)}
             style={styles.notice}
           />
           <Pressable accessibilityRole="button" onPress={() => fillByHand(step.photo)} hitSlop={reach(44)} style={styles.byHand}>
@@ -199,24 +265,15 @@ export function AddGarmentScreen() {
 
   return (
     <FormFrame fullScreen>
-      <TopBar title={t.newGarment} onBack={() => setStep({ kind: 'capture' })} />
+      <TopBar title={t.newGarment} onBack={leaveConfirm} />
       <ScrollView contentContainerStyle={styles.confirmBody} keyboardShouldPersistTaps="handled">
-        {step.photo ? (
-          <View style={styles.cut}>
-            {step.tagged ? (
-              <View style={styles.donePill} accessibilityLabel={t.cutOut}>
-                <Check color={light.muted} size={12} strokeWidth={2} />
-                <Text style={styles.donePillText}>{t.cutOut}</Text>
-              </View>
-            ) : null}
-            <Image source={{ uri: step.photo }} style={styles.cutPhoto} />
+        {step.photo && photoUri ? (
+          <View style={[styles.cut, styles.cutPhotoGround]}>
+            <Image source={{ uri: photoUri }} style={styles.cutPhoto} accessibilityLabel={capture.photographConfirm} />
           </View>
         ) : null}
         {step.tagged ? (
-          <View style={styles.aiNote}>
-            <Sparkle color={light.muted} size={14} />
-            <Text style={styles.aiNoteText}>{t.taggedByAiFromYour}</Text>
-          </View>
+          <Text style={styles.aiNote}>{t.taggedByAiFromYour}</Text>
         ) : (
           <Text style={styles.byHandNote}>{capture.byHand}</Text>
         )}
@@ -228,7 +285,15 @@ export function AddGarmentScreen() {
         )}
       </ScrollView>
       <View style={formStyles.foot}>
-        <Button size="small" kind="outline" label={t.cancel} onPress={() => navigation.goBack()} />
+        <Button
+          size="small"
+          kind="outline"
+          label={t.cancel}
+          onPress={() => {
+            discardPhoto();
+            navigation.goBack();
+          }}
+        />
         <Button size="small" label={t.saveToCloset} icon={Check} wide disabled={!garment || saving} onPress={save} />
       </View>
     </FormFrame>
@@ -279,20 +344,16 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     color: light.muted,
   },
-  sideOn: { color: light.ink },
-  /* .cap-shutter: 66 hit, 58 ink disc, paper then ink ring outside (shutter-ring). */
+  sideOff: { color: light.muted },
   shutter: { width: 66, height: 66, alignItems: 'center', justifyContent: 'center' },
-  shutterRing: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    borderWidth: 2,
-    borderColor: light.ink,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: light.paper,
+  shutterInner: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: light.ink,
+    borderWidth: 6,
+    borderColor: light.paper,
   },
-  shutterInner: { width: 58, height: 58, borderRadius: 29, backgroundColor: light.ink },
   hint: {
     height: 126,
     textAlign: 'center',
@@ -315,59 +376,37 @@ const styles = StyleSheet.create({
     textDecorationLine: 'underline',
     textDecorationColor: light.edge,
   },
-  /* Fig 18 .body under the top bar: 12/24/24, confirm-cut first child sits 8 down. */
-  confirmBody: { paddingHorizontal: 24, paddingTop: 8, paddingBottom: 24 },
+  /* Fig 18 .body under the top bar: 12/24/24. Confirm cut sits on the photograph's ground, no Cut out badge. */
+  confirmBody: { paddingHorizontal: 24, paddingTop: 12, paddingBottom: 24 },
   cut: {
     alignSelf: 'center',
-    marginTop: 8,
+    marginTop: 0,
     marginBottom: 8,
     height: 300,
     aspectRatio: 0.8,
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
-    experimental_backgroundImage: `linear-gradient(176deg, ${light.renderA}, ${light.renderB})`,
+  },
+  cutPhotoGround: {
+    experimental_backgroundImage: `linear-gradient(155deg, ${light.photoGround} 0%, ${light.photoShade} 100%)`,
   },
   cutPhoto: { width: '100%', height: '84%', resizeMode: 'contain' },
-  donePill: {
-    position: 'absolute',
-    top: 12,
-    left: 12,
-    zIndex: 1,
-    height: 28,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 12,
-    backgroundColor: light.surface,
-    borderWidth: 1,
-    borderColor: light.hairline,
-  },
-  donePillText: {
-    fontFamily: font.semibold,
-    fontSize: 11,
-    lineHeight: 11,
-    letterSpacing: 0.66,
-    color: light.ink,
-  },
   aiNote: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
     marginHorizontal: 4,
     marginTop: 4,
-    marginBottom: 16,
-  },
-  aiNoteText: { flexShrink: 1, fontFamily: font.regular, fontSize: 12, lineHeight: 16.8, color: light.muted },
-  byHandNote: {
-    marginHorizontal: 4,
-    marginTop: -8,
     marginBottom: 16,
     fontFamily: font.regular,
     fontSize: 12,
     lineHeight: 16.8,
-    color: light.ink,
-    textDecorationLine: 'underline',
-    textDecorationColor: light.edge,
+    color: light.muted,
+  },
+  byHandNote: {
+    marginHorizontal: 4,
+    marginBottom: 16,
+    fontFamily: font.regular,
+    fontSize: 13,
+    lineHeight: 18.2,
+    color: light.muted,
   },
 });

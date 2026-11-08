@@ -1,6 +1,7 @@
 # 0019. The answer carries the day's lines and whether anything fits
 
-Status: Accepted, 2026-10-20.
+Status: Accepted, 2026-10-20. Revised 2026-11-08, when Today stopped showing
+the reason, below: `because` leaves the answer and `name` the request.
 
 ## Context
 
@@ -46,3 +47,25 @@ re-read with it.
 
 **A line the app has to edit, split or reorder before it can draw it**, which
 would mean the app is deciding what to say after all.
+
+## The reason leaves, and the names with it, 2026-11-08
+
+**Today no longer shows the reason.** Since the mockup was redrawn on
+2026-11-08, no Today plate draws Why this or the reason sentence under it, and
+Fig 09 draws its headline and its take-along line with no sentence saying how
+far the warmest falls short. A field no screen draws is something the service
+tells nobody.
+
+**So `because` leaves the answer, and each garment's `name` leaves the
+request.** The name was sent so that the reason could name garments. With no
+reason, nothing the service sends names a garment, so what a person calls their
+clothes stays on the phone. The closet still keeps each name, and the answer
+kept for the day (ADR 0021) is matched on what was sent, so renaming a garment
+keeps it. `wear`, `suitsC`, `dayLine`, `takeLine`, `fits` and the request's
+`units` stay as they are.
+
+**PREMISE:** no plate draws a reason. If one ever does, `because` and `name`
+come back together, since the second was only ever sent for the first.
+
+The fixtures and README.md's example lose both fields, and `pick.test.ts` fails
+if an answer needs `because` again or a name goes back on the wire.
