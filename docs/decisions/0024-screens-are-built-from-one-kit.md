@@ -1,7 +1,8 @@
 # 0024. Screens are built from one kit, in the mockup's type and icons
 
 Status: Accepted, 2026-10-28. Revised the same day with four more pieces, below,
-and on 2026-11-08 when the redraw took the feedback chip away.
+and on 2026-11-08 when the redraw took the feedback chip away and added the
+profile picture.
 
 ## Context
 
@@ -81,3 +82,22 @@ chips** on any Today plate, and its stylesheet has no rule for them, so
 and the two chevrons that opened Why this. No plate now draws a chip
 disabled; `Chip` keeps the state, drawn as Fig 11 draws the segmented
 control. The premise above stands.
+
+## The profile picture joins, 2026-11-08
+
+**The redrawn mockup ends the title row with a profile picture** on every
+Today plate and on the closet's (Figs 06, 08 to 12 and 15), and it opens You.
+Two screens draw it alike, so `ProfilePicture` joins the kit: 38 square with
+square corners, a clear edge of 1 inside the card's shadow, a hairline over
+the picture, the render's ground, and with no photo the plate's bust in the
+figure colour. A photo fills the square instead, and which photo is the
+screen's to pass, since no plate draws one.
+
+**The bust is a figure from the mockup's sprite, not an icon**, so
+`tools/extract.mjs` does not write it. The kit draws it by hand, and
+`ProfilePicture.test.tsx` reads the mockup and fails when the bust or the box
+moves, so a redraw cannot leave the kit drawing the last design.
+
+**PREMISE:** the plates draw the profile picture the same way on both
+screens, and only ever with no photo. If one draws it differently, or draws a
+photo in it, this is re-read.
