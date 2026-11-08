@@ -82,7 +82,9 @@ premise changes there is something to re-read.**
 - **0019 The answer carries the day's lines and whether anything fits.**
   `dayLine`, `takeLine` and `fits` join the answer as sentences and a yes or no,
   `units` and each garment's `name` join the request, and an empty closet is
-  still sent (Figs 08, 09 and 10b).
+  still sent (Figs 08, 09 and 10b). Revised 2026-11-08, when Today stopped
+  showing the reason: `because` leaves the answer and `name` the request, so
+  what a person calls their clothes stays on the phone.
 - **0020 The request's words are the words the mockup draws.** Category,
   warmth, vibe and style are Fig 18's and Fig 08's own lists, the sky is a WMO
   code, and a test holds the mockup, `src/lib` and README.md to one list.

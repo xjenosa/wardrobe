@@ -1,6 +1,6 @@
 # wardrobe
 
-**Photograph your clothes. Each morning it tells you what to wear, and why.**
+**Photograph your clothes. Each morning it tells you what to wear.**
 
 A React Native app that reads the day's forecast, looks at what is actually in
 your closet, and picks an outfit for it. Not a style feed and not a shopping
@@ -47,11 +47,11 @@ POST /pick
 {
   "weather":  { "lowC": -4, "highC": 2, "feelsLowC": -9, "feelsHighC": -1,
                 "code": 71, "windKph": 12, "humidity": 78 },
-  "garments": [ { "id": "g1", "name": "Navy overcoat", "category": "Outerwear", "warmth": "Warmest" },
-                { "id": "g2", "name": "Oatmeal crewneck", "category": "Sweaters", "warmth": "Warm" },
-                { "id": "g3", "name": "Charcoal trousers", "category": "Bottoms", "warmth": "Mid-season" },
-                { "id": "g4", "name": "Espresso leather boot", "category": "Shoes", "warmth": "Warm" },
-                { "id": "g5", "name": "Charcoal beanie", "category": "Accessories" } ],
+  "garments": [ { "id": "g1", "category": "Outerwear", "warmth": "Warmest" },
+                { "id": "g2", "category": "Sweaters", "warmth": "Warm" },
+                { "id": "g3", "category": "Bottoms", "warmth": "Mid-season" },
+                { "id": "g4", "category": "Shoes", "warmth": "Warm" },
+                { "id": "g5", "category": "Accessories" } ],
   "vibe":     "Everyday",
   "units":    "C"
 }
@@ -61,7 +61,6 @@ POST /pick
 {
   "wear":     ["g1", "g2", "g3", "g4"],
   "suitsC":   { "lowC": -9, "highC": 1 },
-  "because":  "Light snow and −7°. The navy overcoat over the oatmeal crewneck, with the espresso leather boot for fresh snow.",
   "dayLine":  "Cold, with snow on the wind.",
   "takeLine": "Take a beanie and gloves.",
   "fits":     true
@@ -90,10 +89,14 @@ sky are the app's, from WMO's published table; the service never reads one.
 **The answer is sentences, not codes** (ADR 0019). `dayLine` and `takeLine` are
 drawn as they come, and left out when they are empty. `fits` is false on a day
 nothing owned suits (Fig 09): `wear` is then the closest the closet comes,
-`because` says how far it falls short, and the button says "Wear it anyway".
-An empty closet is still sent, and its answer has an empty `wear` and `because`,
-a `suitsC` of `null` and `fits` false; the app draws Fig 10b from its own empty
-closet, never from the answer.
+`dayLine` is the headline that says so, and the button says "Wear it anyway".
+An empty closet is still sent, and its answer has an empty `wear`, a `suitsC`
+of `null` and `fits` false; the app draws Fig 10b from its own empty closet,
+never from the answer.
+
+**The answer gives no reason, and the request names no garment** (ADR 0019).
+Today does not show why it picked an outfit, so a garment goes out as its id and
+its words, and what the person calls it stays on the phone.
 
 **The app runs without the service.** Saved answers live in `fixtures/`, with
 the sample closet they were made for, and drive every screen whenever no service
