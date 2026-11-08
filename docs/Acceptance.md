@@ -54,7 +54,7 @@ the running app.
 
 - [ ] **The pick comes from `pick()` and is never computed locally.** ADR 0001.
       A clo table, a lookup or a formula in this repository fails this box.
-- [ ] Shows the weather, the outfit and the reason, in that order.
+- [ ] Shows the weather, then the outfit.
 - [ ] **Fig 08d**: when the pick has arrived and the picture has not, the pieces
       are listed rather than the screen being blank.
 - [ ] **Fig 09**: when nothing fits, it says so and still offers to wear it

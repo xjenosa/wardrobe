@@ -42,7 +42,7 @@ table says in words what to build, and that row is the specification.
 
 | state | when | what it shows | plate |
 |---|---|---|---|
-| **Normal** | a forecast and a closet | the weather, the outfit, and why | **Fig 08** |
+| **Normal** | a forecast and a closet | the weather and the outfit | **Fig 08** |
 | **Render pending** | the pick is made, the picture is not | the pieces, listed, while the render comes | **Fig 08d** |
 | **Loading** | before anything has arrived | the final boxes, empty, in their final positions | **Fig 12** |
 | **Nothing fits, too cold** | the closet cannot cover the day | says so plainly, and offers to wear it anyway | **Fig 09** |

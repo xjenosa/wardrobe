@@ -1,6 +1,6 @@
 # wardrobe
 
-**Photograph your clothes. Each morning it tells you what to wear, and why.**
+**Photograph your clothes. Each morning it tells you what to wear.**
 
 A React Native app that reads the day's forecast, looks at what is actually in
 your closet, and picks an outfit for it. Not a style feed and not a shopping
