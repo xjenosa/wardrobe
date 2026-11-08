@@ -90,7 +90,8 @@ premise changes there is something to re-read.**
   code, and a test holds the mockup, `src/lib` and README.md to one list.
 - **0021 The fixture answers when there is no service, never when it fails.**
   After a failure Today shows the last real answer or the failure state, since
-  the fixture would draw garments the person does not own.
+  the fixture would draw garments the person does not own. Amended 2026-11-08,
+  when Fig 08g drew a kept answer with its notice behind the circled i.
 - **0022 A garment is entered by hand first, and warmth is five words.** Fig 18
   is built as the by-hand form and Fig 19 reuses it, with no slider, since the
   range behind a word is the service's. Capture waits for a tagging contract and
@@ -103,7 +104,8 @@ premise changes there is something to re-read.**
   and what two screens draw alike is built once in `src/kit/`, track A's. Each
   track swaps its own hand-built pieces in its own pull request. Revised the
   same day, when the tab bar gained its icons and the label, the field and the
-  garment tile joined the kit.
+  garment tile joined the kit. Revised 2026-11-08, when the feedback chip left
+  with Today's Too warm and Too cold and the profile picture joined.
 - **0025 The reference photo is one file kept on the phone.** First run takes
   it with the camera or chooses it from the library and keeps one copy in the
   app's documents. Skipping blocks nothing, and First run is reached from You

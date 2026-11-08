@@ -50,13 +50,15 @@ the running app.
 - [ ] Confirm shows what the app decided and lets every field be corrected
       before saving.
 
-## Today, Figs 08, 08d, 09, 10b, 11 and 12
+## Today, Figs 08, 08d, 08g, 09, 10b, 11 and 12
 
 - [ ] **The pick comes from `pick()` and is never computed locally.** ADR 0001.
       A clo table, a lookup or a formula in this repository fails this box.
 - [ ] Shows the weather, then the outfit.
 - [ ] **Fig 08d**: when the pick has arrived and the picture has not, the pieces
       are listed rather than the screen being blank.
+- [ ] **Fig 08g**: offline, this morning's pick and forecast stay, and the
+      notice saying so waits behind the circled i beside the profile picture.
 - [ ] **Fig 09**: when nothing fits, it says so and still offers to wear it
       anyway.
 - [ ] **Fig 10b**: an empty closet points at the closet, not at the weather.
