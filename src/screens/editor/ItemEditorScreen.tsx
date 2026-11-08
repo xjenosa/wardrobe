@@ -177,22 +177,19 @@ export function ItemEditorScreen() {
       <View style={styles.head}>
         <ScreenHeader eyebrow={t.yourWardrobe} title={garment ? garment.name : screens.itemEditor} />
       </View>
-      <ScrollView contentContainerStyle={formStyles.body} keyboardShouldPersistTaps="handled">
-        {loaded.state === 'loading' && <FormSkeleton />}
-        {loaded.state === 'failed' && <Notice text={capture.closetUnreadable} action={capture.tryAgain} onPress={retry} />}
-        {loaded.state === 'ready' && !garment && <Text style={formStyles.note}>{capture.notInCloset}</Text>}
-        {garment ? (
-          <View style={styles.pics}>
+      {/* Fig 19 .drawer > .render: picture stays at the top, outside the scroll, and can shrink to 96. */}
+      {garment ? (
+        <View style={styles.pics} testID="editor-pics" onLayout={(e) => setTrackW(e.nativeEvent.layout.width)}>
+          {trackW > 0 ? (
             <ScrollView
               ref={track}
               horizontal={multi}
               pagingEnabled={multi}
               scrollEnabled={multi}
               showsHorizontalScrollIndicator={false}
-              onLayout={(e) => setTrackW(e.nativeEvent.layout.width)}
               onMomentumScrollEnd={onPagesScroll}
               style={styles.track}
-              testID="editor-pics"
+              testID="editor-pics-track"
               accessibilityLabel={multi ? t.photo : undefined}
             >
               {pages.map((kind, index) => (
@@ -201,7 +198,7 @@ export function ItemEditorScreen() {
                   style={[
                     styles.page,
                     kind === 'photo' && styles.pagePhoto,
-                    trackW ? { width: trackW } : null,
+                    { width: trackW, height: Math.max(96, trackW / 0.8) },
                   ]}
                   accessibilityElementsHidden={multi && page !== index}
                   importantForAccessibility={!multi || page === index ? 'yes' : 'no-hide-descendants'}
@@ -229,25 +226,30 @@ export function ItemEditorScreen() {
                 </View>
               ))}
             </ScrollView>
-            {multi ? (
-              <View style={styles.dots} accessibilityRole="tablist" accessibilityLabel={t.photo}>
-                {pages.map((kind, index) => (
-                  <Pressable
-                    key={kind}
-                    accessibilityRole="tab"
-                    accessibilityState={{ selected: page === index }}
-                    accessibilityLabel={kind === 'cutOut' ? t.theCutOut : t.yourPhotograph}
-                    onPress={() => goPage(index)}
-                    hitSlop={reach(24)}
-                    style={styles.dotHit}
-                  >
-                    <View style={[styles.dot, page === index && styles.dotOn]} />
-                  </Pressable>
-                ))}
-              </View>
-            ) : null}
-          </View>
-        ) : null}
+          ) : null}
+          {multi ? (
+            <View style={styles.dots} accessibilityRole="tablist" accessibilityLabel={t.photo}>
+              {pages.map((kind, index) => (
+                <Pressable
+                  key={kind}
+                  accessibilityRole="tab"
+                  accessibilityState={{ selected: page === index }}
+                  accessibilityLabel={kind === 'cutOut' ? t.theCutOut : t.yourPhotograph}
+                  onPress={() => goPage(index)}
+                  hitSlop={reach(24)}
+                  style={styles.dotHit}
+                >
+                  <View style={[styles.dot, page === index && styles.dotOn]} />
+                </Pressable>
+              ))}
+            </View>
+          ) : null}
+        </View>
+      ) : null}
+      <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
+        {loaded.state === 'loading' && <FormSkeleton />}
+        {loaded.state === 'failed' && <Notice text={capture.closetUnreadable} action={capture.tryAgain} onPress={retry} />}
+        {loaded.state === 'ready' && !garment && <Text style={formStyles.note}>{capture.notInCloset}</Text>}
         {garment && values && <GarmentForm values={values} onChange={setValues} />}
         {garment && wearsFailed ? (
           <Notice text={capture.wearsUnreadable} action={capture.tryAgain} onPress={applyWears} style={styles.wearNotice} />
@@ -286,29 +288,40 @@ function WornLine({ text, times }: { text: string; times: number }) {
 
 const styles = StyleSheet.create({
   head: { paddingHorizontal: 24, paddingTop: 8 },
-  pics: { marginHorizontal: -24, marginTop: -20, marginBottom: 20, backgroundColor: light.renderA },
-  track: { height: 220 },
+  /* Fig 19 .drawer-body: 20 sides and top, 8 bottom under the fields. */
+  body: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 8 },
+  /* Fig 19 .drawer > .render: full width, aspect .8, shrinks to 96 so fields stay in view. */
+  pics: {
+    width: '100%',
+    aspectRatio: 0.8,
+    flexGrow: 0,
+    flexShrink: 1,
+    minHeight: 96,
+    backgroundColor: light.renderA,
+    overflow: 'hidden',
+  },
+  track: { ...StyleSheet.absoluteFill },
   page: {
-    height: 220,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 12,
-    backgroundColor: light.renderA,
+    experimental_backgroundImage: `linear-gradient(178deg, ${light.renderA}, ${light.renderB})`,
   },
   pagePhoto: {
     experimental_backgroundImage: `linear-gradient(155deg, ${light.photoGround} 0%, ${light.photoShade} 100%)`,
   },
-  pic: { width: '72%', height: '100%', resizeMode: 'contain' },
-  picEmpty: { width: '72%', height: '100%', backgroundColor: light.field },
+  pic: { width: '72%', height: '78%', resizeMode: 'contain' },
+  picEmpty: { width: '72%', height: '78%', backgroundColor: light.field },
   markPad: { bottom: 16, left: 16 },
   dots: {
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: 8,
+    bottom: 16,
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 0,
+    zIndex: 3,
   },
   dotHit: { width: 16, height: 24, alignItems: 'center', justifyContent: 'center' },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: light.ink, opacity: 0.2 },

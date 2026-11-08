@@ -219,7 +219,7 @@ export function AddGarmentScreen() {
               style={styles.side}
             >
               <Flash color={flash ? light.ink : light.muted} size={19} />
-              <Text style={[styles.sideLabel, !flash && styles.sideOff]}>{cam.flash}</Text>
+              <Text style={[styles.sideLabel, flash ? null : styles.sideOff]}>{cam.flash}</Text>
             </Pressable>
           </View>
         </View>
@@ -266,18 +266,16 @@ export function AddGarmentScreen() {
   return (
     <FormFrame fullScreen>
       <TopBar title={t.newGarment} onBack={leaveConfirm} />
-      <ScrollView contentContainerStyle={formStyles.body} keyboardShouldPersistTaps="handled">
+      <ScrollView contentContainerStyle={styles.confirmBody} keyboardShouldPersistTaps="handled">
         {step.photo && photoUri ? (
-          <View style={styles.cut}>
+          <View style={[styles.cut, styles.cutPhotoGround]}>
             <Image source={{ uri: photoUri }} style={styles.cutPhoto} accessibilityLabel={capture.photographConfirm} />
-            {step.tagged ? (
-              <Text style={styles.aiNote}>{t.taggedByAiFromYour}</Text>
-            ) : (
-              <Text style={formStyles.note}>{capture.byHand}</Text>
-            )}
           </View>
+        ) : null}
+        {step.tagged ? (
+          <Text style={styles.aiNote}>{t.taggedByAiFromYour}</Text>
         ) : (
-          <Text style={formStyles.note}>{capture.byHand}</Text>
+          <Text style={styles.byHandNote}>{capture.byHand}</Text>
         )}
         <GarmentForm values={values} onChange={setValues} />
         {saveFailed && (
@@ -312,36 +310,50 @@ function valuesFromTag(response: TagResponse): FormValues {
 }
 
 const styles = StyleSheet.create({
+  /* Fig 17 / 17b .capture-stage: 20 top, 24 sides, 126 foot for controls or the reading hint. */
   stage: { flex: 1, paddingHorizontal: 24, paddingTop: 20 },
   viewfinder: {
     flex: 1,
-    backgroundColor: light.renderA,
     overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
+    experimental_backgroundImage: `linear-gradient(176deg, ${light.renderA}, ${light.renderB})`,
   },
-  shot: { backgroundColor: light.renderB },
+  shot: {
+    experimental_backgroundImage: `linear-gradient(155deg, ${light.photoGround} 0%, ${light.photoShade} 100%)`,
+  },
   photo: { width: '100%', height: '100%', resizeMode: 'contain' },
-  corner: { position: 'absolute', width: 28, height: 28, borderColor: light.ink },
+  corner: { position: 'absolute', width: 26, height: 26, borderColor: light.ink, opacity: 0.5 },
   tl: { top: 16, left: 16, borderTopWidth: 2, borderLeftWidth: 2 },
   tr: { top: 16, right: 16, borderTopWidth: 2, borderRightWidth: 2 },
   bl: { bottom: 16, left: 16, borderBottomWidth: 2, borderLeftWidth: 2 },
   br: { bottom: 16, right: 16, borderBottomWidth: 2, borderRightWidth: 2 },
-  controls: { height: 126, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  side: { width: 72, alignItems: 'center', gap: 6 },
-  sideLabel: { fontFamily: font.medium, fontSize: 11, color: light.ink },
-  sideOff: { color: light.muted },
-  shutter: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    borderWidth: 4,
-    borderColor: light.ink,
+  controls: {
+    minHeight: 126,
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: light.paper,
+    justifyContent: 'space-between',
+    paddingHorizontal: 8,
   },
-  shutterInner: { width: 56, height: 56, borderRadius: 28, backgroundColor: light.ink },
+  side: { width: 78, alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 44 },
+  sideLabel: {
+    fontFamily: font.semibold,
+    fontSize: 11,
+    lineHeight: 11,
+    letterSpacing: 1.21,
+    textTransform: 'uppercase',
+    color: light.muted,
+  },
+  sideOff: { color: light.muted },
+  shutter: { width: 66, height: 66, alignItems: 'center', justifyContent: 'center' },
+  shutterInner: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: light.ink,
+    borderWidth: 6,
+    borderColor: light.paper,
+  },
   hint: {
     height: 126,
     textAlign: 'center',
@@ -350,12 +362,51 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18.2,
     color: light.muted,
-    paddingTop: 48,
+    margin: 0,
+    paddingHorizontal: 8,
+    paddingTop: 54,
   },
   notice: { marginTop: 16 },
   byHand: { alignSelf: 'center', padding: 12 },
-  byHandText: { fontFamily: font.medium, fontSize: 13, color: light.muted, textDecorationLine: 'underline' },
-  cut: { alignItems: 'center', marginBottom: 8 },
-  cutPhoto: { width: 180, height: 225, resizeMode: 'contain', backgroundColor: light.renderA },
-  aiNote: { marginTop: 8, marginBottom: 16, fontFamily: font.regular, fontSize: 12, color: light.muted },
+  byHandText: {
+    fontFamily: font.regular,
+    fontSize: 12,
+    lineHeight: 16.8,
+    color: light.ink,
+    textDecorationLine: 'underline',
+    textDecorationColor: light.edge,
+  },
+  /* Fig 18 .body under the top bar: 12/24/24. Confirm cut sits on the photograph's ground, no Cut out badge. */
+  confirmBody: { paddingHorizontal: 24, paddingTop: 12, paddingBottom: 24 },
+  cut: {
+    alignSelf: 'center',
+    marginTop: 0,
+    marginBottom: 8,
+    height: 300,
+    aspectRatio: 0.8,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cutPhotoGround: {
+    experimental_backgroundImage: `linear-gradient(155deg, ${light.photoGround} 0%, ${light.photoShade} 100%)`,
+  },
+  cutPhoto: { width: '100%', height: '84%', resizeMode: 'contain' },
+  aiNote: {
+    marginHorizontal: 4,
+    marginTop: 4,
+    marginBottom: 16,
+    fontFamily: font.regular,
+    fontSize: 12,
+    lineHeight: 16.8,
+    color: light.muted,
+  },
+  byHandNote: {
+    marginHorizontal: 4,
+    marginBottom: 16,
+    fontFamily: font.regular,
+    fontSize: 13,
+    lineHeight: 18.2,
+    color: light.muted,
+  },
 });

@@ -53,6 +53,9 @@ it('shows the photograph alone when there is no cut-out', async () => {
   await resetCloset([{ ...sampleCloset[0], photo: PHOTO_NAME }]);
   await openEditor();
   await screen.findByRole('header', { name: 'Navy overcoat' });
+  await act(async () => {
+    fireEvent(screen.getByTestId('editor-pics'), 'layout', { nativeEvent: { layout: { width: 320, height: 400 } } });
+  });
 
   expect(screen.getByLabelText(t.yourPhotograph)).toBeOnTheScreen();
   expect(screen.queryByLabelText(t.theCutOut)).not.toBeOnTheScreen();
@@ -66,15 +69,17 @@ it('opens on the cut-out and can swipe to the photograph', async () => {
   await openEditor();
   await screen.findByRole('header', { name: 'Navy overcoat' });
 
-  const track = screen.getByTestId('editor-pics');
+  const pics = screen.getByTestId('editor-pics');
   await act(async () => {
-    fireEvent(track, 'layout', { nativeEvent: { layout: { width: 320, height: 220 } } });
+    fireEvent(pics, 'layout', { nativeEvent: { layout: { width: 320, height: 400 } } });
   });
   expect(screen.getByRole('tab', { name: t.theCutOut })).toBeSelected();
   expect(screen.getAllByLabelText(t.theCutOut).some((el) => el.props.source?.uri === CUT_OUT)).toBe(true);
 
   await act(async () => {
-    fireEvent(track, 'momentumScrollEnd', { nativeEvent: { contentOffset: { x: 320, y: 0 } } });
+    fireEvent(screen.getByTestId('editor-pics-track'), 'momentumScrollEnd', {
+      nativeEvent: { contentOffset: { x: 320, y: 0 } },
+    });
   });
   expect(screen.getByRole('tab', { name: t.yourPhotograph })).toBeSelected();
   expect(screen.getByRole('tab', { name: t.theCutOut })).not.toBeSelected();
@@ -86,6 +91,9 @@ it('shows the empty frame alone when the garment has no photograph', async () =>
   await resetCloset(sampleCloset);
   await openEditor();
   await screen.findByRole('header', { name: 'Navy overcoat' });
+  await act(async () => {
+    fireEvent(screen.getByTestId('editor-pics'), 'layout', { nativeEvent: { layout: { width: 320, height: 400 } } });
+  });
 
   expect(screen.getByTestId('editor-pic-empty')).toBeOnTheScreen();
   expect(screen.queryByRole('tab', { name: t.theCutOut })).not.toBeOnTheScreen();
