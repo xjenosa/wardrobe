@@ -78,7 +78,12 @@ describe('pick() with a service', () => {
 
   it('sends each garment as README.md names it, and nothing the phone keeps for itself', async () => {
     fetchMock.mockResolvedValue(answer(JSON.stringify(fixture)));
-    const saved = sampleCloset.map((g) => ({ ...g, style: 'Everyday', favourite: true }));
+    const saved = sampleCloset.map((g) => ({
+      ...g,
+      style: 'Everyday' as const,
+      favourite: true,
+      photo: 'g1-000000000000001.jpg',
+    }));
     await pick({ ...request, garments: saved }, { url: URL });
     expect(JSON.parse(fetchMock.mock.calls[0][1].body).garments).toEqual(wire);
   });

@@ -76,6 +76,19 @@ describe('loadCloset()', () => {
     await expect(loadCloset()).resolves.toEqual({ ok: false, failure: 'corrupt' });
   });
 
+  it('reads back a photograph file name', async () => {
+    await saveRaw({ version: 1, garments: [{ ...coat, photo: 'g1-000000000000001.jpg' }] });
+    await expect(loadCloset()).resolves.toEqual({
+      ok: true,
+      garments: [{ ...coat, photo: 'g1-000000000000001.jpg' }],
+    });
+  });
+
+  it('reports a photograph that is not a string as corrupt', async () => {
+    await saveRaw({ version: 1, garments: [{ ...coat, photo: 12 }] });
+    await expect(loadCloset()).resolves.toEqual({ ok: false, failure: 'corrupt' });
+  });
+
   it('reports a closet from an unknown version as corrupt', async () => {
     await saveRaw({ version: 99, garments: [coat] });
     await expect(loadCloset()).resolves.toEqual({ ok: false, failure: 'corrupt' });

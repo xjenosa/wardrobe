@@ -168,8 +168,8 @@ export async function pick(
 
 /* ONLY WHAT README.md NAMES CROSSES THE WIRE. A screen may hand pick() the
    closet as it is saved, which also carries what stays on the phone: a
-   garment's name (ADR 0019), its style, and whether it is a favourite
-   (ADR 0027). */
+   garment's name (ADR 0019), its style, whether it is a favourite
+   (ADR 0027), and its photograph (ADR 0028). */
 const onTheWire = ({ id, category, warmth }: PickGarment) => ({ id, category, warmth });
 
 async function ask(request: PickRequest, url: string, timeoutMs: number): Promise<Asked> {

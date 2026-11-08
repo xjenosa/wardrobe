@@ -94,8 +94,8 @@ premise changes there is something to re-read.**
   when Fig 08g drew a kept answer with its notice behind the circled i.
 - **0022 A garment is entered by hand first, and warmth is five words.** Fig 18
   is built as the by-hand form and Fig 19 reuses it, with no slider, since the
-  range behind a word is the service's. Capture waits for a tagging contract and
-  the camera packages.
+  range behind a word is the service's. Its "capture waits" line is superseded
+  by ADR 0028; warmth and Close still stand.
 - **0023 What was worn is kept on the phone, one outfit a day.** Today records
   the outfit when "Wear this" is pressed, and the editor and the closet read how
   often and how lately each garment was worn. It is never sent.
@@ -117,6 +117,11 @@ premise changes there is something to re-read.**
   yes or no per garment and `pick()` never sends it, nor anything else but
   README.md's fields. The closet's order is the order garments were added, so
   Recently added needs no date; Colour and Custom wait.
+- **0028 A garment carries its photograph, and tagging answers from a service.**
+  Capture and Fig 19b open: `photo` is kept by garment id on the phone,
+  `POST /tag` returns Fig 18's words, and with no address Add goes to Fig 18 by
+  hand. `fixtures/tag.json` is for tests only. ADR 0022's warmth and Close
+  rules stand; its "capture waits" line does not.
 - **0030 The forecast comes from Open-Meteo, and the last good one is kept.**
   No account and no key, so nothing secret is built into the app. A failed
   refresh hands back the kept forecast as stale, with its place and the time it
