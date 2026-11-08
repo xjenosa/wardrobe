@@ -1,6 +1,7 @@
 # 0024. Screens are built from one kit, in the mockup's type and icons
 
-Status: Accepted, 2026-10-28. Revised the same day with four more pieces, below.
+Status: Accepted, 2026-10-28. Revised the same day with four more pieces, below,
+and on 2026-11-08 when the redraw took the feedback chip away.
 
 ## Context
 
@@ -71,3 +72,12 @@ them. The tile is one garment in the closet's grid, with its heart.
 **A piece also joins when one screen repeats it many times.** The tile is the
 closet's alone, but Fig 15 draws it twenty times and Figs 19 and 19b draw it
 again behind the editor, and it joined at Max's ask. The premise above stands.
+
+## The feedback chip leaves, 2026-11-08
+
+**The redrawn mockup no longer draws Why this or its Too warm and Too cold
+chips** on any Today plate, and its stylesheet has no rule for them, so
+`Chip` loses its `feedback` look and the generated icons lose Sun, Snowflake
+and the two chevrons that opened Why this. No plate now draws a chip
+disabled; `Chip` keeps the state, drawn as Fig 11 draws the segmented
+control. The premise above stands.

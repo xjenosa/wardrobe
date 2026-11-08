@@ -6,10 +6,9 @@ import { light } from '../theme/tokens';
 import { reach } from './reach';
 
 /* THE CHIPS THE PLATES DRAW: a ruled pill that fills with ink when it is on.
-   Four looks, one for each place they sit.
+   Three looks, one for each place they sit.
 
    option    Season and Style on the garment form (Figs 18 and 19), 38 tall
-   feedback  Too warm and Too cold under Today (Figs 08 to 12), 32, with an icon
    filter    the category row over the closet (Fig 15), 32, in capitals
    preset    the five warmth words under "Not sure?" (Figs 18 and 19), 32, in
              capitals on the field colour
@@ -18,10 +17,11 @@ import { reach } from './reach';
    One of a set where only one can be on is a radio, so pass role="radio" and
    group the set with accessibilityRole="radiogroup".
 
-   Disabled keeps the rule and turns the words grey (Fig 11); one that is also
-   on loses its ink, as the segmented control does. Pressed shows the
+   No plate draws a chip disabled since Today's Too warm and Too cold went, so
+   disabled is drawn the way Fig 11 draws the segmented control: the rule
+   kept, the words grey, and no ink even when on. Pressed shows the
    stylesheet's hover. */
-export type ChipKind = 'option' | 'feedback' | 'filter' | 'preset';
+export type ChipKind = 'option' | 'filter' | 'preset';
 
 export function Chip({
   label,
@@ -54,7 +54,8 @@ export function Chip({
     >
       {({ pressed }) => (
         <>
-          {Glyph ? <Glyph color={colourOf(pressed)} size={kind === 'filter' ? 11 : 13} /> : null}
+          {/* only the closet's filter row draws an icon in a chip, at 11 (Fig 15) */}
+          {Glyph ? <Glyph color={colourOf(pressed)} size={11} /> : null}
           <Text style={[words[kind], { color: colourOf(pressed) }]}>{label}</Text>
         </>
       )}
@@ -66,7 +67,6 @@ const pill = (token: string) => parseFloat(token);
 
 const height: Record<ChipKind, number> = {
   option: pill(light.pillL),
-  feedback: pill(light.pillM),
   filter: pill(light.pillM),
   preset: pill(light.pillM),
 };
@@ -78,14 +78,12 @@ const styles = StyleSheet.create({
 
 const look = StyleSheet.create({
   option: { height: height.option, paddingHorizontal: 16, backgroundColor: light.field },
-  feedback: { height: height.feedback, paddingHorizontal: 12 },
   filter: { height: height.filter, paddingHorizontal: 16 },
   preset: { height: height.preset, paddingHorizontal: 12, backgroundColor: light.field },
 });
 
 const touched = StyleSheet.create({
   option: { borderColor: light.muted },
-  feedback: { borderColor: light.muted },
   filter: { borderColor: light.muted },
   preset: { backgroundColor: light.track },
 });
@@ -94,7 +92,6 @@ const caps = { fontFamily: font.semibold, fontSize: 11, textTransform: 'uppercas
 
 const words = StyleSheet.create({
   option: { fontFamily: font.medium, fontSize: 13, letterSpacing: 0.065 },
-  feedback: { fontFamily: font.medium, fontSize: 11, letterSpacing: 0.11 },
   filter: { ...caps, letterSpacing: 1.43 },
   preset: { ...caps, letterSpacing: 1.32 },
 });

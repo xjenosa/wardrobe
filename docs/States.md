@@ -42,8 +42,9 @@ table says in words what to build, and that row is the specification.
 
 | state | when | what it shows | plate |
 |---|---|---|---|
-| **Normal** | a forecast and a closet | the weather, the outfit, and why | **Fig 08** |
+| **Normal** | a forecast and a closet | the weather and the outfit | **Fig 08** |
 | **Render pending** | the pick is made, the picture is not | the pieces, listed, while the render comes | **Fig 08d** |
+| **Offline, this morning's pick** | offline, with this morning's forecast and pick kept | this morning's pick from this morning's forecast, its one notice behind the circled i beside the profile picture | **Fig 08g** |
 | **Loading** | before anything has arrived | the final boxes, empty, in their final positions | **Fig 12** |
 | **Nothing fits, too cold** | the closet cannot cover the day | says so plainly, and offers to wear it anyway | **Fig 09** |
 | **Nothing in the closet** | the forecast is fine, the closet is empty | points at the closet, not at the weather | **Fig 10b** |

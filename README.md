@@ -31,7 +31,7 @@ app: it only ever recommends things you already own.
 a demo. The failure state is built early and kept working, because a forecast
 that fails is a Tuesday and not an edge case.
 
-**All of them are drawn**, seventeen states across the eight, at full size in a
+**All of them are drawn**, eighteen states across the eight, at full size in a
 phone frame: [`docs/design/mobile.html`](docs/design/mobile.html). Open it in a
 browser. It is generated and nobody edits it here; ADR 0006 says why.
 
