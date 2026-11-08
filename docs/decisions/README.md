@@ -113,3 +113,7 @@ premise changes there is something to re-read.**
   yes or no per garment and `pick()` never sends it, nor anything else but
   README.md's fields. The closet's order is the order garments were added, so
   Recently added needs no date; Colour and Custom wait.
+- **0030 The forecast comes from Open-Meteo, and the last good one is kept.**
+  No account and no key, so nothing secret is built into the app. A failed
+  refresh hands back the kept forecast as stale, with its place and the time it
+  was fetched; air quality failing leaves only its row empty.
