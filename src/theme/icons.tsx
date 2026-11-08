@@ -11,7 +11,7 @@ import { light } from './tokens';
 export type IconProps = { size?: number; color?: string; strokeWidth?: number };
 export type Icon = (props: IconProps) => ReactElement;
 
-/* Figs 11 and 14d, at 15, stroke 1.7. */
+/* Figs 08g, 11 and 14d, at 15, stroke 1.7. */
 export function Alert({ size = 15, color = light.ink, strokeWidth = 1.7 }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
@@ -40,22 +40,13 @@ export function Camera({ size = 12, color = light.ink, strokeWidth = 2 }: IconPr
   );
 }
 
-/* Figs 08, 08d, 09, 10b, 11 and 12, at 17, stroke 1.8.
+/* Figs 08, 08d, 08g, 09, 10b, 11 and 12, at 17, stroke 1.8.
    Fig 18, at 12, stroke 2.
    Figs 18, 19 and 19b, at 14, stroke 1.8. */
 export function Check({ size = 17, color = light.ink, strokeWidth = 1.8 }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
       <Path d="M3 8.5l3.2 3.2L13 5" />
-    </Svg>
-  );
-}
-
-/* Figs 10b, 11 and 12, at 12, stroke 1.6. */
-export function ChevronDown({ size = 12, color = light.ink, strokeWidth = 1.6 }: IconProps) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 12 12" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
-      <Path d="M2.5 4.5 6 8l3.5-3.5" />
     </Svg>
   );
 }
@@ -69,16 +60,7 @@ export function ChevronRight({ size = 11, color = light.ink, strokeWidth = 1.6 }
   );
 }
 
-/* Figs 08, 08d and 09, at 12, stroke 1.6. */
-export function ChevronUp({ size = 12, color = light.ink, strokeWidth = 1.6 }: IconProps) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 12 12" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
-      <Path d="M2.5 7.5 6 4l3.5 3.5" />
-    </Svg>
-  );
-}
-
-/* Figs 17, 17b and 23, at 16, stroke 1.7. */
+/* Figs 08g, 17, 17b and 23, at 16, stroke 1.7. */
 export function Close({ size = 16, color = light.ink, strokeWidth = 1.7 }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 16 16" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round">
@@ -125,7 +107,7 @@ export function Flash({ size = 19, color = light.ink, strokeWidth = 1.95 }: Icon
   );
 }
 
-/* Figs 06, 08, 08d, 09, 10b, 11, 12, 14, 14d and 15, sized by the stylesheet, stroke 1.6. */
+/* Figs 06, 08, 08d, 08g, 09, 10b, 11, 12, 14, 14d and 15, sized by the stylesheet, stroke 1.6. */
 export function Hanger({ size = 24, color = light.ink, strokeWidth = 1.6 }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
@@ -142,6 +124,16 @@ export function Heart({ size = 18, color = light.ink, filled = false }: IconProp
     <Svg width={size} height={size} viewBox="0 0 24 24">
       {!filled && <Path d="M12 20.5C6 16.5 3 12.8 3 9.2 3 6.5 5.1 4.5 7.6 4.5c1.7 0 3.2.9 4.4 2.6 1.2-1.7 2.7-2.6 4.4-2.6C18.9 4.5 21 6.5 21 9.2c0 3.6-3 7.3-9 11.3Z" fill="none" stroke={color} strokeWidth="1.7" strokeLinejoin="round" />}
       {filled && <Path d="M12 20.5C6 16.5 3 12.8 3 9.2 3 6.5 5.1 4.5 7.6 4.5c1.7 0 3.2.9 4.4 2.6 1.2-1.7 2.7-2.6 4.4-2.6C18.9 4.5 21 6.5 21 9.2c0 3.6-3 7.3-9 11.3Z" fill={color} />}
+    </Svg>
+  );
+}
+
+/* Fig 08g, at 20, stroke 1.7. */
+export function Info({ size = 20, color = light.ink, strokeWidth = 1.7 }: IconProps) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+      <Circle cx="12" cy="12" r="9.2" />
+      <Path d="M12 7.8h.01M12 11.2v5" />
     </Svg>
   );
 }
@@ -227,7 +219,7 @@ export function Share({ size = 16, color = light.ink, strokeWidth = 1.7 }: IconP
   );
 }
 
-/* Figs 08, 08d, 09, 10b, 11 and 12, at 15, stroke 1.5. */
+/* Figs 08, 08d, 08g, 09, 10b, 11 and 12, at 15, stroke 1.5. */
 export function Shuffle({ size = 15, color = light.ink, strokeWidth = 1.5 }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 15 15" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
@@ -237,21 +229,12 @@ export function Shuffle({ size = 15, color = light.ink, strokeWidth = 1.5 }: Ico
   );
 }
 
-/* Figs 08, 08d, 09 and 10b, at 20, stroke 1.6. */
+/* Figs 08, 08d, 08g, 09 and 10b, at 20, stroke 1.6. */
 export function Snow({ size = 20, color = light.ink, strokeWidth = 1.6 }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
       <Path d="M7.5 14.5A3.8 3.8 0 0 1 8 7a4.8 4.8 0 0 1 9.1.8A3.3 3.3 0 0 1 17 14.5" />
       <Path d="M8 17.6h.01M12 19h.01M16 17.6h.01M10 20.6h.01M14 20.6h.01" />
-    </Svg>
-  );
-}
-
-/* Figs 08, 08d, 09, 10b, 11 and 12, at 13, stroke 1.7. */
-export function Snowflake({ size = 13, color = light.ink, strokeWidth = 1.7 }: IconProps) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
-      <Path d="M12 3v18M4.2 7.5 19.8 16.5M4.2 16.5 19.8 7.5M9.4 6.1 12 3 14.6 6.1M15.8 6.8 19.8 7.5 18.4 11.3M18.4 12.7 19.8 16.5 15.8 17.2M14.6 17.9 12 21 9.4 17.9M8.2 17.2 4.2 16.5 5.6 12.7M5.6 11.3 4.2 7.5 8.2 6.8" />
     </Svg>
   );
 }
@@ -275,17 +258,7 @@ export function Sparkle({ size = 14, color = light.ink, strokeWidth = 1.7 }: Ico
   );
 }
 
-/* Figs 08, 08d, 09, 10b, 11 and 12, at 13, stroke 1.7. */
-export function Sun({ size = 13, color = light.ink, strokeWidth = 1.7 }: IconProps) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
-      <Circle cx="12" cy="12" r="4.2" />
-      <Path d="M12 2.5v2.6M12 18.9v2.6M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12h2.6M18.9 12h2.6M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8" />
-    </Svg>
-  );
-}
-
-/* Figs 06, 08, 08d, 09, 10b, 11, 12, 14, 14d and 15, sized by the stylesheet, stroke 1.6. */
+/* Figs 06, 08, 08d, 08g, 09, 10b, 11, 12, 14, 14d and 15, sized by the stylesheet, stroke 1.6. */
 export function Sunrise({ size = 24, color = light.ink, strokeWidth = 1.6 }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
@@ -316,6 +289,6 @@ export function Trash({ size = 14, color = light.ink, strokeWidth = 1.5 }: IconP
   );
 }
 
-export const icons = { Alert, Back, Camera, Check, ChevronDown, ChevronRight, ChevronUp, Close, CloseEditor, Cloud, Eyedropper, Flash, Hanger, Heart, Moon, PartlyCloudy, Picture, Plus, Precipitation, Refresh, Search, Share, Shuffle, Snow, Snowflake, Sort, Sparkle, Sun, Sunrise, Sunset, Trash } satisfies Record<string, Icon>;
+export const icons = { Alert, Back, Camera, Check, ChevronRight, Close, CloseEditor, Cloud, Eyedropper, Flash, Hanger, Heart, Info, Moon, PartlyCloudy, Picture, Plus, Precipitation, Refresh, Search, Share, Shuffle, Snow, Sort, Sparkle, Sunrise, Sunset, Trash } satisfies Record<string, Icon>;
 
 export type IconName = keyof typeof icons;

@@ -112,7 +112,7 @@ purpose:
   puts it, under the tab bar or over it (ADR 0017), each one a stub that
   renders its own name.
 - **`src/theme/tokens.ts` and `src/strings/drawn.ts` are already written**, by
-  `node tools/extract.mjs`, which reads the mockup. **56 tokens and 370 drawn
+  `node tools/extract.mjs`, which reads the mockup. **56 tokens and 440 drawn
   sentences.** Nobody types a colour or retypes a sentence: five people
   matching a colour by eye produce five colours, and five people writing the
   same sentence from memory write five sentences.
@@ -192,7 +192,7 @@ pass over the whole app with the network off.
 |---|---|---|
 | Fig 05 | First run, your reference photo | Max |
 | Fig 06 | Closet, empty | Cris |
-| Fig 08, 08d, 09, 10b, 12 | Today and its states | Natasha |
+| Fig 08, 08d, 08g, 09, 10b, 12 | Today and its states | Natasha |
 | Fig 11 | Today, the forecast failed | **Natasha, first** |
 | Fig 14 | Weather | Minh |
 | Fig 14d | Weather, no cached forecast | **Minh, first** |
@@ -201,7 +201,7 @@ pass over the whole app with the network off.
 | Fig 19, 19b | Item editor | Paul |
 | Fig 23 | You | Max |
 
-**Seventeen plates, eight screens, five people.** Open
+**Eighteen plates, eight screens, five people.** Open
 [`docs/design/mobile.html`](design/mobile.html) in a browser and read the
 caption under each frame.
 
