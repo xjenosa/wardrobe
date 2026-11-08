@@ -1,12 +1,14 @@
 import sample from './fixture.json';
 import type { Forecast, ForecastState } from './types';
 
+export { refreshAt, type Coords } from './fetch';
 export { isForecast, type Forecast, type ForecastFailure, type ForecastState, type Hour } from './types';
 
-/* UNTIL THE FETCH EXISTS, A REFRESH ANSWERS FROM fixture.json, in whichever of
-   the three states a test or a placeholder chose, so Today and Weather can
-   build all three before there is a network. The fetch replaces this, keeping
-   refreshForecast() as it is called here. */
+/* UNTIL SOMETHING FINDS THE PLACE, A REFRESH ANSWERS FROM fixture.json, in
+   whichever of the three states a test or a placeholder chose, so Today and
+   Weather can build all three. refreshAt() is the real fetch, for a place
+   already found; once the place is found, refreshForecast() calls it and keeps
+   being called as it is here. */
 export type ForecastFixture = ForecastState['state'];
 let chosen: ForecastFixture = 'fresh';
 export function chooseForecastFixture(next: ForecastFixture) {
