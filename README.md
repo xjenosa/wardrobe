@@ -6,6 +6,8 @@ A React Native app that reads the day's forecast, looks at what is actually in
 your closet, and picks an outfit for it. Not a style feed and not a shopping
 app: it only ever recommends things you already own.
 
+<img src="docs/screenshot.jpg" width="300" alt="Today as the design mockup draws it, not yet the running app. Thursday in Toronto, minus 4 with light snow, a beanie and gloves advised, and the one outfit chosen for it worn by a drawn figure." title="The design mockup, not yet the running app">
+
 > **Status: in progress.** The app runs as a shell: every screen below is a
 > placeholder that shows its own name, the client for the recommendation service
 > answers from the offline fixture, and the closet is saved on the phone. The
