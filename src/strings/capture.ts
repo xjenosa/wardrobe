@@ -9,6 +9,19 @@ export const capture = {
   closetUnreadable: 'The closet could not be read.',
   tryAgain: 'Try again',
   notInCloset: 'This garment is not in your closet.',
+  taggingFailed: 'The garment could not be read. Your photograph is still here.',
+  fillByHand: 'Fill it in by hand',
+  cameraRefused: 'Camera access was refused. You can upload a photo instead, or open Settings.',
+  openSettings: 'Open Settings',
+  /* What happened; the buttons beside it say what to do. The phone may be out
+     of space, so Try again alone is not enough (ADR 0022). */
+  photoFailed: 'The photograph could not be kept. The phone may be out of space.',
+  /* The two picture labels Fig 17 and Fig 17b draw. The failed and confirm
+     photographs below have no plate words: Fig 18 draws the cut-out only. */
+  viewfinder: 'The garment in the viewfinder',
+  photographReading: 'The photograph, being read',
+  photographFailed: 'Your photograph, still here',
+  photographConfirm: 'The photograph',
   /* The plate only draws the plural ("Worn 12 times · last on 3 Jan"). The
      singular is the one line that has no plate. */
   wornOnce: 'Worn 1 time · last on 3 Jan',

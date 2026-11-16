@@ -1,22 +1,91 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { act, render, screen, userEvent } from '@testing-library/react-native';
-import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { BackHandler, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import * as garmentPhoto from '../../lib/garmentPhoto';
 import { loadCloset, resetCloset } from '../../lib/store';
+import * as tagLib from '../../lib/tag';
 import { navigationRef, RootNavigator } from '../../nav/RootNavigator';
 import { capture } from '../../strings/capture';
 import { drawn } from '../../strings/drawn';
 import { screens } from '../../strings/screens';
 
+const mockTakePictureAsync = jest.fn();
+const mockRequestPermission = jest.fn();
+const GRANTED = { granted: true, canAskAgain: true, expires: 'never', status: 'granted' };
+let mockPermission = GRANTED;
+
+jest.mock('expo-camera', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports -- jest.mock factory runs before imports
+  const React = require('react') as typeof import('react');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports -- jest.mock factory runs before imports
+  const { View } = require('react-native') as typeof import('react-native');
+  const CameraView = React.forwardRef((_props: object, ref: React.Ref<{ takePictureAsync: typeof mockTakePictureAsync }>) => {
+    React.useImperativeHandle(ref, () => ({ takePictureAsync: mockTakePictureAsync }));
+    return <View testID="camera-view" />;
+  });
+  CameraView.displayName = 'CameraView';
+  return {
+    CameraView,
+    useCameraPermissions: () => [mockPermission, mockRequestPermission, jest.fn()],
+  };
+});
+
+jest.mock('expo-image-picker', () => ({
+  requestCameraPermissionsAsync: jest.fn(),
+  launchCameraAsync: jest.fn(),
+  launchImageLibraryAsync: jest.fn(),
+}));
+
+const picker = jest.mocked(ImagePicker);
+const cam = drawn.fig17;
+const reading = drawn.fig17B;
 const t = drawn.fig18;
+const PHOTO_NAME = 'g-shot.jpg';
+const PHOTO_URI = 'file:///documents/garments/g-shot.jpg';
 
 async function openAdd() {
   const user = userEvent.setup();
   await render(<RootNavigator />);
   await user.press(screen.getByRole('button', { name: /^Closet, tab,/ }));
   await user.press(screen.getByRole('button', { name: screens.addGarment }));
-  await screen.findByRole('header', { name: t.newGarment });
+  await screen.findByRole('header', { name: cam.newGarment });
+  return user;
+}
+
+function mockKeptPhoto() {
+  jest.spyOn(garmentPhoto, 'keepGarmentPhoto').mockResolvedValue({ ok: true, name: PHOTO_NAME });
+  jest.spyOn(garmentPhoto, 'loadGarmentPhoto').mockReturnValue({ ok: true, uri: PHOTO_URI });
+  jest.spyOn(garmentPhoto, 'removeGarmentPhoto').mockReturnValue({ ok: true });
+}
+
+async function openConfirmTagged(user: Awaited<ReturnType<typeof openAdd>>) {
+  jest.spyOn(tagLib, 'hasTagService').mockReturnValue(true);
+  picker.launchImageLibraryAsync.mockResolvedValue({
+    canceled: false,
+    assets: [{ uri: 'file:///cache/shot.jpg', width: 1, height: 1 }],
+  } as ImagePicker.ImagePickerResult);
+  mockKeptPhoto();
+  jest.spyOn(tagLib, 'tag').mockResolvedValue({
+    ok: true,
+    response: { name: 'Camel topcoat', category: 'Outerwear', warmth: 'Warm', style: 'Smart' },
+  });
+  await user.press(screen.getByRole('button', { name: cam.upload }));
+  await screen.findByLabelText(t.name);
+  return user;
+}
+
+async function openConfirmByHand(user: Awaited<ReturnType<typeof openAdd>>) {
+  jest.spyOn(tagLib, 'hasTagService').mockReturnValue(false);
+  picker.launchImageLibraryAsync.mockResolvedValue({
+    canceled: false,
+    assets: [{ uri: 'file:///cache/shot.jpg', width: 1, height: 1 }],
+  } as ImagePicker.ImagePickerResult);
+  mockKeptPhoto();
+  await user.press(screen.getByRole('button', { name: cam.upload }));
+  await screen.findByLabelText(t.name);
   return user;
 }
 
@@ -28,42 +97,204 @@ const onTop = () => {
 
 beforeEach(async () => {
   jest.restoreAllMocks();
+  mockTakePictureAsync.mockReset();
+  mockPermission = GRANTED;
+  mockRequestPermission.mockReset().mockResolvedValue(GRANTED);
   await AsyncStorage.clear();
+  picker.requestCameraPermissionsAsync.mockResolvedValue({ granted: true } as ImagePicker.CameraPermissionResponse);
+});
+
+it('opens on the capture plate, not the confirm form', async () => {
+  await openAdd();
+  expect(screen.getByRole('button', { name: cam.capture })).toBeOnTheScreen();
+  expect(screen.getByRole('button', { name: cam.upload })).toBeOnTheScreen();
+  expect(screen.getByLabelText(capture.viewfinder)).toBeOnTheScreen();
+  expect(screen.queryByLabelText(t.name)).not.toBeOnTheScreen();
+});
+
+it('asks for the camera when Add opens, so the first press of the shutter has a camera', async () => {
+  mockPermission = { granted: false, canAskAgain: true, expires: 'never', status: 'undetermined' };
+  await openAdd();
+  expect(mockRequestPermission).toHaveBeenCalledTimes(1);
+});
+
+it('says so when the camera is refused as Add opens', async () => {
+  mockPermission = { granted: false, canAskAgain: true, expires: 'never', status: 'undetermined' };
+  mockRequestPermission.mockResolvedValue({ ...mockPermission, status: 'denied' });
+  await openAdd();
+  expect(await screen.findByText(capture.cameraRefused)).toBeOnTheScreen();
+});
+
+it('does not ask again while it is still refused', async () => {
+  mockPermission = { granted: false, canAskAgain: false, expires: 'never', status: 'denied' };
+  await openAdd();
+  expect(mockRequestPermission).not.toHaveBeenCalled();
+});
+
+it('starts tagging when the shutter fires, and shows the photograph while it reads', async () => {
+  const user = await openAdd();
+  jest.spyOn(tagLib, 'hasTagService').mockReturnValue(true);
+  let finishTag: (value: tagLib.TagResult) => void = () => undefined;
+  const pending = new Promise<tagLib.TagResult>((resolve) => {
+    finishTag = resolve;
+  });
+  mockTakePictureAsync.mockResolvedValue({ uri: 'file:///cache/shot.jpg' });
+  mockKeptPhoto();
+  const tagSpy = jest.spyOn(tagLib, 'tag').mockReturnValue(pending);
+
+  await user.press(screen.getByRole('button', { name: cam.capture }));
+  expect(tagSpy).toHaveBeenCalledWith(PHOTO_URI);
+  expect(await screen.findByText(reading.readingTheGarment)).toBeOnTheScreen();
+  expect(screen.getByLabelText(capture.photographReading)).toBeOnTheScreen();
+
+  await act(async () => {
+    finishTag({ ok: true, response: { name: 'Camel topcoat', category: 'Outerwear', warmth: 'Warm' } });
+  });
+  expect(await screen.findByLabelText(t.name)).toHaveDisplayValue('Camel topcoat');
+  expect(screen.getByLabelText(capture.photographConfirm)).toBeOnTheScreen();
+});
+
+it('goes to the form by hand with the photo kept when no tagging address is set', async () => {
+  const user = await openAdd();
+  const tagSpy = jest.spyOn(tagLib, 'tag');
+  await openConfirmByHand(user);
+  expect(tagSpy).not.toHaveBeenCalled();
+  expect(screen.getByLabelText(t.name)).toHaveDisplayValue('');
+  expect(screen.getByText(capture.byHand)).toBeOnTheScreen();
+  expect(screen.getByLabelText(capture.photographConfirm)).toBeOnTheScreen();
+});
+
+it('keeps the photograph when tagging fails, and can fill by hand', async () => {
+  const user = await openAdd();
+  jest.spyOn(tagLib, 'hasTagService').mockReturnValue(true);
+  picker.launchImageLibraryAsync.mockResolvedValue({
+    canceled: false,
+    assets: [{ uri: 'file:///cache/shot.jpg', width: 1, height: 1 }],
+  } as ImagePicker.ImagePickerResult);
+  mockKeptPhoto();
+  jest.spyOn(tagLib, 'tag').mockResolvedValue({ ok: false, failure: 'network' });
+
+  await user.press(screen.getByRole('button', { name: cam.upload }));
+  expect(await screen.findByText(capture.taggingFailed)).toBeOnTheScreen();
+  expect(screen.getByLabelText(capture.photographFailed)).toBeOnTheScreen();
+  await user.press(screen.getByRole('button', { name: capture.fillByHand }));
+  expect(await screen.findByLabelText(t.name)).toHaveDisplayValue('');
+  expect(screen.getByText(capture.byHand)).toBeOnTheScreen();
+  expect(screen.getByLabelText(capture.photographConfirm)).toBeOnTheScreen();
+
+  await user.type(screen.getByLabelText(t.name), 'Camel topcoat');
+  await user.press(screen.getByRole('radio', { name: 'Outerwear' }));
+  await user.press(screen.getByRole('radio', { name: 'Warm' }));
+  await user.press(saveButton());
+  const closet = await loadCloset();
+  expect(closet).toMatchObject({
+    ok: true,
+    garments: [{ name: 'Camel topcoat', photo: PHOTO_NAME }],
+  });
+});
+
+it('removes an unsaved photograph when Add garment is closed without saving', async () => {
+  const user = await openAdd();
+  await openConfirmByHand(user);
+  const remove = jest.spyOn(garmentPhoto, 'removeGarmentPhoto').mockReturnValue({ ok: true });
+  await user.press(screen.getByRole('button', { name: t.cancel }));
+  expect(remove).toHaveBeenCalled();
+  expect(onTop()).toBe('Tabs');
+});
+
+it("goes back to capture on Android's back button from the confirm step, not out of Add", async () => {
+  type BackHandlerFn = Parameters<typeof BackHandler.addEventListener>[1];
+  const handlers: BackHandlerFn[] = [];
+  jest.spyOn(BackHandler, 'addEventListener').mockImplementation((_event, handler) => {
+    handlers.push(handler);
+    return { remove: () => void handlers.splice(handlers.indexOf(handler), 1) };
+  });
+  const user = await openAdd();
+  await openConfirmByHand(user);
+  let handled: boolean | null | undefined;
+  await act(async () => {
+    handled = handlers.at(-1)?.({} as never);
+  });
+  expect(handled).toBe(true);
+  expect(await screen.findByRole('button', { name: cam.capture })).toBeOnTheScreen();
+  expect(screen.queryByLabelText(t.name)).not.toBeOnTheScreen();
 });
 
 it('cannot be saved until it is a garment', async () => {
   const user = await openAdd();
+  await openConfirmTagged(user);
+  expect(saveButton()).toBeEnabled();
+  await user.clear(screen.getByLabelText(t.name));
   expect(saveButton()).toBeDisabled();
   await user.type(screen.getByLabelText(t.name), 'Camel topcoat');
+  expect(saveButton()).toBeEnabled();
+});
+
+it('cannot be saved from an empty by-hand form until category and warmth are chosen', async () => {
+  const user = await openAdd();
+  await openConfirmByHand(user);
+  expect(saveButton()).toBeDisabled();
+  await user.type(screen.getByLabelText(t.name), 'Camel topcoat');
+  expect(saveButton()).toBeDisabled();
   await user.press(screen.getByRole('radio', { name: 'Outerwear' }));
   expect(saveButton()).toBeDisabled();
   await user.press(screen.getByRole('radio', { name: 'Warm' }));
+  expect(saveButton()).toBeEnabled();
+});
+
+it('cannot be saved without a category, even with a name and a warmth', async () => {
+  const user = await openAdd();
+  await openConfirmByHand(user);
+  await user.type(screen.getByLabelText(t.name), 'Camel topcoat');
+  await user.press(screen.getByRole('radio', { name: 'Warm' }));
+  expect(saveButton()).toBeDisabled();
+  await user.press(screen.getByRole('radio', { name: 'Outerwear' }));
   expect(saveButton()).toBeEnabled();
 });
 
 it('lets an accessory leave warmth out', async () => {
   const user = await openAdd();
+  await openConfirmByHand(user);
   await user.type(screen.getByLabelText(t.name), 'Charcoal beanie');
   await user.press(screen.getByRole('radio', { name: 'Accessories' }));
   expect(saveButton()).toBeEnabled();
+  await user.press(saveButton());
+  const closet = await loadCloset();
+  expect(closet.ok && closet.garments[0]).toMatchObject({ name: 'Charcoal beanie', category: 'Accessories' });
+  expect(closet.ok && closet.garments[0]).not.toHaveProperty('warmth');
 });
 
-it('saves to the closet and goes back', async () => {
+it('saves to the closet with its photograph and goes back', async () => {
   const user = await openAdd();
-  await user.type(screen.getByLabelText(t.name), '  Camel topcoat ');
-  await user.press(screen.getByRole('radio', { name: 'Outerwear' }));
-  await user.press(screen.getByRole('radio', { name: 'Warm' }));
-  await user.press(screen.getByRole('radio', { name: 'Smart' }));
+  await openConfirmTagged(user);
   await user.press(saveButton());
 
   const closet = await loadCloset();
-  expect(closet).toMatchObject({ ok: true, garments: [{ name: 'Camel topcoat', category: 'Outerwear', warmth: 'Warm', style: 'Smart' }] });
+  expect(closet).toMatchObject({
+    ok: true,
+    garments: [{ name: 'Camel topcoat', category: 'Outerwear', warmth: 'Warm', style: 'Smart', photo: PHOTO_NAME }],
+  });
   expect(onTop()).toBe('Tabs');
+});
+
+it('keeps the photograph on the phone after Save', async () => {
+  const user = await openAdd();
+  await openConfirmTagged(user);
+  let onDisk = true;
+  jest.spyOn(garmentPhoto, 'loadGarmentPhoto').mockImplementation(() => ({ ok: true, uri: onDisk ? PHOTO_URI : null }));
+  jest.spyOn(garmentPhoto, 'removeGarmentPhoto').mockImplementation(() => {
+    onDisk = false;
+    return { ok: true };
+  });
+  await user.press(saveButton());
+  expect(onTop()).toBe('Tabs');
+  expect(garmentPhoto.loadGarmentPhoto('any')).toEqual({ ok: true, uri: PHOTO_URI });
 });
 
 it('adds to the closet it finds and does not replace it', async () => {
   await resetCloset([{ id: 'g1', name: 'Navy overcoat', category: 'Outerwear', warmth: 'Warmest' }]);
   const user = await openAdd();
+  await openConfirmByHand(user);
   await user.type(screen.getByLabelText(t.name), 'Charcoal beanie');
   await user.press(screen.getByRole('radio', { name: 'Accessories' }));
   await user.press(saveButton());
@@ -74,9 +305,7 @@ it('adds to the closet it finds and does not replace it', async () => {
 
 it('keeps everything entered when the save fails', async () => {
   const user = await openAdd();
-  await user.type(screen.getByLabelText(t.name), 'Camel topcoat');
-  await user.press(screen.getByRole('radio', { name: 'Outerwear' }));
-  await user.press(screen.getByRole('radio', { name: 'Warm' }));
+  await openConfirmTagged(user);
   jest.spyOn(AsyncStorage, 'setItem').mockRejectedValueOnce(new Error('disk full'));
   await user.press(saveButton());
 
@@ -89,8 +318,7 @@ it('keeps everything entered when the save fails', async () => {
 it('does not write over a closet that could not be read', async () => {
   await AsyncStorage.setItem('wardrobe.closet', '{not json');
   const user = await openAdd();
-  await user.type(screen.getByLabelText(t.name), 'Charcoal beanie');
-  await user.press(screen.getByRole('radio', { name: 'Accessories' }));
+  await openConfirmTagged(user);
   await user.press(saveButton());
 
   expect(await screen.findByText(capture.saveFailed)).toBeOnTheScreen();
@@ -99,7 +327,7 @@ it('does not write over a closet that could not be read', async () => {
 
 it('saves nothing on cancel', async () => {
   const user = await openAdd();
-  await user.type(screen.getByLabelText(t.name), 'Camel topcoat');
+  await openConfirmTagged(user);
   await user.press(screen.getByRole('button', { name: t.cancel }));
 
   expect(onTop()).toBe('Tabs');
@@ -108,11 +336,7 @@ it('saves nothing on cancel', async () => {
 
 it('adds the garment once when Save is pressed twice before the screen updates', async () => {
   const user = await openAdd();
-  await user.type(screen.getByLabelText(t.name), 'Camel topcoat');
-  await user.press(screen.getByRole('radio', { name: 'Outerwear' }));
-  await user.press(screen.getByRole('radio', { name: 'Warm' }));
-  /* Both presses reach the handler this render gave the button, before the
-     screen has updated to say it is saving. */
+  await openConfirmTagged(user);
   const click = saveButton().props.onClick as (event: object) => void;
   const press = () => click({ stopPropagation() {}, nativeEvent: {} });
   await act(async () => {
@@ -126,20 +350,19 @@ it('adds the garment once when Save is pressed twice before the screen updates',
 
 it('clears a warmth that is chosen again, and then wants one', async () => {
   const user = await openAdd();
-  await user.type(screen.getByLabelText(t.name), 'Camel topcoat');
-  await user.press(screen.getByRole('radio', { name: 'Outerwear' }));
+  await openConfirmTagged(user);
   await user.press(screen.getByRole('radio', { name: 'Warm' }));
-  await user.press(screen.getByRole('radio', { name: 'Warm' }));
-
   expect(screen.getByRole('radio', { name: 'Warm' })).not.toBeChecked();
   expect(saveButton()).toBeDisabled();
 });
 
 it('lets an accessory take its warmth back', async () => {
   const user = await openAdd();
+  await openConfirmTagged(user);
+  await user.clear(screen.getByLabelText(t.name));
   await user.type(screen.getByLabelText(t.name), 'Charcoal beanie');
   await user.press(screen.getByRole('radio', { name: 'Accessories' }));
-  await user.press(screen.getByRole('radio', { name: 'Warm' }));
+  /* Tagging left Warm on; one tap clears it for an accessory. */
   await user.press(screen.getByRole('radio', { name: 'Warm' }));
   await user.press(saveButton());
 
@@ -147,9 +370,25 @@ it('lets an accessory take its warmth back', async () => {
   expect(closet.ok && closet.garments[0]).not.toHaveProperty('warmth');
 });
 
-/* Same check as First run: the full-screen modal pads the status bar from the
-   insets in exactly one place, and never through a SafeAreaView (which would
-   double the top on Android). */
+it('offers fill by hand when the photograph could not be kept, and retries the same source', async () => {
+  const user = await openAdd();
+  picker.launchImageLibraryAsync.mockResolvedValue({
+    canceled: false,
+    assets: [{ uri: 'file:///cache/shot.jpg', width: 1, height: 1 }],
+  } as ImagePicker.ImagePickerResult);
+  jest.spyOn(garmentPhoto, 'keepGarmentPhoto').mockResolvedValue({ ok: false });
+  await user.press(screen.getByRole('button', { name: cam.upload }));
+  expect(await screen.findByText(capture.photoFailed)).toBeOnTheScreen();
+  expect(screen.getByRole('button', { name: capture.fillByHand })).toBeOnTheScreen();
+  jest.spyOn(garmentPhoto, 'keepGarmentPhoto').mockResolvedValue({ ok: true, name: PHOTO_NAME });
+  jest.spyOn(garmentPhoto, 'loadGarmentPhoto').mockReturnValue({ ok: true, uri: PHOTO_URI });
+  jest.spyOn(tagLib, 'hasTagService').mockReturnValue(false);
+  picker.launchImageLibraryAsync.mockClear();
+  await user.press(screen.getByRole('button', { name: capture.tryAgain }));
+  expect(picker.launchImageLibraryAsync).toHaveBeenCalled();
+  expect(await screen.findByLabelText(t.name)).toBeOnTheScreen();
+});
+
 type Drawn = { type: string; props: Record<string, unknown>; children: (Drawn | string)[] };
 const everything = (el: Drawn): Drawn[] => [el, ...el.children.flatMap((c) => (typeof c === 'string' ? [] : everything(c)))];
 const GAPS = ['paddingTop', 'paddingVertical', 'padding', 'marginTop', 'marginVertical', 'margin', 'top', 'height'] as const;
@@ -158,7 +397,7 @@ it('makes room for the status bar exactly once', async () => {
   const top = 62;
   jest.mocked(useSafeAreaInsets).mockReturnValue({ top, bottom: 34, left: 0, right: 0 });
   await openAdd();
-  let page = screen.getByRole('header', { name: t.newGarment }) as unknown as Drawn & { parent: Drawn | null };
+  let page = screen.getByRole('header', { name: cam.newGarment }) as unknown as Drawn & { parent: Drawn | null };
   while (page.parent && !/^RNS.*Screen$/.test(page.type)) page = page.parent as typeof page;
   const elements = everything(page);
   const gaps = elements.flatMap((el) =>
