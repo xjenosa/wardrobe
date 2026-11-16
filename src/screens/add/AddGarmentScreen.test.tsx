@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { act, render, screen, userEvent } from '@testing-library/react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
+import { BackHandler, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import * as garmentPhoto from '../../lib/garmentPhoto';
@@ -176,6 +176,24 @@ it('removes an unsaved photograph when Add garment is closed without saving', as
   await user.press(screen.getByRole('button', { name: t.cancel }));
   expect(remove).toHaveBeenCalled();
   expect(onTop()).toBe('Tabs');
+});
+
+it("goes back to capture on Android's back button from the confirm step, not out of Add", async () => {
+  type BackHandlerFn = Parameters<typeof BackHandler.addEventListener>[1];
+  const handlers: BackHandlerFn[] = [];
+  jest.spyOn(BackHandler, 'addEventListener').mockImplementation((_event, handler) => {
+    handlers.push(handler);
+    return { remove: () => void handlers.splice(handlers.indexOf(handler), 1) };
+  });
+  const user = await openAdd();
+  await openConfirmByHand(user);
+  let handled: boolean | null | undefined;
+  await act(async () => {
+    handled = handlers.at(-1)?.({} as never);
+  });
+  expect(handled).toBe(true);
+  expect(await screen.findByRole('button', { name: cam.capture })).toBeOnTheScreen();
+  expect(screen.queryByLabelText(t.name)).not.toBeOnTheScreen();
 });
 
 it('cannot be saved until it is a garment', async () => {
