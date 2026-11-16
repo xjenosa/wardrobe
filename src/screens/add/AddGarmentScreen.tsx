@@ -12,7 +12,7 @@ import { hasTagService, tag, type TagResponse } from '../../lib/tag';
 import { capture } from '../../strings/capture';
 import { drawn } from '../../strings/drawn';
 import { font } from '../../theme/font';
-import { Check, Flash, Picture } from '../../theme/icons';
+import { Check, Flash, Picture, Sparkle } from '../../theme/icons';
 import { light } from '../../theme/tokens';
 import { emptyValues, FormFrame, formStyles, garmentOf, GarmentForm, type FormValues } from './GarmentForm';
 
@@ -220,7 +220,9 @@ export function AddGarmentScreen() {
               style={styles.shutter}
               hitSlop={reach(72)}
             >
-              <View style={styles.shutterInner} />
+              <View style={styles.shutterRing} testID="shutter-ring">
+                <View style={styles.shutterDisc} />
+              </View>
             </Pressable>
             <Pressable
               accessibilityRole="button"
@@ -230,7 +232,7 @@ export function AddGarmentScreen() {
               style={styles.side}
             >
               <Flash color={flash ? light.ink : light.muted} size={19} />
-              <Text style={[styles.sideLabel, flash ? null : styles.sideOff]}>{cam.flash}</Text>
+              <Text style={[styles.sideLabel, false]}>{cam.flash}</Text>
             </Pressable>
           </View>
         </View>
@@ -284,7 +286,9 @@ export function AddGarmentScreen() {
           </View>
         ) : null}
         {step.tagged ? (
-          <Text style={styles.aiNote}>{t.taggedByAiFromYour}</Text>
+          <View style={styles.aiNote}>
+            <Text style={styles.aiNoteText}>{t.taggedByAiFromYour}</Text>
+          </View>
         ) : (
           <Text style={styles.byHandNote}>{capture.byHand}</Text>
         )}
@@ -355,16 +359,21 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     color: light.muted,
   },
-  sideOff: { color: light.muted },
+  sideOn: { color: light.ink },
   shutter: { width: 66, height: 66, alignItems: 'center', justifyContent: 'center' },
-  shutterInner: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
-    backgroundColor: light.ink,
-    borderWidth: 6,
-    borderColor: light.paper,
+  /* Fig 17 --shutter-ring: a 58 disc, a 4 paper ring, then a 2 ink ring, so the
+     whole mark is 70 across inside the 66 the button takes. */
+  shutterRing: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    borderWidth: 2,
+    borderColor: light.ink,
+    backgroundColor: light.paper,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
+  shutterDisc: { width: 58, height: 58, borderRadius: 29, backgroundColor: light.ink },
   hint: {
     height: 126,
     textAlign: 'center',
@@ -403,15 +412,15 @@ const styles = StyleSheet.create({
     experimental_backgroundImage: `linear-gradient(155deg, ${light.photoGround} 0%, ${light.photoShade} 100%)`,
   },
   cutPhoto: { width: '100%', height: '84%', resizeMode: 'contain' },
-  aiNote: {
-    marginHorizontal: 4,
-    marginTop: 4,
-    marginBottom: 16,
+  aiNote: { flexDirection: 'row', alignItems: 'center', gap: 8, marginHorizontal: 4, marginTop: 4, marginBottom: 16 },
+  aiNoteText: {
+    flexShrink: 1,
     fontFamily: font.regular,
     fontSize: 12,
     lineHeight: 16.8,
     color: light.muted,
   },
+
   byHandNote: {
     marginHorizontal: 4,
     marginBottom: 16,

@@ -11,6 +11,7 @@ import { navigationRef, RootNavigator } from '../../nav/RootNavigator';
 import { capture } from '../../strings/capture';
 import { drawn } from '../../strings/drawn';
 import { screens } from '../../strings/screens';
+import { light } from '../../theme/tokens';
 
 type Permission = { granted: boolean; canAskAgain: boolean; expires: string; status: string };
 const { mockCamera } = jest.requireMock('expo-camera') as {
@@ -99,6 +100,12 @@ it('opens on the capture plate, not the confirm form', async () => {
   expect(screen.getByRole('button', { name: cam.upload })).toBeOnTheScreen();
   expect(screen.getByLabelText(capture.viewfinder)).toBeOnTheScreen();
   expect(screen.queryByLabelText(t.name)).not.toBeOnTheScreen();
+});
+
+it('draws the shutter as Fig 17 does: a 58 disc in a paper ring inside an ink ring', async () => {
+  await openAdd();
+  const ring = StyleSheet.flatten(screen.getByTestId('shutter-ring').props.style);
+  expect(ring).toMatchObject({ width: 70, height: 70, borderWidth: 2, borderColor: light.ink, backgroundColor: light.paper });
 });
 
 it('asks for the camera when Add opens, so the first press of the shutter has a camera', async () => {
