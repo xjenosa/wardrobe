@@ -287,6 +287,7 @@ export function AddGarmentScreen() {
         ) : null}
         {step.tagged ? (
           <View style={styles.aiNote}>
+            <Sparkle color={light.muted} size={14} />
             <Text style={styles.aiNoteText}>{t.taggedByAiFromYour}</Text>
           </View>
         ) : (

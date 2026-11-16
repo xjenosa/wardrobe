@@ -79,6 +79,8 @@ async function openConfirmByHand(user: Awaited<ReturnType<typeof openAdd>>) {
   return user;
 }
 
+/* The sparkle is the first stroke of the Sparkle icon, found in the drawn tree. */
+const hasSparkle = () => JSON.stringify(screen.toJSON()).includes('M12 3l1.8 4.6');
 const saveButton = () => screen.getByRole('button', { name: t.saveToCloset });
 const onTop = () => {
   const root = navigationRef.getRootState();
@@ -116,6 +118,19 @@ it('turns the Flash label ink when flash is on, and back to muted when it is off
   expect(color()).toBe(light.ink);
   await user.press(screen.getByRole('button', { name: cam.flash }));
   expect(color()).toBe(light.muted);
+});
+
+it('puts the sparkle before "Tagged by AI" and none before the by-hand note', async () => {
+  const user = await openAdd();
+  await openConfirmTagged(user);
+  expect(screen.getByText(t.taggedByAiFromYour)).toBeOnTheScreen();
+  expect(hasSparkle()).toBe(true);
+});
+
+it('has no sparkle when the garment is filled in by hand', async () => {
+  const user = await openAdd();
+  await openConfirmByHand(user);
+  expect(hasSparkle()).toBe(false);
 });
 
 it('asks for the camera when Add opens, so the first press of the shutter has a camera', async () => {
