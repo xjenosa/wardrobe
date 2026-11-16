@@ -200,6 +200,16 @@ it('cannot be saved from an empty by-hand form until category and warmth are cho
   expect(saveButton()).toBeEnabled();
 });
 
+it('cannot be saved without a category, even with a name and a warmth', async () => {
+  const user = await openAdd();
+  await openConfirmByHand(user);
+  await user.type(screen.getByLabelText(t.name), 'Camel topcoat');
+  await user.press(screen.getByRole('radio', { name: 'Warm' }));
+  expect(saveButton()).toBeDisabled();
+  await user.press(screen.getByRole('radio', { name: 'Outerwear' }));
+  expect(saveButton()).toBeEnabled();
+});
+
 it('lets an accessory leave warmth out', async () => {
   const user = await openAdd();
   await openConfirmByHand(user);
