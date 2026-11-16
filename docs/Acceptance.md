@@ -72,7 +72,7 @@ the running app.
 
 ## Item editor, Figs 19 and 19b
 
-- [ ] Two pages, swiped: the cut-out and your photograph.
+- [ ] One picture: your photograph with its Photo mark, or the empty frame. No swipe until cut-outs exist (ADR 0028).
 - [ ] An edit survives leaving the screen.
 
 ## You, Fig 23

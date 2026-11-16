@@ -18,7 +18,6 @@ export type Garment = PickGarment & {
   style?: Vibe;
   favourite?: boolean;
   photo?: string;
-  cutOut?: string;
 };
 
 const KEY = 'wardrobe.closet';
@@ -47,8 +46,7 @@ const isGarment = (v: unknown): v is Garment => {
     hasGarmentWords(g) &&
     (g.style === undefined || isOneOf(vibes, g.style)) &&
     (g.favourite === undefined || typeof g.favourite === 'boolean') &&
-    (g.photo === undefined || typeof g.photo === 'string') &&
-    (g.cutOut === undefined || typeof g.cutOut === 'string')
+    (g.photo === undefined || typeof g.photo === 'string')
   );
 };
 

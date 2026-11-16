@@ -46,7 +46,9 @@ or stay uploaded, this is re-read.
 
 - Capture (Fig 17) and Reading (Fig 17b) can be built; shutter starts the tag
   only when an address is set.
-- Fig 19b can draw the photograph beside the cut-out.
+- Fig 19b draws the photograph alone with its Photo mark. No cut-out is kept
+  on the garment until something makes cut-outs, so the editor has one picture
+  and nothing to swipe.
 
 - ADR 0022's "capture waits" line is superseded; its warmth and Close rules
   stand.
