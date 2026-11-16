@@ -13,6 +13,9 @@ import { drawn } from '../../strings/drawn';
 import { screens } from '../../strings/screens';
 
 const mockTakePictureAsync = jest.fn();
+const mockRequestPermission = jest.fn();
+const GRANTED = { granted: true, canAskAgain: true, expires: 'never', status: 'granted' };
+let mockPermission = GRANTED;
 
 jest.mock('expo-camera', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports -- jest.mock factory runs before imports
@@ -26,7 +29,7 @@ jest.mock('expo-camera', () => {
   CameraView.displayName = 'CameraView';
   return {
     CameraView,
-    useCameraPermissions: () => [{ granted: true, canAskAgain: true, expires: 'never', status: 'granted' }, jest.fn(), jest.fn()],
+    useCameraPermissions: () => [mockPermission, mockRequestPermission, jest.fn()],
   };
 });
 
@@ -95,6 +98,8 @@ const onTop = () => {
 beforeEach(async () => {
   jest.restoreAllMocks();
   mockTakePictureAsync.mockReset();
+  mockPermission = GRANTED;
+  mockRequestPermission.mockReset().mockResolvedValue(GRANTED);
   await AsyncStorage.clear();
   picker.requestCameraPermissionsAsync.mockResolvedValue({ granted: true } as ImagePicker.CameraPermissionResponse);
 });
@@ -105,6 +110,25 @@ it('opens on the capture plate, not the confirm form', async () => {
   expect(screen.getByRole('button', { name: cam.upload })).toBeOnTheScreen();
   expect(screen.getByLabelText(capture.viewfinder)).toBeOnTheScreen();
   expect(screen.queryByLabelText(t.name)).not.toBeOnTheScreen();
+});
+
+it('asks for the camera when Add opens, so the first press of the shutter has a camera', async () => {
+  mockPermission = { granted: false, canAskAgain: true, expires: 'never', status: 'undetermined' };
+  await openAdd();
+  expect(mockRequestPermission).toHaveBeenCalledTimes(1);
+});
+
+it('says so when the camera is refused as Add opens', async () => {
+  mockPermission = { granted: false, canAskAgain: true, expires: 'never', status: 'undetermined' };
+  mockRequestPermission.mockResolvedValue({ ...mockPermission, status: 'denied' });
+  await openAdd();
+  expect(await screen.findByText(capture.cameraRefused)).toBeOnTheScreen();
+});
+
+it('does not ask again while it is still refused', async () => {
+  mockPermission = { granted: false, canAskAgain: false, expires: 'never', status: 'denied' };
+  await openAdd();
+  expect(mockRequestPermission).not.toHaveBeenCalled();
 });
 
 it('starts tagging when the shutter fires, and shows the photograph while it reads', async () => {

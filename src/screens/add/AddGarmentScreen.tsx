@@ -59,6 +59,17 @@ export function AddGarmentScreen() {
     };
   }, [id]);
 
+  /* Asked once as Add opens, so the camera is mounted before the first press
+     of the shutter. Once is enough: Android lets a refusal be asked again. */
+  const asked = useRef(false);
+  useEffect(() => {
+    if (!permission || permission.granted || !permission.canAskAgain || asked.current) return;
+    asked.current = true;
+    requestPermission().then((next) => {
+      if (!next.granted) setAskProblem('refused');
+    });
+  }, [permission, requestPermission]);
+
   useEffect(() => {
     if (step.kind !== 'confirm') return;
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
