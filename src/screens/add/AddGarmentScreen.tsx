@@ -45,7 +45,7 @@ export function AddGarmentScreen() {
   const [lastAsk, setLastAsk] = useState<'camera' | 'library'>('camera');
   const [saveFailed, setSaveFailed] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const saved = useRef(false);
   const pressed = useRef(false);
   const tagGen = useRef(0);
   const garment = garmentOf(id, values);
@@ -55,9 +55,20 @@ export function AddGarmentScreen() {
 
   useEffect(() => {
     return () => {
-      if (!saved) removeGarmentPhoto(id);
+      if (!saved.current) removeGarmentPhoto(id);
     };
-  }, [id, saved]);
+  }, [id]);
+
+  /* Asked once as Add opens, so the camera is mounted before the first press
+     of the shutter. Once is enough: Android lets a refusal be asked again. */
+  const asked = useRef(false);
+  useEffect(() => {
+    if (!permission || permission.granted || !permission.canAskAgain || asked.current) return;
+    asked.current = true;
+    requestPermission().then((next) => {
+      if (!next.granted) setAskProblem('refused');
+    });
+  }, [permission, requestPermission]);
 
   useEffect(() => {
     if (step.kind !== 'confirm') return;
@@ -156,7 +167,7 @@ export function AddGarmentScreen() {
     const withPhoto = photo ? { ...garment, photo } : garment;
     const result = await updateCloset((garments) => (garments.some((g) => g.id === withPhoto.id) ? garments : [...garments, withPhoto]));
     if (result.ok) {
-      setSaved(true);
+      saved.current = true;
       navigation.goBack();
     } else {
       pressed.current = false;

@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { act, render, screen, userEvent } from '@testing-library/react-native';
 import * as ImagePicker from 'expo-image-picker';
-import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
+import { BackHandler, StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import * as garmentPhoto from '../../lib/garmentPhoto';
@@ -13,6 +13,9 @@ import { drawn } from '../../strings/drawn';
 import { screens } from '../../strings/screens';
 
 const mockTakePictureAsync = jest.fn();
+const mockRequestPermission = jest.fn();
+const GRANTED = { granted: true, canAskAgain: true, expires: 'never', status: 'granted' };
+let mockPermission = GRANTED;
 
 jest.mock('expo-camera', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports -- jest.mock factory runs before imports
@@ -26,7 +29,7 @@ jest.mock('expo-camera', () => {
   CameraView.displayName = 'CameraView';
   return {
     CameraView,
-    useCameraPermissions: () => [{ granted: true, canAskAgain: true, expires: 'never', status: 'granted' }, jest.fn(), jest.fn()],
+    useCameraPermissions: () => [mockPermission, mockRequestPermission, jest.fn()],
   };
 });
 
@@ -95,6 +98,8 @@ const onTop = () => {
 beforeEach(async () => {
   jest.restoreAllMocks();
   mockTakePictureAsync.mockReset();
+  mockPermission = GRANTED;
+  mockRequestPermission.mockReset().mockResolvedValue(GRANTED);
   await AsyncStorage.clear();
   picker.requestCameraPermissionsAsync.mockResolvedValue({ granted: true } as ImagePicker.CameraPermissionResponse);
 });
@@ -105,6 +110,25 @@ it('opens on the capture plate, not the confirm form', async () => {
   expect(screen.getByRole('button', { name: cam.upload })).toBeOnTheScreen();
   expect(screen.getByLabelText(capture.viewfinder)).toBeOnTheScreen();
   expect(screen.queryByLabelText(t.name)).not.toBeOnTheScreen();
+});
+
+it('asks for the camera when Add opens, so the first press of the shutter has a camera', async () => {
+  mockPermission = { granted: false, canAskAgain: true, expires: 'never', status: 'undetermined' };
+  await openAdd();
+  expect(mockRequestPermission).toHaveBeenCalledTimes(1);
+});
+
+it('says so when the camera is refused as Add opens', async () => {
+  mockPermission = { granted: false, canAskAgain: true, expires: 'never', status: 'undetermined' };
+  mockRequestPermission.mockResolvedValue({ ...mockPermission, status: 'denied' });
+  await openAdd();
+  expect(await screen.findByText(capture.cameraRefused)).toBeOnTheScreen();
+});
+
+it('does not ask again while it is still refused', async () => {
+  mockPermission = { granted: false, canAskAgain: false, expires: 'never', status: 'denied' };
+  await openAdd();
+  expect(mockRequestPermission).not.toHaveBeenCalled();
 });
 
 it('starts tagging when the shutter fires, and shows the photograph while it reads', async () => {
@@ -178,6 +202,24 @@ it('removes an unsaved photograph when Add garment is closed without saving', as
   expect(onTop()).toBe('Tabs');
 });
 
+it("goes back to capture on Android's back button from the confirm step, not out of Add", async () => {
+  type BackHandlerFn = Parameters<typeof BackHandler.addEventListener>[1];
+  const handlers: BackHandlerFn[] = [];
+  jest.spyOn(BackHandler, 'addEventListener').mockImplementation((_event, handler) => {
+    handlers.push(handler);
+    return { remove: () => void handlers.splice(handlers.indexOf(handler), 1) };
+  });
+  const user = await openAdd();
+  await openConfirmByHand(user);
+  let handled: boolean | null | undefined;
+  await act(async () => {
+    handled = handlers.at(-1)?.({} as never);
+  });
+  expect(handled).toBe(true);
+  expect(await screen.findByRole('button', { name: cam.capture })).toBeOnTheScreen();
+  expect(screen.queryByLabelText(t.name)).not.toBeOnTheScreen();
+});
+
 it('cannot be saved until it is a garment', async () => {
   const user = await openAdd();
   await openConfirmTagged(user);
@@ -197,6 +239,16 @@ it('cannot be saved from an empty by-hand form until category and warmth are cho
   await user.press(screen.getByRole('radio', { name: 'Outerwear' }));
   expect(saveButton()).toBeDisabled();
   await user.press(screen.getByRole('radio', { name: 'Warm' }));
+  expect(saveButton()).toBeEnabled();
+});
+
+it('cannot be saved without a category, even with a name and a warmth', async () => {
+  const user = await openAdd();
+  await openConfirmByHand(user);
+  await user.type(screen.getByLabelText(t.name), 'Camel topcoat');
+  await user.press(screen.getByRole('radio', { name: 'Warm' }));
+  expect(saveButton()).toBeDisabled();
+  await user.press(screen.getByRole('radio', { name: 'Outerwear' }));
   expect(saveButton()).toBeEnabled();
 });
 
@@ -223,6 +275,20 @@ it('saves to the closet with its photograph and goes back', async () => {
     garments: [{ name: 'Camel topcoat', category: 'Outerwear', warmth: 'Warm', style: 'Smart', photo: PHOTO_NAME }],
   });
   expect(onTop()).toBe('Tabs');
+});
+
+it('keeps the photograph on the phone after Save', async () => {
+  const user = await openAdd();
+  await openConfirmTagged(user);
+  let onDisk = true;
+  jest.spyOn(garmentPhoto, 'loadGarmentPhoto').mockImplementation(() => ({ ok: true, uri: onDisk ? PHOTO_URI : null }));
+  jest.spyOn(garmentPhoto, 'removeGarmentPhoto').mockImplementation(() => {
+    onDisk = false;
+    return { ok: true };
+  });
+  await user.press(saveButton());
+  expect(onTop()).toBe('Tabs');
+  expect(garmentPhoto.loadGarmentPhoto('any')).toEqual({ ok: true, uri: PHOTO_URI });
 });
 
 it('adds to the closet it finds and does not replace it', async () => {
