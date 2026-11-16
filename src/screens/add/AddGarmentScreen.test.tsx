@@ -108,6 +108,16 @@ it('draws the shutter as Fig 17 does: a 58 disc in a paper ring inside an ink ri
   expect(ring).toMatchObject({ width: 70, height: 70, borderWidth: 2, borderColor: light.ink, backgroundColor: light.paper });
 });
 
+it('turns the Flash label ink when flash is on, and back to muted when it is off', async () => {
+  const user = await openAdd();
+  const color = () => StyleSheet.flatten(screen.getByText(cam.flash).props.style).color;
+  expect(color()).toBe(light.muted);
+  await user.press(screen.getByRole('button', { name: cam.flash }));
+  expect(color()).toBe(light.ink);
+  await user.press(screen.getByRole('button', { name: cam.flash }));
+  expect(color()).toBe(light.muted);
+});
+
 it('asks for the camera when Add opens, so the first press of the shutter has a camera', async () => {
   mockCamera.permission = { granted: false, canAskAgain: true, expires: 'never', status: 'undetermined' };
   await openAdd();

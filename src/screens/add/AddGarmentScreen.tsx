@@ -232,7 +232,7 @@ export function AddGarmentScreen() {
               style={styles.side}
             >
               <Flash color={flash ? light.ink : light.muted} size={19} />
-              <Text style={[styles.sideLabel, false]}>{cam.flash}</Text>
+              <Text style={[styles.sideLabel, flash && styles.sideOn]}>{cam.flash}</Text>
             </Pressable>
           </View>
         </View>
