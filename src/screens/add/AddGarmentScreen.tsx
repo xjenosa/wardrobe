@@ -45,7 +45,7 @@ export function AddGarmentScreen() {
   const [lastAsk, setLastAsk] = useState<'camera' | 'library'>('camera');
   const [saveFailed, setSaveFailed] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const saved = useRef(false);
   const pressed = useRef(false);
   const tagGen = useRef(0);
   const garment = garmentOf(id, values);
@@ -55,9 +55,9 @@ export function AddGarmentScreen() {
 
   useEffect(() => {
     return () => {
-      if (!saved) removeGarmentPhoto(id);
+      if (!saved.current) removeGarmentPhoto(id);
     };
-  }, [id, saved]);
+  }, [id]);
 
   useEffect(() => {
     if (step.kind !== 'confirm') return;
@@ -156,7 +156,7 @@ export function AddGarmentScreen() {
     const withPhoto = photo ? { ...garment, photo } : garment;
     const result = await updateCloset((garments) => (garments.some((g) => g.id === withPhoto.id) ? garments : [...garments, withPhoto]));
     if (result.ok) {
-      setSaved(true);
+      saved.current = true;
       navigation.goBack();
     } else {
       pressed.current = false;

@@ -225,6 +225,20 @@ it('saves to the closet with its photograph and goes back', async () => {
   expect(onTop()).toBe('Tabs');
 });
 
+it('keeps the photograph on the phone after Save', async () => {
+  const user = await openAdd();
+  await openConfirmTagged(user);
+  let onDisk = true;
+  jest.spyOn(garmentPhoto, 'loadGarmentPhoto').mockImplementation(() => ({ ok: true, uri: onDisk ? PHOTO_URI : null }));
+  jest.spyOn(garmentPhoto, 'removeGarmentPhoto').mockImplementation(() => {
+    onDisk = false;
+    return { ok: true };
+  });
+  await user.press(saveButton());
+  expect(onTop()).toBe('Tabs');
+  expect(garmentPhoto.loadGarmentPhoto('any')).toEqual({ ok: true, uri: PHOTO_URI });
+});
+
 it('adds to the closet it finds and does not replace it', async () => {
   await resetCloset([{ id: 'g1', name: 'Navy overcoat', category: 'Outerwear', warmth: 'Warmest' }]);
   const user = await openAdd();
