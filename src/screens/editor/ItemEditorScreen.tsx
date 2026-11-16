@@ -138,18 +138,16 @@ export function ItemEditorScreen() {
     pressed.current = true;
     setSaving(true);
     setFailed(false);
-    /* Start from the saved garment inside updateCloset so phone-only fields
-       stay, and a cleared style or warmth still clears (store.ts). */
+    /* Start from the saved garment inside updateCloset, so a field added later
+       survives every save, and lay the form's fields over it. A style or warmth
+       the form cleared is dropped (store.ts). */
     const result = await updateCloset((garments) =>
       garments.map((g) => {
         if (g.id !== id) return g;
-        /* Form fields from the edit; phone-only fields from what was saved. */
-        return {
-          ...edited,
-          ...(g.photo !== undefined ? { photo: g.photo } : {}),
-          ...(g.favourite !== undefined ? { favourite: g.favourite } : {}),
-          ...(g.cutOut !== undefined ? { cutOut: g.cutOut } : {}),
-        };
+        const next: Garment = { ...g, ...edited };
+        if (!edited.style) delete next.style;
+        if (!edited.warmth) delete next.warmth;
+        return next;
       }),
     );
     if (result.ok) {
