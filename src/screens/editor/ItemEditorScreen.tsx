@@ -1,8 +1,9 @@
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { Button, Notice, ScreenHeader } from '../../kit';
+import { Button, Notice, PhotoMark, ScreenHeader } from '../../kit';
+import { loadGarmentPhoto } from '../../lib/garmentPhoto';
 import type { RootStackParamList } from '../../nav/routes';
 import { loadCloset, updateCloset, type Garment, type LoadFailure } from '../../lib/store';
 import { loadWears, wornOf, type Worn } from '../../lib/wears';
@@ -30,9 +31,10 @@ type Loaded =
   | { state: 'failed'; failure: LoadFailure }
   | { state: 'ready'; garment: Garment | undefined };
 
-/* Fig 19, page one's fields. The cut-out and the photograph (Fig 19b) wait
-   for the garment to carry a picture. "Worn n times · last on …" comes from
-   the wear log on the phone (ADR 0023).
+/* Fig 19 and Fig 19b. One picture: the photograph with its Photo mark, or an
+   empty frame like GarmentTile when there is none. Nothing makes cut-outs yet,
+   so there is no second page to swipe to. "Worn n
+   times · last on …" comes from the wear log (ADR 0023).
 
    CLOSE DISCARDS AN UNSAVED EDIT, AND NOTHING ASKS (docs/States.md). Save is
    the only way to keep a change. Every other way out, Close, the back gesture
@@ -101,13 +103,29 @@ export function ItemEditorScreen() {
   const dirty = !!values && !!original && !sameValues(values, original);
   const edited = values && garmentOf(id, values);
   const wornText = worn && worn.times > 0 && worn.lastDay ? wornLine(worn.times, worn.lastDay) : undefined;
+  const photoUri = garment ? (() => {
+    const found = loadGarmentPhoto(id);
+    return found.ok ? found.uri : null;
+  })() : null;
+  const hasPhoto = Boolean(garment?.photo && photoUri);
 
   async function save() {
     if (!edited || pressed.current) return;
     pressed.current = true;
     setSaving(true);
     setFailed(false);
-    const result = await updateCloset((garments) => garments.map((g) => (g.id === id ? edited : g)));
+    /* Start from the saved garment inside updateCloset, so a field added later
+       survives every save, and lay the form's fields over it. A style or warmth
+       the form cleared is dropped (store.ts). */
+    const result = await updateCloset((garments) =>
+      garments.map((g) => {
+        if (g.id !== id) return g;
+        const next: Garment = { ...g, ...edited };
+        if (!edited.style) delete next.style;
+        if (!edited.warmth) delete next.warmth;
+        return next;
+      }),
+    );
     if (result.ok) {
       navigation.goBack();
     } else {
@@ -124,10 +142,25 @@ export function ItemEditorScreen() {
       </View>
       <ScrollView contentContainerStyle={formStyles.body} keyboardShouldPersistTaps="handled">
         {loaded.state === 'loading' && <FormSkeleton />}
-        {loaded.state === 'failed' && (
-          <Notice text={capture.closetUnreadable} action={capture.tryAgain} onPress={retry} />
-        )}
+        {loaded.state === 'failed' && <Notice text={capture.closetUnreadable} action={capture.tryAgain} onPress={retry} />}
         {loaded.state === 'ready' && !garment && <Text style={formStyles.note}>{capture.notInCloset}</Text>}
+        {garment ? (
+          <View style={[styles.pic, hasPhoto && styles.picPhoto]} testID="editor-pics">
+            {hasPhoto ? (
+              <>
+                <Image
+                  source={{ uri: photoUri! }}
+                  style={styles.photo}
+                  accessibilityLabel={t.yourPhotograph}
+                  accessibilityIgnoresInvertColors
+                />
+                <PhotoMark style={styles.markPad} />
+              </>
+            ) : (
+              <View style={styles.picEmpty} testID="editor-pic-empty" />
+            )}
+          </View>
+        ) : null}
         {garment && values && <GarmentForm values={values} onChange={setValues} />}
         {garment && wearsFailed ? (
           <Notice text={capture.wearsUnreadable} action={capture.tryAgain} onPress={applyWears} style={styles.wearNotice} />
@@ -147,8 +180,6 @@ export function ItemEditorScreen() {
   );
 }
 
-/* Fig 19's wear line: the Refresh icon, then "Worn n times · last on …" with
-   the count in ink as the plate bolds it. */
 function WornLine({ text, times }: { text: string; times: number }) {
   const count = String(times);
   const at = text.indexOf(count);
@@ -168,6 +199,22 @@ function WornLine({ text, times }: { text: string; times: number }) {
 
 const styles = StyleSheet.create({
   head: { paddingHorizontal: 24, paddingTop: 8 },
+  pic: {
+    height: 220,
+    marginHorizontal: -24,
+    marginTop: -20,
+    marginBottom: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    backgroundColor: light.renderA,
+  },
+  picPhoto: {
+    experimental_backgroundImage: `linear-gradient(155deg, ${light.photoGround} 0%, ${light.photoShade} 100%)`,
+  },
+  photo: { width: '72%', height: '100%', resizeMode: 'contain' },
+  picEmpty: { width: '72%', height: '100%', backgroundColor: light.field },
+  markPad: { bottom: 16, left: 16 },
   worn: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4, marginBottom: 16, marginHorizontal: 4 },
   wornText: { flexShrink: 1, fontFamily: font.regular, fontSize: 12, lineHeight: 12, color: light.muted },
   wornCount: { fontFamily: font.medium, color: light.ink, fontVariant: ['tabular-nums'] },
