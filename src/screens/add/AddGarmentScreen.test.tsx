@@ -12,26 +12,15 @@ import { capture } from '../../strings/capture';
 import { drawn } from '../../strings/drawn';
 import { screens } from '../../strings/screens';
 
-const mockTakePictureAsync = jest.fn();
-const mockRequestPermission = jest.fn();
-const GRANTED = { granted: true, canAskAgain: true, expires: 'never', status: 'granted' };
-let mockPermission = GRANTED;
-
-jest.mock('expo-camera', () => {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports -- jest.mock factory runs before imports
-  const React = require('react') as typeof import('react');
-  // eslint-disable-next-line @typescript-eslint/no-require-imports -- jest.mock factory runs before imports
-  const { View } = require('react-native') as typeof import('react-native');
-  const CameraView = React.forwardRef((_props: object, ref: React.Ref<{ takePictureAsync: typeof mockTakePictureAsync }>) => {
-    React.useImperativeHandle(ref, () => ({ takePictureAsync: mockTakePictureAsync }));
-    return <View testID="camera-view" />;
-  });
-  CameraView.displayName = 'CameraView';
-  return {
-    CameraView,
-    useCameraPermissions: () => [mockPermission, mockRequestPermission, jest.fn()],
+type Permission = { granted: boolean; canAskAgain: boolean; expires: string; status: string };
+const { mockCamera } = jest.requireMock('expo-camera') as {
+  mockCamera: {
+    granted: Permission;
+    permission: Permission;
+    requestPermission: jest.Mock;
+    takePictureAsync: jest.Mock;
   };
-});
+};
 
 jest.mock('expo-image-picker', () => ({
   requestCameraPermissionsAsync: jest.fn(),
@@ -97,9 +86,9 @@ const onTop = () => {
 
 beforeEach(async () => {
   jest.restoreAllMocks();
-  mockTakePictureAsync.mockReset();
-  mockPermission = GRANTED;
-  mockRequestPermission.mockReset().mockResolvedValue(GRANTED);
+  mockCamera.takePictureAsync.mockReset();
+  mockCamera.permission = mockCamera.granted;
+  mockCamera.requestPermission.mockReset().mockResolvedValue(mockCamera.granted);
   await AsyncStorage.clear();
   picker.requestCameraPermissionsAsync.mockResolvedValue({ granted: true } as ImagePicker.CameraPermissionResponse);
 });
@@ -113,22 +102,22 @@ it('opens on the capture plate, not the confirm form', async () => {
 });
 
 it('asks for the camera when Add opens, so the first press of the shutter has a camera', async () => {
-  mockPermission = { granted: false, canAskAgain: true, expires: 'never', status: 'undetermined' };
+  mockCamera.permission = { granted: false, canAskAgain: true, expires: 'never', status: 'undetermined' };
   await openAdd();
-  expect(mockRequestPermission).toHaveBeenCalledTimes(1);
+  expect(mockCamera.requestPermission).toHaveBeenCalledTimes(1);
 });
 
 it('says so when the camera is refused as Add opens', async () => {
-  mockPermission = { granted: false, canAskAgain: true, expires: 'never', status: 'undetermined' };
-  mockRequestPermission.mockResolvedValue({ ...mockPermission, status: 'denied' });
+  mockCamera.permission = { granted: false, canAskAgain: true, expires: 'never', status: 'undetermined' };
+  mockCamera.requestPermission.mockResolvedValue({ ...mockCamera.permission, granted: false, status: 'denied' });
   await openAdd();
   expect(await screen.findByText(capture.cameraRefused)).toBeOnTheScreen();
 });
 
 it('does not ask again while it is still refused', async () => {
-  mockPermission = { granted: false, canAskAgain: false, expires: 'never', status: 'denied' };
+  mockCamera.permission = { granted: false, canAskAgain: false, expires: 'never', status: 'denied' };
   await openAdd();
-  expect(mockRequestPermission).not.toHaveBeenCalled();
+  expect(mockCamera.requestPermission).not.toHaveBeenCalled();
 });
 
 it('starts tagging when the shutter fires, and shows the photograph while it reads', async () => {
@@ -138,7 +127,7 @@ it('starts tagging when the shutter fires, and shows the photograph while it rea
   const pending = new Promise<tagLib.TagResult>((resolve) => {
     finishTag = resolve;
   });
-  mockTakePictureAsync.mockResolvedValue({ uri: 'file:///cache/shot.jpg' });
+  mockCamera.takePictureAsync.mockResolvedValue({ uri: 'file:///cache/shot.jpg' });
   mockKeptPhoto();
   const tagSpy = jest.spyOn(tagLib, 'tag').mockReturnValue(pending);
 
