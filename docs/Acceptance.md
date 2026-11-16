@@ -79,7 +79,8 @@ photo kept.
 Phone-check in Expo Go with Figs 19 and 19b beside the app. Open a garment
 that carries a photograph and one that does not.
 
-- [ ] Two pages, swiped: the cut-out and your photograph.
+- [ ] One picture: your photograph with its Photo mark, or the empty frame. No
+      swipe until cut-outs exist (ADR 0028).
 - [ ] **A saved edit survives leaving the screen.** Close still discards an
       unsaved edit and asks nothing (docs/States.md).
 

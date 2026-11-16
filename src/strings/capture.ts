@@ -16,7 +16,9 @@ export const capture = {
   /* What happened; the buttons beside it say what to do. The phone may be out
      of space, so Try again alone is not enough (ADR 0022). */
   photoFailed: 'The photograph could not be kept. The phone may be out of space.',
-  viewfinder: 'Live viewfinder',
+  /* The two picture labels Fig 17 and Fig 17b draw. The failed and confirm
+     photographs below have no plate words: Fig 18 draws the cut-out only. */
+  viewfinder: 'The garment in the viewfinder',
   photographReading: 'The photograph, being read',
   photographFailed: 'Your photograph, still here',
   photographConfirm: 'The photograph',

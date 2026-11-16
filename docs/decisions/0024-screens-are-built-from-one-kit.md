@@ -101,3 +101,10 @@ moves, so a redraw cannot leave the kit drawing the last design.
 **PREMISE:** the plates draw the profile picture the same way on both
 screens, and only ever with no photo. If one draws it differently, or draws a
 photo in it, this is re-read.
+
+## The Photo mark joins, 2026-11-08
+
+**`PhotoMark` joins the kit.** The closet's tile (Fig 15) and the editor's
+picture (Fig 19b) both draw the small camera and "Photo" over an uncut
+photograph, so it is built once in `src/kit/PhotoMark.tsx`. Where it sits is
+the screen's to say. The premise above stands.
