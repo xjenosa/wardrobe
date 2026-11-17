@@ -51,7 +51,7 @@ photo kept.
       opens. Fig 17b is a wait that is already doing work.
 - [ ] The photograph is visible for the whole wait and is never discarded on
       failure.
-- [ ] Confirm shows what the app decided and lets every field be corrected
+- [x] Confirm shows what the app decided and lets every field be corrected
       before saving.
 
 ## Today, Figs 08, 08d, 08g, 09, 10b, 11 and 12
@@ -79,9 +79,9 @@ photo kept.
 Phone-check in Expo Go with Figs 19 and 19b beside the app. Open a garment
 that carries a photograph and one that does not.
 
-- [ ] One picture: your photograph with its Photo mark, or the empty frame. No
+- [x] One picture: your photograph with its Photo mark, or the empty frame. No
       swipe until cut-outs exist (ADR 0028).
-- [ ] **A saved edit survives leaving the screen.** Close still discards an
+- [x] **A saved edit survives leaving the screen.** Close still discards an
       unsaved edit and asks nothing (docs/States.md).
 
 ## You, Fig 23
