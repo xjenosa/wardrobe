@@ -140,27 +140,28 @@ export function ItemEditorScreen() {
       <View style={styles.head}>
         <ScreenHeader eyebrow={t.yourWardrobe} title={garment ? garment.name : screens.itemEditor} />
       </View>
-      <ScrollView contentContainerStyle={formStyles.body} keyboardShouldPersistTaps="handled">
+      {/* Fig 19 .drawer > .render: the picture stays at the top, outside the scroll, and shrinks to 96 so the fields stay in view. */}
+      {garment ? (
+        <View style={[styles.pics, hasPhoto && styles.picsPhoto]} testID="editor-pics">
+          {hasPhoto ? (
+            <>
+              <Image
+                source={{ uri: photoUri! }}
+                style={styles.photo}
+                accessibilityLabel={t.yourPhotograph}
+                accessibilityIgnoresInvertColors
+              />
+              <PhotoMark style={styles.markPad} />
+            </>
+          ) : (
+            <View style={styles.picEmpty} testID="editor-pic-empty" />
+          )}
+        </View>
+      ) : null}
+      <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
         {loaded.state === 'loading' && <FormSkeleton />}
         {loaded.state === 'failed' && <Notice text={capture.closetUnreadable} action={capture.tryAgain} onPress={retry} />}
         {loaded.state === 'ready' && !garment && <Text style={formStyles.note}>{capture.notInCloset}</Text>}
-        {garment ? (
-          <View style={[styles.pic, hasPhoto && styles.picPhoto]} testID="editor-pics">
-            {hasPhoto ? (
-              <>
-                <Image
-                  source={{ uri: photoUri! }}
-                  style={styles.photo}
-                  accessibilityLabel={t.yourPhotograph}
-                  accessibilityIgnoresInvertColors
-                />
-                <PhotoMark style={styles.markPad} />
-              </>
-            ) : (
-              <View style={styles.picEmpty} testID="editor-pic-empty" />
-            )}
-          </View>
-        ) : null}
         {garment && values && <GarmentForm values={values} onChange={setValues} />}
         {garment && wearsFailed ? (
           <Notice text={capture.wearsUnreadable} action={capture.tryAgain} onPress={applyWears} style={styles.wearNotice} />
@@ -199,21 +200,25 @@ function WornLine({ text, times }: { text: string; times: number }) {
 
 const styles = StyleSheet.create({
   head: { paddingHorizontal: 24, paddingTop: 8 },
-  pic: {
-    height: 220,
-    marginHorizontal: -24,
-    marginTop: -20,
-    marginBottom: 20,
+  /* Fig 19 .drawer-body: 20 sides and top, 8 bottom under the fields. */
+  body: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 8 },
+  pics: {
+    width: '100%',
+    aspectRatio: 0.8,
+    flexGrow: 0,
+    flexShrink: 1,
+    minHeight: 96,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 12,
-    backgroundColor: light.renderA,
+    overflow: 'hidden',
+    experimental_backgroundImage: `linear-gradient(178deg, ${light.renderA}, ${light.renderB})`,
   },
-  picPhoto: {
+  picsPhoto: {
     experimental_backgroundImage: `linear-gradient(155deg, ${light.photoGround} 0%, ${light.photoShade} 100%)`,
   },
-  photo: { width: '72%', height: '100%', resizeMode: 'contain' },
-  picEmpty: { width: '72%', height: '100%', backgroundColor: light.field },
+  photo: { width: '72%', height: '78%', resizeMode: 'contain' },
+  picEmpty: { width: '72%', height: '78%', backgroundColor: light.field },
   markPad: { bottom: 16, left: 16 },
   worn: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4, marginBottom: 16, marginHorizontal: 4 },
   wornText: { flexShrink: 1, fontFamily: font.regular, fontSize: 12, lineHeight: 12, color: light.muted },

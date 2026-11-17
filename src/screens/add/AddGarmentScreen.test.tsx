@@ -11,6 +11,7 @@ import { navigationRef, RootNavigator } from '../../nav/RootNavigator';
 import { capture } from '../../strings/capture';
 import { drawn } from '../../strings/drawn';
 import { screens } from '../../strings/screens';
+import { light } from '../../theme/tokens';
 
 type Permission = { granted: boolean; canAskAgain: boolean; expires: string; status: string };
 const { mockCamera } = jest.requireMock('expo-camera') as {
@@ -78,6 +79,8 @@ async function openConfirmByHand(user: Awaited<ReturnType<typeof openAdd>>) {
   return user;
 }
 
+/* The sparkle is the first stroke of the Sparkle icon, found in the drawn tree. */
+const hasSparkle = () => JSON.stringify(screen.toJSON()).includes('M12 3l1.8 4.6');
 const saveButton = () => screen.getByRole('button', { name: t.saveToCloset });
 const onTop = () => {
   const root = navigationRef.getRootState();
@@ -99,6 +102,35 @@ it('opens on the capture plate, not the confirm form', async () => {
   expect(screen.getByRole('button', { name: cam.upload })).toBeOnTheScreen();
   expect(screen.getByLabelText(capture.viewfinder)).toBeOnTheScreen();
   expect(screen.queryByLabelText(t.name)).not.toBeOnTheScreen();
+});
+
+it('draws the shutter as Fig 17 does: a 58 disc in a paper ring inside an ink ring', async () => {
+  await openAdd();
+  const ring = StyleSheet.flatten(screen.getByTestId('shutter-ring').props.style);
+  expect(ring).toMatchObject({ width: 70, height: 70, borderWidth: 2, borderColor: light.ink, backgroundColor: light.paper });
+});
+
+it('turns the Flash label ink when flash is on, and back to muted when it is off', async () => {
+  const user = await openAdd();
+  const color = () => StyleSheet.flatten(screen.getByText(cam.flash).props.style).color;
+  expect(color()).toBe(light.muted);
+  await user.press(screen.getByRole('button', { name: cam.flash }));
+  expect(color()).toBe(light.ink);
+  await user.press(screen.getByRole('button', { name: cam.flash }));
+  expect(color()).toBe(light.muted);
+});
+
+it('puts the sparkle before "Tagged by AI" and none before the by-hand note', async () => {
+  const user = await openAdd();
+  await openConfirmTagged(user);
+  expect(screen.getByText(t.taggedByAiFromYour)).toBeOnTheScreen();
+  expect(hasSparkle()).toBe(true);
+});
+
+it('has no sparkle when the garment is filled in by hand', async () => {
+  const user = await openAdd();
+  await openConfirmByHand(user);
+  expect(hasSparkle()).toBe(false);
 });
 
 it('asks for the camera when Add opens, so the first press of the shutter has a camera', async () => {

@@ -43,11 +43,15 @@ the running app.
 
 ## Add garment, Figs 17, 17b and 18
 
+Phone-check in Expo Go with `docs/design/mobile.html` Figs 17, 17b and 18
+beside the app. With no service address Add goes to the form by hand with the
+photo kept.
+
 - [ ] **Tagging starts when the shutter fires**, not when the confirm screen
       opens. Fig 17b is a wait that is already doing work.
 - [ ] The photograph is visible for the whole wait and is never discarded on
       failure.
-- [ ] Confirm shows what the app decided and lets every field be corrected
+- [x] Confirm shows what the app decided and lets every field be corrected
       before saving.
 
 ## Today, Figs 08, 08d, 08g, 09, 10b, 11 and 12
@@ -72,8 +76,13 @@ the running app.
 
 ## Item editor, Figs 19 and 19b
 
-- [ ] One picture: your photograph with its Photo mark, or the empty frame. No swipe until cut-outs exist (ADR 0028).
-- [ ] An edit survives leaving the screen.
+Phone-check in Expo Go with Figs 19 and 19b beside the app. Open a garment
+that carries a photograph and one that does not.
+
+- [x] One picture: your photograph with its Photo mark, or the empty frame. No
+      swipe until cut-outs exist (ADR 0028).
+- [x] **A saved edit survives leaving the screen.** Close still discards an
+      unsaved edit and asks nothing (docs/States.md).
 
 ## You, Fig 23
 
